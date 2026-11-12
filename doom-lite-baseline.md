@@ -8,14 +8,14 @@ Taken before P1, in the worktree `/opt/minh/doom-lite-wt/SETUP` on branch `setup
 |---|---|
 | `doom sync` (fresh `.local`) | exit 0, 3m21s wall |
 | Package build dirs (`ls .local/straight/build-31.1 \| wc -l`) | 79 (the live install also has 79) |
-| `doom doctor` | 1 warning (zig not found, ghostel; harmless), 37 modules, 90 packages declared |
+| `doom doctor` | 1 warning (zig not found, ghostel; harmless), 37 modules, 90 packages declared. Plus three expected notices: non-standard install location; another Emacs config at `~/.config/emacs`; "two private configs" (`~/.config/doom/` and `config/`). That last one is a false alarm here: `doom-user-dir` is `config/` in the smoke output |
 | Init time, daemon, 2nd start (warm) | `emacs-init-time` 0.166 s, `doom-init-time` 0.191 s; 1st start 0.156 / 0.181 s (both after native-comp from sync) |
 | `features` after smoke | 375 |
 | `*Warnings*` / `*Messages*` errors | none / none |
 | `SPC SPC` · `SPC p p` · `SPC b b` · `SPC /` · `SPC g g` | `m/find-file` · `projectile-switch-project` · `+vertico/switch-workspace-buffer` · `+default/search-project` · `gis/magit-status-or-status` |
 | `Foo.java` / `main.go` | `java-ts-mode` / `go-ts-mode`, no errors |
 
-Isolation: mtimes of `~/.local/share/doom`, `~/.config/emacs/.local` and `/run/user/$UID/emacs` were snapshotted before and after; nothing changed except the socket directory's own mtime (named sockets `doom-lite-setup`/`doom-lite-probe` created and removed; live `server` socket untouched). linux-config's working tree was not touched.
+Isolation: mtimes of `~/.local/share/doom`, `~/.config/emacs/.local` and `/run/user/$UID/emacs` were snapshotted before and after; nothing changed except the socket directory's own mtime (named sockets `doom-lite-setup`/`doom-lite-probe` created and removed; live `server` socket untouched). SETUP made no change to linux-config; `configs/claude/settings.json` there showed as modified during the run, from another session, not SETUP.
 
 Found during SETUP: a fresh `.local` has no tree-sitter grammars, and opening a Go/Java file then blocks the daemon on a y-or-n-p (see Workspace in `doom-lite-plan.md`). The grammars were copied from `~/.config/emacs/.local/etc/tree-sitter/` (doxygen, go, java, json, yaml) before these numbers were taken.
 
