@@ -24,7 +24,7 @@ This plan lives at the root of the fork repo (`doom-lite-plan.md`).
 - A phase's fork and config edits are two separate stacea calls on the same branch and PR.
 - Each worker works in its own git worktree of the fork, `/opt/minh/doom-lite-wt/<KEY>`; the main checkout `/opt/minh/doom-lite` stays on `master`. Each worktree has its own `.local` and needs its own first `doom sync`.
 - A phase never edits the `doom+` submodule (until P1 removes it).
-- The user's interactive pass gates every merge.
+- The conductor reviews and merges each phase PR; the interactive list in Verification is the user's optional check after merge.
 - Global invariants:
   - Keep the `map!`, `add-hook!`, `cmd!`, `define-key!`, `custom-set-faces!` and `after!` APIs.
   - Keep `doom-real-buffer-p`, `doom-font`, `doom-theme`, `doom-cache-dir` and `doom-escape-hook`.
@@ -40,7 +40,7 @@ The fork has no tests today. Tests are ERT (built in), live in `tests/`, and run
 - **Each phase adds unit tests for the code it writes.** The per-phase lists below are the minimum.
 - **Old behavior first.** When a phase replaces the implementation behind an API that is kept (`map!`, `doom-project-root`, `set-popup-rule!`), its first commit adds tests that pass against the old implementation, and the rewrite must pass the same tests unchanged. A test that has to change records a deliberate behavior change, and the PR description says so.
 - Tests use temp directories and temp keymaps, and never read `~/.config`, the user's config or the network.
-- Not covered by tests: how things look (popup placement, startup buffer, which-key labels, terminals). Those stay in the user's interactive pass.
+- Not covered by tests: how things look (popup placement, startup buffer, which-key labels, terminals). Those stay in the user's optional interactive check.
 
 ## Workspace (isolation from the live Emacs)
 The live install (`~/.config/emacs`, its `.local`, and `~/.config/doom` → `/opt/minh/linux-config/configs/dotfiles/emacs/doom-emacs`) is never edited or synced during the fork work, so the daily Emacs keeps working.
@@ -152,12 +152,14 @@ Apart from the removed `doom upgrade`, this phase changes no behavior.
 - Remove dashboard references from other modules (`grep -rn "dashboard" modules lisp`).
 
 **Config:**
-- Drop `dashboard` from `:ui` in `init.el`.
+- Drop `dashboard` from `:ui` in `init.el` only; the `:minh dashboard` module stays and is rewritten below.
 - Rewrite `minh/dashboard/config.el` as a self-contained startup buffer with no `+dashboard-*` calls:
   - a local `m--insert-centered` helper
   - banner, then `emacs-init-time` plus the package count, then the calendar
   - shown via `initial-buffer-choice`, which also covers emacsclient frames
   - mode line hidden and `hl-line` off in that buffer
+
+**Tests:** `m--insert-centered` centres with `:align-to center` using `string-width`; the startup buffer's name, mode, hidden mode line, hl-line off, contents (banner, package count line, current month), and rebuilding without duplication; `doom-fallback-buffer-name` is `*scratch*`.
 
 ## P4 — Built-in duplicates, Emacs 31 floor, dead code
 - **Stop building ELPA copies of built-ins.** These are: eglot, eldoc, flymake, jsonrpc, project, xref, seq, external-completion, transient, use-package, bind-key, compat.
@@ -336,7 +338,7 @@ Decided after S1 (`docs/handoff/S1.md`): no package.el or package-vc. `doom sync
 - This phase gets its own plan pass before stacea, because the scope only becomes concrete after P1–P10.
 
 ## Verification (every phase)
-All commands run through `bin/lite` (see Workspace). stacea cannot press keys, so everything it runs is scripted; the interactive pass is the user's.
+All commands run through `bin/lite` (see Workspace). stacea cannot press keys, so everything it runs is scripted; the interactive list is the user's optional check after merge.
 
 Scripted (stacea runs these):
 - `tests/run.sh` passes, including the unit tests the phase adds.
@@ -351,7 +353,7 @@ Scripted (stacea runs these):
 - Config phases: the config's ERT suite (`tests/unit/minh-tests.el`, ported in P1) passes as part of `tests/run.sh`.
 - Grep for the symbols the phase removed (`grep -rn "<prefix>" lisp modules` and the config) returns only intentional hits.
 
-Interactive (user, before a phase is merged): `SPC SPC`, `SPC p p`, `SPC b b`, `SPC /`, magit status, eglot in one Java and one Go project, a ghostel terminal, and a `bin/lite client -c` frame.
+Interactive (the user's optional check after merge; the conductor reviews and merges): `SPC SPC`, `SPC p p`, `SPC b b`, `SPC /`, magit status, eglot in one Java and one Go project, a ghostel terminal, and a `bin/lite client -c` frame.
 
 Phase-specific checks:
 - **P1:** the undefined-autodef loop prints nothing unexpected. `bin/doom upgrade` is gone.
