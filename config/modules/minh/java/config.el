@@ -56,12 +56,6 @@
   (cl-defmethod eglot-initialization-options (server &context (major-mode java-ts-mode))
     (jdtls-initialization-options))
 
-  (cl-defmethod +eglot/workspace-configuration (server &context (major-mode java-mode))
-    (plist-get (jdtls-initialization-options) :settings))
-
-  (cl-defmethod +eglot/workspace-configuration (server &context (major-mode java-ts-mode))
-    (plist-get (jdtls-initialization-options) :settings))
-
   ;; ----------------------- Support URI jdt:// protocol -----------------------
   (defun +java/eglot-find-jdt-server ()
     (let ((filter-fn (lambda (server)
