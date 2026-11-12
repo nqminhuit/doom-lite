@@ -19,8 +19,8 @@ Set `doom-lite`, conductor `doom-lite-conductor`. Executes `doom-lite-plan.md`. 
 |---|---|---|---|---|
 | SETUP | merged (`7e15dfb`); session removed; worktree and local branch deleted by SETUP itself | [#1](https://github.com/nqminhuit/doom-lite/pull/1) | – | – |
 | S1 | done, session removed (findings and decisions in `docs/handoff/S1.md`) | – | – | user chose A: P11 uses the fallback backend (clone at pin, load-path, autoloads, no package.el). ghostel: download-only (`ghostel-module-auto-install` `'download`, `ghostel-module-directory` outside the package tree; zig compile unsupported). Findings go into P11 after SETUP merges |
-| P1 | PR ready, all scripted checks green (worktree `/opt/minh/doom-lite-wt/P1`, branch `p1-vendor-modules`) | [#2](https://github.com/nqminhuit/doom-lite/pull/2) | user's interactive pass | user: interactive pass in the P1 worktree via `bin/lite`, then merge. Also vendored `modules/.doommodules` (needed for autodefs). Deviations for the PR: `static/` kept (install/sync read it); `set-debug-var!` is live, calls kept; `SPC h d` manual commands lose targets until P10; shellcheck/bats may not run |
-| P2 | waiting on P1 | – | P1 merged; S1 finished | – |
+| P1 | merged (`f3c34b1`) after user's pass | [#2](https://github.com/nqminhuit/doom-lite/pull/2) | – | user: remove P1 session, worktree `/opt/minh/doom-lite-wt/P1` (kept for P2's `.local`) and remote branch? Kept from plan: `static/`, `set-debug-var!`; `SPC h d` manual commands have no targets until P10 |
+| P2 | started (worktree `/opt/minh/doom-lite-wt/P2`) | – | – | popup → `display-buffer-alist` shim, old-behavior tests first |
 | P3 | waiting on P2 | – | P2 merged | – |
 | P4 | waiting on P3 | – | P3 merged | – |
 | P5 | waiting on P4 | – | P4 merged | – |
