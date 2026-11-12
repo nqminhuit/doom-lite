@@ -15,7 +15,7 @@ Set `doom-lite`, conductor `doom-lite-conductor`. Executes `doom-lite-plan.md`. 
 | Key | State | PR | Blocker | Next |
 |---|---|---|---|---|
 | SETUP | running (branch `setup-config-and-baseline`) | – | PR diff includes `bdc7b85` until local `master` is pushed | submodule, copy config, sync, baseline, plan edits |
-| S1 | done (findings and decision in `docs/handoff/S1.md`) | – | – | user chose A: P11 uses the fallback backend (clone at pin, load-path, autoloads, no package.el). Open: zig ≥ 0.17.0 to test ghostel compile, or download-only. Findings go into P11 after SETUP merges |
+| S1 | done (findings and decision in `docs/handoff/S1.md`) | – | – | user chose A: P11 uses the fallback backend (clone at pin, load-path, autoloads, no package.el). ghostel: download-only (`ghostel-module-auto-install` `'download`, `ghostel-module-directory` outside the package tree; zig compile unsupported). Findings go into P11 after SETUP merges |
 | P1 | waiting on SETUP | – | SETUP PR merged into `master` | brief must say: edit `.gitignore` (`/modules/*/` ignores vendored modules; only `!/modules/doom/` is excepted) |
 | P2 | waiting on P1 | – | P1 merged; S1 finished | – |
 | P3 | waiting on P2 | – | P2 merged | – |
