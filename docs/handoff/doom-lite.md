@@ -17,9 +17,9 @@ Set `doom-lite`, conductor `doom-lite-conductor`. Executes `doom-lite-plan.md`. 
 
 | Key | State | PR | Blocker | Next |
 |---|---|---|---|---|
-| SETUP | merged (`7e15dfb`) | [#1](https://github.com/nqminhuit/doom-lite/pull/1) | – | user: remove SETUP session and its worktree `/opt/minh/doom-lite-wt/SETUP`? |
+| SETUP | merged (`7e15dfb`); session removed; worktree and local branch deleted by SETUP itself | [#1](https://github.com/nqminhuit/doom-lite/pull/1) | – | – |
 | S1 | done, session removed (findings and decisions in `docs/handoff/S1.md`) | – | – | user chose A: P11 uses the fallback backend (clone at pin, load-path, autoloads, no package.el). ghostel: download-only (`ghostel-module-auto-install` `'download`, `ghostel-module-directory` outside the package tree; zig compile unsupported). Findings go into P11 after SETUP merges |
-| P1 | started (worktree `/opt/minh/doom-lite-wt/P1`) | – | – | vendor modules, `bin/lite`, tests, cut upstream tie |
+| P1 | running (worktree `/opt/minh/doom-lite-wt/P1`, branch `p1-vendor-modules`) | – | – | gather facts, then plan to stacea; fresh `doom sync` |
 | P2 | waiting on P1 | – | P1 merged; S1 finished | – |
 | P3 | waiting on P2 | – | P2 merged | – |
 | P4 | waiting on P3 | – | P3 merged | – |

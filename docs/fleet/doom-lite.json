@@ -11,10 +11,6 @@
       "stop": "Bring the board up to date and write the Conductor handoff section, then stop."
     },
     {
-      "name": "SETUP",
-      "start": "Read docs/handoff/SETUP.md first (Conductor brief), then doom-lite-plan.md, then do the SETUP task in your own worktree and report STATUS lines to doom-lite-conductor."
-    },
-    {
       "name": "P1",
       "start": "Read docs/handoff/P1.md first (Conductor brief), then doom-lite-plan.md, then do phase P1 in your own worktree and report STATUS lines to doom-lite-conductor."
     }
