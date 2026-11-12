@@ -22,7 +22,12 @@
 (package! nerd-icons :pin "17faac7977242b470732efd417d3bcc8eb5a830e")
 
 ;; doom-projects.el
-(package! project :pin "ffb38d7798d86c7fa6623db0f64b461abb6572c2")
+(package! project :built-in t)
+
+;; Built into Emacs 31; declared so straight doesn't pull ELPA copies as deps.
+(package! eldoc :built-in t)
+(package! seq :built-in t)
+(package! external-completion :built-in t)
 
 ;; doom-keybinds.el
 (package! which-key

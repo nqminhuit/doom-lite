@@ -3,9 +3,9 @@
 
 (if (modulep! +eglot)
     (progn
-      (package! eglot :pin "28884319c6326adc6dd02ecfee4f5a64e6aa6d29")
-      (package! jsonrpc :pin "d8143c52679eaeebcca26dd41e015dc73d167b49")
-      (package! xref :pin "9d7789ab2d66eba7beaa350cdccfa5f318a98acf")  ; needed by eglot
+      (package! eglot :built-in t)
+      (package! jsonrpc :built-in t)
+      (package! xref :built-in t)
       (when (modulep! :completion vertico)
         (package! consult-eglot :pin "3e4d9a40911b897c0a2c5d20199d0f7c30bfc1c2"))
       ;; DEPRECATED: Remove when 29 support is dropped
