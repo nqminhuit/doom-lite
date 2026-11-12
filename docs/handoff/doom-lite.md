@@ -14,9 +14,9 @@ Set `doom-lite`, conductor `doom-lite-conductor`. Executes `doom-lite-plan.md`. 
 
 | Key | State | PR | Blocker | Next |
 |---|---|---|---|---|
-| SETUP | started | – | – | submodule, copy config, adapt plan doc, sync, baseline |
-| S1 | started | – | – | package-vc spike in scratch dir |
-| P1 | waiting on SETUP | – | SETUP PR merged into `master` | – |
+| SETUP | running (branch `setup-config-and-baseline`) | – | PR diff includes `bdc7b85` until local `master` is pushed | submodule, copy config, sync, baseline, plan edits |
+| S1 | done (findings in `docs/handoff/S1.md`) | – | – | user picks A (fallback clone/load-path/autoloads backend, S1 recommends) or B (package-vc with conditions), and zig ≥ 0.17.0 vs download-only for ghostel; findings go into P11 after SETUP merges |
+| P1 | waiting on SETUP | – | SETUP PR merged into `master` | brief must say: edit `.gitignore` (`/modules/*/` ignores vendored modules; only `!/modules/doom/` is excepted) |
 | P2 | waiting on P1 | – | P1 merged; S1 finished | – |
 | P3 | waiting on P2 | – | P2 merged | – |
 | P4 | waiting on P3 | – | P3 merged | – |
