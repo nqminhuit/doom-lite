@@ -9,11 +9,7 @@ If prefix ARG is set, prompt for a directory to search from."
           (if arg
               (read-directory-name "Search directory: ")
             default-directory)))
-    (call-interactively
-     (cond ((modulep! :completion ivy)     #'+ivy/project-search-from-cwd)
-           ((modulep! :completion helm)    #'+helm/project-search-from-cwd)
-           ((modulep! :completion vertico) #'+vertico/project-search-from-cwd)
-           (#'rgrep)))))
+    (call-interactively #'+vertico/project-search-from-cwd)))
 
 ;;;###autoload
 (defun +default/search-other-cwd ()
@@ -26,11 +22,7 @@ If prefix ARG is set, prompt for a directory to search from."
   "Conduct a text search in files under `doom-emacs-dir'."
   (interactive)
   (dlet ((default-directory doom-emacs-dir))
-    (call-interactively
-     (cond ((modulep! :completion ivy)     #'+ivy/project-search-from-cwd)
-           ((modulep! :completion helm)    #'+helm/project-search-from-cwd)
-           ((modulep! :completion vertico) #'+vertico/project-search-from-cwd)
-           (#'rgrep)))))
+    (call-interactively #'+vertico/project-search-from-cwd)))
 
 ;;;###autoload
 (defun +default/search-buffer ()
@@ -52,20 +44,13 @@ input and search the whole buffer for it."
         (deactivate-mark)
         (when multiline-p
           (narrow-to-region start end)))
-      (cond ((or (modulep! :completion helm)
-                 (modulep! :completion ivy))
-             (call-interactively
-              (if (and start end (not multiline-p))
-                  #'swiper-isearch-thing-at-point
-                #'swiper-isearch)))
-            ((modulep! :completion vertico)
-             (if (and start end (not multiline-p))
-                 (consult-line
-                  (replace-regexp-in-string
-                   " " "\\\\ "
-                   (regexp-quote
-                    (buffer-substring-no-properties start end))))
-               (call-interactively #'consult-line)))))))
+      (if (and start end (not multiline-p))
+          (consult-line
+           (replace-regexp-in-string
+            " " "\\\\ "
+            (regexp-quote
+             (buffer-substring-no-properties start end))))
+        (call-interactively #'consult-line)))))
 
 ;;;###autoload
 (defun +default/search-project (&optional arg)
@@ -81,11 +66,7 @@ If prefix ARG is set, include ignored/hidden files."
                    (completing-read "Search project: " projects nil t)
                  (user-error "There are no known projects"))
              default-directory)))
-    (call-interactively
-     (cond ((modulep! :completion ivy)     #'+ivy/project-search)
-           ((modulep! :completion helm)    #'+helm/project-search)
-           ((modulep! :completion vertico) #'+vertico/project-search)
-           (#'projectile-ripgrep)))))
+    (call-interactively #'+vertico/project-search)))
 
 ;;;###autoload
 (defun +default/search-other-project ()
@@ -105,13 +86,7 @@ If prefix ARG is set, prompt for a known project to search from."
                    (completing-read "Search project: " projects nil t)
                  (user-error "There are no known projects"))
              (doom-project-root default-directory)))))
-  (cond ((modulep! :completion ivy)
-         (+ivy/project-search nil symbol dir))
-        ((modulep! :completion helm)
-         (+helm/project-search nil symbol dir))
-        ((modulep! :completion vertico)
-         (+vertico/project-search nil symbol dir))
-        ((rgrep (regexp-quote symbol)))))
+  (+vertico/project-search nil symbol dir))
 
 ;;;###autoload
 (defun +default/search-notes-for-symbol-at-point (symbol)

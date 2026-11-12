@@ -52,22 +52,14 @@ generate `completing-read' candidates."
 ;;;###autoload
 (defun +default/diagnostics (&rest arg)
   "List diagnostics for the current buffer/project.
-If the vertico and lsp modules are active, list lsp diagnostics for the
+If the lsp module is active, list lsp diagnostics for the
 current project. Otherwise list them for the current buffer"
   (interactive)
-  (cond ((and (modulep! :completion vertico)
-              (modulep! :tools lsp)
+  (cond ((and (modulep! :tools lsp)
               (bound-and-true-p lsp-mode))
          (consult-lsp-diagnostics arg))
-        ((and (modulep! :checkers syntax)
-              (bound-and-true-p flycheck-mode))
-         (if (modulep! :completion vertico)
-             (consult-flycheck)
-           (flycheck-list-errors)))
         ((bound-and-true-p flymake-mode)
-         (if (modulep! :completion vertico)
-             (consult-flymake t)
-           (flymake-show-diagnostics-buffer)))
+         (consult-flymake t))
         (t
-         (user-error "No diagnostics backend detected. Enable flycheck or \
-flymake, or set up lsp-mode if applicable (see :lang lsp)"))))
+         (user-error "No diagnostics backend detected. Enable flymake, or \
+set up lsp-mode if applicable (see :lang lsp)"))))
