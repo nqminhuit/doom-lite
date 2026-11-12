@@ -1,11 +1,6 @@
 ;; -*- lexical-binding: t; no-byte-compile: t; -*-
 ;;; completion/vertico/doctor.el
 
-(dolist (module '(ivy helm ido))
-  (when (doom-module-active-p :completion module)
-    (error! "This module is incompatible with :completion %s; disable one or the other"
-            module)))
-
 (when (require 'consult nil t)
   (if (executable-find "rg")
       ;; TODO: Move this to core in v3.0

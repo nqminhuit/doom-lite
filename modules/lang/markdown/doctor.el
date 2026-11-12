@@ -1,10 +1,6 @@
 ;; -*- lexical-binding: t; no-byte-compile: t; -*-
 ;;; lang/markdown/doctor.el
 
-(assert! (or (not (modulep! +tree-sitter))
-             (modulep! :tools tree-sitter))
-         "This module requires (:tools tree-sitter)")
-
 (when (require 'markdown-mode nil t)
   (cond ((eq markdown-command #'+markdown-compile)
          (unless (cl-loop for (exe . cmd) in (list (cons "marked" '+markdown-compile-marked)
@@ -20,9 +16,3 @@
            (unless (executable-find cmd)
              (warn! "Couldn't find %S. markdown-preview command won't work"
                     cmd))))))
-
-(when (modulep! +grip)
-  (unless (or (executable-find "mdopen")
-              (executable-find "go-grip")
-              (executable-find "grip"))
-    (warn! "Couldn't find the mdopen, go-grip or grip binaries. grip-mode will not work")))

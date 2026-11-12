@@ -8,8 +8,7 @@
   (set-lookup-handlers! mode
     :documentation #'godoc-at-point)
 
-  (when (modulep! +lsp)
-    (add-hook (intern (format "%s-local-vars-hook" mode)) #'lsp! 'append))
+  (add-hook (intern (format "%s-local-vars-hook" mode)) #'lsp! 'append)
 
   (map! :map ,(intern (format "%s-map" mode))
         :localleader
@@ -48,7 +47,6 @@
 
 
 (use-package! go-ts-mode  ; 29.1+ only
-  :when (modulep! +tree-sitter)
   :mode ("/go\\.mod\\'" . go-mod-ts-mode-maybe)
   :init
   (set-tree-sitter! 'go-mode 'go-ts-mode 'go)
@@ -62,9 +60,3 @@
 
 (use-package! gorepl-mode
   :commands gorepl-run-load-current-file)
-
-
-(use-package! flycheck-golangci-lint
-  :when (modulep! :checkers syntax -flymake)
-  :hook (go-mode . flycheck-golangci-lint-setup)
-  :hook (go-ts-mode . flycheck-golangci-lint-setup))

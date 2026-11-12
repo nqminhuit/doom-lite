@@ -7,57 +7,47 @@
 ;;   no border) that only take up half the horizontal space in the fringe. This
 ;;   approach lets us avoid robbing fringe space from other packages/modes that
 ;;   may need benefit from it (like magit, flycheck, or flyspell).
-(when (modulep! +pretty)
-  (if (fboundp 'fringe-mode) (fringe-mode '8))
-  (setq-default fringes-outside-margins t)
+(if (fboundp 'fringe-mode) (fringe-mode '8))
+(setq-default fringes-outside-margins t)
 
-  (defadvice! +vc-gutter-define-thin-bitmaps-a (&rest _)
-    :after #'diff-hl-define-bitmaps
-    (let* ((scale (if (and (boundp 'text-scale-mode-amount)
-                           (numberp text-scale-mode-amount))
-                      (expt text-scale-mode-step text-scale-mode-amount)
-                    1))
-           (spacing (or (and (display-graphic-p) (default-value 'line-spacing)) 0))
-           (total-spacing (pcase spacing
-                            ((pred numberp) spacing)
-                            (`(,above . ,below) (+ above below))))
-           (h (+ (ceiling (* (frame-char-height) scale))
-                 (if (floatp total-spacing)
-                     (truncate (* (frame-char-height) total-spacing))
-                   total-spacing)))
-           (w (min (frame-parameter nil (intern (format "%s-fringe" diff-hl-side)))
-                   diff-hl-bmp-max-width))
-           (_ (if (zerop w) (setq w diff-hl-bmp-max-width))))
-      (define-fringe-bitmap 'diff-hl-bmp-middle
-        (make-vector
-         h (string-to-number (let ((half-w (1- (/ w 2))))
-                               (concat (make-string half-w ?1)
-                                       (make-string (- w half-w) ?0)))
-                             2))
-        nil nil 'center)))
-  (defun +vc-gutter-type-at-pos-fn (type _pos)
-    (if (eq type 'delete)
-        'diff-hl-bmp-delete
-      'diff-hl-bmp-middle))
-  (setq diff-hl-fringe-bmp-function #'+vc-gutter-type-at-pos-fn)
-  (setq diff-hl-draw-borders nil)
+(defadvice! +vc-gutter-define-thin-bitmaps-a (&rest _)
+  :after #'diff-hl-define-bitmaps
+  (let* ((scale (if (and (boundp 'text-scale-mode-amount)
+                         (numberp text-scale-mode-amount))
+                    (expt text-scale-mode-step text-scale-mode-amount)
+                  1))
+         (spacing (or (and (display-graphic-p) (default-value 'line-spacing)) 0))
+         (total-spacing (pcase spacing
+                          ((pred numberp) spacing)
+                          (`(,above . ,below) (+ above below))))
+         (h (+ (ceiling (* (frame-char-height) scale))
+               (if (floatp total-spacing)
+                   (truncate (* (frame-char-height) total-spacing))
+                 total-spacing)))
+         (w (min (frame-parameter nil (intern (format "%s-fringe" diff-hl-side)))
+                 diff-hl-bmp-max-width))
+         (_ (if (zerop w) (setq w diff-hl-bmp-max-width))))
+    (define-fringe-bitmap 'diff-hl-bmp-middle
+      (make-vector
+       h (string-to-number (let ((half-w (1- (/ w 2))))
+                             (concat (make-string half-w ?1)
+                                     (make-string (- w half-w) ?0)))
+                           2))
+      nil nil 'center)))
+(defun +vc-gutter-type-at-pos-fn (type _pos)
+  (if (eq type 'delete)
+      'diff-hl-bmp-delete
+    'diff-hl-bmp-middle))
+(setq diff-hl-fringe-bmp-function #'+vc-gutter-type-at-pos-fn)
+(setq diff-hl-draw-borders nil)
 
-  (after! diff-hl
-    (add-hook! '(diff-hl-mode-hook doom-load-theme-hook)
-      (defun +vc-gutter-make-diff-hl-faces-transparent-h ()
-        (mapc (doom-rpartial #'set-face-background nil)
-              '(diff-hl-insert
-                diff-hl-delete
-                diff-hl-change)))))
-
-  ;; FIX: To minimize overlap between flycheck indicators and diff-hl indicators
-  ;;   in the left fringe.
-  (after! flycheck
-    ;; Let diff-hl have left fringe, flycheck can have right fringe
-    (setq flycheck-indication-mode 'right-fringe)
-    ;; A non-descript, left-pointing arrow
-    (define-fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
-      [16 48 112 240 112 48 16] nil nil 'center)))
+(after! diff-hl
+  (add-hook! '(diff-hl-mode-hook doom-load-theme-hook)
+    (defun +vc-gutter-make-diff-hl-faces-transparent-h ()
+      (mapc (doom-rpartial #'set-face-background nil)
+            '(diff-hl-insert
+              diff-hl-delete
+              diff-hl-change)))))
 
 
 ;;
@@ -109,18 +99,17 @@ Respects `diff-hl-disable-on-remote'."
       (apply fn args)))
 
   ;; UX: Update diffs when it makes sense too, without being too slow
-  (when (modulep! :editor evil)
-    (map! :after diff-hl-show-hunk
-          :map diff-hl-show-hunk-map
-          :n "p" #'diff-hl-show-hunk-previous
-          :n "n" #'diff-hl-show-hunk-next
-          :n "c" #'diff-hl-show-hunk-copy-original-text
-          :n "r" #'diff-hl-show-hunk-revert-hunk
-          :n "[" #'diff-hl-show-hunk-previous
-          :n "]" #'diff-hl-show-hunk-next
-          :n "{" #'diff-hl-show-hunk-previous
-          :n "}" #'diff-hl-show-hunk-next
-          :n "S" #'diff-hl-show-hunk-stage-hunk))
+  (map! :after diff-hl-show-hunk
+        :map diff-hl-show-hunk-map
+        :n "p" #'diff-hl-show-hunk-previous
+        :n "n" #'diff-hl-show-hunk-next
+        :n "c" #'diff-hl-show-hunk-copy-original-text
+        :n "r" #'diff-hl-show-hunk-revert-hunk
+        :n "[" #'diff-hl-show-hunk-previous
+        :n "]" #'diff-hl-show-hunk-next
+        :n "{" #'diff-hl-show-hunk-previous
+        :n "}" #'diff-hl-show-hunk-next
+        :n "S" #'diff-hl-show-hunk-stage-hunk)
   ;; UX: Refresh gutter in the selected buffer on ESC, switching windows, or
   ;;   refocusing the frame.
   (defvar-local +vc-gutter--last-state nil)
@@ -141,8 +130,7 @@ Respects `diff-hl-disable-on-remote'."
                                                  vc-file-prop-obarray)))))))))
         (ignore (diff-hl-update)))))
   ;; UX: Update diff-hl when magit alters git state.
-  (when (modulep! :tools magit)
-    (add-hook 'magit-post-refresh-hook #'diff-hl-magit-post-refresh))
+  (add-hook 'magit-post-refresh-hook #'diff-hl-magit-post-refresh)
 
   ;; FIX: The revert popup consumes 50% of the frame, whether or not you're
   ;;   reverting 2 lines or 20. This resizes the popup to match its contents.
@@ -156,12 +144,11 @@ Respects `diff-hl-disable-on-remote'."
       (apply fn args)))
 
   ;; UX: Update diff-hl immediately upon exiting insert mode.
-  (when (modulep! :editor evil)
-    (add-hook! 'diff-hl-flydiff-mode-hook
-      (defun +vc-gutter-init-flydiff-mode-h ()
-        (if diff-hl-flydiff-mode
-            (add-hook 'evil-insert-state-exit-hook #'diff-hl-flydiff-update)
-          (remove-hook 'evil-insert-state-exit-hook #'diff-hl-flydiff-update)))))
+  (add-hook! 'diff-hl-flydiff-mode-hook
+    (defun +vc-gutter-init-flydiff-mode-h ()
+      (if diff-hl-flydiff-mode
+          (add-hook 'evil-insert-state-exit-hook #'diff-hl-flydiff-update)
+        (remove-hook 'evil-insert-state-exit-hook #'diff-hl-flydiff-update))))
 
   ;; FIX: Reverting a hunk causes the cursor to be moved to an unexpected place,
   ;;   often far from the target hunk.

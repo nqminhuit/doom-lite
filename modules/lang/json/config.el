@@ -6,10 +6,6 @@
   :config
   (set-electric! '(json-mode jsonc-mode) :chars '(?\n ?: ?{ ?}))
 
-  (when (modulep! +lsp)
-    (add-hook 'json-mode-local-vars-hook #'lsp! 'append)
-    (add-hook 'jsonc-mode-local-vars-hook #'lsp! 'append))
-
   (map! :after json-mode
         :map json-mode-map
         :localleader
@@ -23,20 +19,6 @@
 
 
 (use-package! json-ts-mode  ; 29.1+ only
-  :when (modulep! +tree-sitter)
   :defer t
   :init
-  (set-tree-sitter! 'json-mode 'json-ts-mode 'json)
-  :config
-  (when (modulep! +lsp)
-    (add-hook 'json-ts-mode-local-vars-hook #'lsp! 'append)))
-
-
-(use-package! counsel-jq
-  :when (modulep! :completion ivy)
-  :defer t
-  :init
-  (map! :after json-mode
-        :map json-mode-map
-        :localleader
-        "s" #'counsel-jq))
+  (set-tree-sitter! 'json-mode 'json-ts-mode 'json))

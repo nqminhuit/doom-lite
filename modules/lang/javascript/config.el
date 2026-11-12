@@ -11,8 +11,7 @@
 
 (defun +javascript-common-config (mode)
   (unless (eq mode 'nodejs-repl-mode)
-    (when (modulep! +lsp)
-      (add-hook (intern (format "%s-local-vars-hook" mode)) #'lsp! 'append)))
+    (add-hook (intern (format "%s-local-vars-hook" mode)) #'lsp! 'append))
 
   (if (not (memq mode '(typescript-mode typescript-ts-mode)))
       (set-docsets! mode "JavaScript"
@@ -29,25 +28,15 @@
   :mode ("\\.es6\\'" . js-mode)
   :mode ("\\.pac\\'" . js-mode)
   :init
-  (when (modulep! +tree-sitter)  ; 29.1+ only
-    (set-tree-sitter! 'js-mode 'js-ts-mode '(javascript jsdoc)))
+  (set-tree-sitter! 'js-mode 'js-ts-mode '(javascript jsdoc))
   :config
   (+javascript-common-config 'js-mode)
-  (when (modulep! +tree-sitter)
-    (+javascript-common-config 'js-ts-mode))
+  (+javascript-common-config 'js-ts-mode)
 
   (setq js-chain-indent t))
 
 
-(use-package! typescript-mode
-  :unless (modulep! +tree-sitter)
-  :mode "\\.[cm]?ts\\'"
-  :config
-  (+javascript-common-config 'typescript-mode))
-
-
 (use-package! typescript-ts-mode  ; 29.1+ only
-  :when (modulep! +tree-sitter)
   :mode "\\.[cm]?ts\\'"
   :mode ("\\.[tj]sx\\'" . tsx-ts-mode)
   :init

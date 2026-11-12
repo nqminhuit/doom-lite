@@ -15,29 +15,23 @@
 ;; `dumb-jump' to find what you want.
 
 (defvar +lookup-provider-url-alist
-  (append '(("Doom issues"       "https://github.com/orgs/doomemacs/projects/2/views/30?filterQuery=%s")
-            ("Google"            +lookup--online-backend-google "https://google.com/search?q=%s")
-            ("Google images"     "https://www.google.com/images?q=%s")
-            ("Google maps"       "https://maps.google.com/maps?q=%s")
-            ("Kagi"              "https://kagi.com/search?q=%s")
-            ("Project Gutenberg" "http://www.gutenberg.org/ebooks/search/?query=%s")
-            ("DuckDuckGo"        +lookup--online-backend-duckduckgo "https://duckduckgo.com/?q=%s")
-            ("DevDocs.io"        "https://devdocs.io/#q=%s")
-            ("StackOverflow"     "https://stackoverflow.com/search?q=%s")
-            ("StackExchange"     "https://stackexchange.com/search?q=%s")
-            ("Github"            "https://github.com/search?ref=simplesearch&q=%s")
-            ("Youtube"           "https://youtube.com/results?aq=f&oq=&search_query=%s")
-            ("Wolfram alpha"     "https://wolframalpha.com/input/?i=%s")
-            ("Wikipedia"         "https://wikipedia.org/search-redirect.php?language=en&go=Go&search=%s")
-            ("MDN"               "https://developer.mozilla.org/en-US/search?q=%s")
-            ("Internet archive"  "https://web.archive.org/web/*/%s")
-            ("Sourcegraph"       "https://sourcegraph.com/search?q=context:global+%s&patternType=literal"))
-          (when (modulep! +yandex)
-            '(("Yandex"            "https://yandex.com/search/?text=%s")
-              ("Yandex images"     "https://yandex.com/images/search?text=%s")
-              ("Yandex maps"       "https://yandex.com/maps?text=%s")))
-          (when (modulep! :lang rust)
-            '(("Rust Docs" "https://doc.rust-lang.org/std/?search=%s"))))
+  '(("Doom issues"       "https://github.com/orgs/doomemacs/projects/2/views/30?filterQuery=%s")
+    ("Google"            +lookup--online-backend-google "https://google.com/search?q=%s")
+    ("Google images"     "https://www.google.com/images?q=%s")
+    ("Google maps"       "https://maps.google.com/maps?q=%s")
+    ("Kagi"              "https://kagi.com/search?q=%s")
+    ("Project Gutenberg" "http://www.gutenberg.org/ebooks/search/?query=%s")
+    ("DuckDuckGo"        +lookup--online-backend-duckduckgo "https://duckduckgo.com/?q=%s")
+    ("DevDocs.io"        "https://devdocs.io/#q=%s")
+    ("StackOverflow"     "https://stackoverflow.com/search?q=%s")
+    ("StackExchange"     "https://stackexchange.com/search?q=%s")
+    ("Github"            "https://github.com/search?ref=simplesearch&q=%s")
+    ("Youtube"           "https://youtube.com/results?aq=f&oq=&search_query=%s")
+    ("Wolfram alpha"     "https://wolframalpha.com/input/?i=%s")
+    ("Wikipedia"         "https://wikipedia.org/search-redirect.php?language=en&go=Go&search=%s")
+    ("MDN"               "https://developer.mozilla.org/en-US/search?q=%s")
+    ("Internet archive"  "https://web.archive.org/web/*/%s")
+    ("Sourcegraph"       "https://sourcegraph.com/search?q=context:global+%s&patternType=literal"))
   "An alist that maps online resources to either:
 
   1. A search url (needs on '%s' to substitute with an url encoded query),
@@ -118,7 +112,7 @@ If the argument is interactive (satisfies `commandp'), it is called with
 argument: the identifier at point. See `set-lookup-handlers!' about adding to
 this list.")
 
-(defvar +lookup-dictionary-prefer-offline (modulep! +offline)
+(defvar +lookup-dictionary-prefer-offline nil
   "If non-nil, look up dictionaries online.
 
 Setting this to nil will force it to use offline backends, which may be less
@@ -139,10 +133,7 @@ Dictionary.app behind the scenes to get definitions.")
   (setq dumb-jump-default-project doom-emacs-dir
         dumb-jump-prefer-searcher 'rg
         dumb-jump-aggressive nil
-        dumb-jump-selector
-        (cond ((modulep! :completion ivy)  'ivy)
-              ((modulep! :completion helm) 'helm)
-              ('popup)))
+        dumb-jump-selector 'popup)
   (add-hook 'dumb-jump-after-jump-hook #'better-jumper-set-jump))
 
 
@@ -155,33 +146,7 @@ Dictionary.app behind the scenes to get definitions.")
 (global-set-key [remap xref-find-references]  #'+lookup/references)
 
 (after! xref
-  ;; This integration is already built into evil
-  (unless (modulep! :editor evil)
-    ;; Use `better-jumper' instead of xref's marker stack
-    (advice-add #'xref-push-marker-stack :around #'doom-set-jump-a))
-
-  (use-package! ivy-xref
-    :when (modulep! :completion ivy)
-    :config
-    (set-popup-rule! "^\\*xref\\*$" :ignore t)
-    (setq xref-show-definitions-function #'ivy-xref-show-defs
-          xref-show-xrefs-function       #'ivy-xref-show-xrefs)
-
-    ;; HACK: Fix doomemacs/core#4386: `ivy-xref-show-xrefs' calls `fetcher'
-    ;;   twice, which has side effects that breaks in some cases (i.e. on
-    ;;   `dired-do-find-regexp').
-    (defadvice! +lookup--fix-ivy-xrefs (fn fetcher alist)
-      :around #'ivy-xref-show-xrefs
-      (when (functionp fetcher)
-        (setf (alist-get 'fetched-xrefs alist)
-              (funcall fetcher)))
-      (funcall fn fetcher alist)))
-
-  (use-package! helm-xref
-    :when (modulep! :completion helm))
-
   (use-package! consult-xref
-    :when (modulep! :completion vertico)
     :defer t
     :init
     (setq xref-show-xrefs-function       #'consult-xref
@@ -206,20 +171,3 @@ Dictionary.app behind the scenes to get definitions.")
          (require 'helm-dash nil t))
         ((modulep! :completion ivy)
          (require 'counsel-dash nil t))))
-
-
-;;
-;;; Dictionary integration
-
-(use-package! define-word
-  :when (modulep! +dictionary)
-  :unless (featurep :system 'macos)
-  :defer t
-  :config
-  (setq define-word-displayfn-alist
-        (cl-loop for (service . _) in define-word-services
-                 collect (cons service #'+eval-display-results-in-popup))))
-
-
-;;;###package synosaurus
-(setq synosaurus-choose-method 'default) ; use ivy/helm instead of ido

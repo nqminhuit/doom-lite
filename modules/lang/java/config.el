@@ -40,7 +40,6 @@ If the depth is 2, the first two directories are removed: net.lissner.game.")
 
 
 (use-package! java-ts-mode  ; 29.1+ only
-  :when (modulep! +tree-sitter)
   :defer t
   :init
   (set-tree-sitter! 'java-mode 'java-ts-mode '(java doxygen)))

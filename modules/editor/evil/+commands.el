@@ -41,15 +41,8 @@
 (evil-ex-define-cmd "cd"          #'+evil:cd)
 (evil-ex-define-cmd "pwd"         #'+evil:pwd)
 
-(cond ((modulep! :completion ivy)
-       (evil-ex-define-cmd "pg[rep]"  #'+ivy:project-search)
-       (evil-ex-define-cmd "pdg[rep]" #'+ivy:project-search-from-cwd))
-      ((modulep! :completion helm)
-       (evil-ex-define-cmd "pg[rep]"  #'+helm:project-search)
-       (evil-ex-define-cmd "pdg[rep]" #'+helm:project-search-from-cwd))
-      ((modulep! :completion vertico)
-       (evil-ex-define-cmd "pg[rep]"  #'+vertico:project-search)
-       (evil-ex-define-cmd "pdg[rep]" #'+vertico:project-search-from-cwd)))
+(evil-ex-define-cmd "pg[rep]"  #'+vertico:project-search)
+(evil-ex-define-cmd "pdg[rep]" #'+vertico:project-search-from-cwd)
 
 ;;; Project tools
 (evil-ex-define-cmd "com[pile]"   #'+evil:compile)
@@ -81,7 +74,3 @@
 
 ;;; Org-mode
 (evil-ex-define-cmd "cap[ture]"   #'org-capture)  ; TODO: better Ex support
-
-;;; ibuffer
-(when (modulep! :emacs ibuffer)
-  (evil-ex-define-cmd "buffers" #'ibuffer))

@@ -1,19 +1,5 @@
 ;;; completion/vertico/config.el -*- lexical-binding: t; -*-
 
-(defvar +vertico-company-completion-styles '(basic partial-completion orderless)
-  "Completion styles for company to use.
-
-The completion/vertico module uses the orderless completion style by default,
-but this returns too broad a candidate set for company completion. This variable
-overrides `completion-styles' during company completion sessions.")
-
-(defvar +vertico-consult-dir-container-executable "docker"
-  "Command to call for listing container hosts.")
-
-(defvar +vertico-consult-dir-container-args nil
-  "Command to call for listing container hosts.")
-
-
 ;;
 ;;; Packages
 
@@ -40,8 +26,7 @@ overrides `completion-styles' during company completion sessions.")
                            #'completion--in-region)
                          args)))
 
-  (map! :when (modulep! :editor evil +everywhere)
-        :map vertico-map
+  (map! :map vertico-map
         "M-RET" #'vertico-exit-input
         "C-SPC" #'+vertico/embark-preview
         "C-j"   #'vertico-next
@@ -92,15 +77,7 @@ overrides `completion-styles' during company completion sessions.")
         completion-category-overrides '((file (styles orderless partial-completion)))
         orderless-component-separator #'orderless-escapable-split-on-space)
   ;; ...otherwise find-file gets different highlighting than other commands
-  (set-face-attribute 'completions-first-difference nil :inherit nil)
-
-  (defadvice! +vertico--company-capf--candidates-a (fn &rest args)
-    "Highlight company matches correctly and try default styles before
-orderless."
-    :around #'company-capf--candidates
-    (dlet ((orderless-match-faces [completions-common-part])
-           (completion-styles +vertico-company-completion-styles))
-      (apply fn args))))
+  (set-face-attribute 'completions-first-difference nil :inherit nil))
 
 
 (use-package! consult
@@ -143,43 +120,16 @@ orderless."
    consult-bookmark consult-recent-file
    consult-source-recent-file consult-source-project-recent-file consult-source-bookmark
    :preview-key "C-SPC")
-  (when (modulep! :config default)
-    (consult-customize
-     +default/search-project +default/search-other-project
-     +default/search-project-for-symbol-at-point
-     +default/search-cwd +default/search-other-cwd
-     +default/search-notes-for-symbol-at-point
-     +default/search-emacsd
-     :preview-key "C-SPC"))
+  (consult-customize
+   +default/search-project +default/search-other-project
+   +default/search-project-for-symbol-at-point
+   +default/search-cwd +default/search-other-cwd
+   +default/search-notes-for-symbol-at-point
+   +default/search-emacsd
+   :preview-key "C-SPC")
   (consult-customize
    consult-theme
    :preview-key '("C-SPC" :debounce 0.5 any))
-
-  (when (modulep! :lang org)
-    (defvar +vertico--consult-org-source
-      (list :name     "Org Buffer"
-            :category 'buffer
-            :narrow   ?o
-            :hidden   t
-            :face     'consult-buffer
-            :history  'buffer-name-history
-            :state    #'consult--buffer-state
-            :new
-            (lambda (name)
-              (with-current-buffer (get-buffer-create name)
-                (insert "#+title: " name "\n\n")
-                (org-mode)
-                (consult--buffer-action (current-buffer))))
-            :items
-            (lambda ()
-              (mapcar #'buffer-name
-                      (if (featurep 'org)
-                          (org-buffer-list)
-                        (seq-filter
-                         (lambda (x)
-                           (eq (buffer-local-value 'major-mode x) 'org-mode))
-                         (buffer-list)))))))
-    (add-to-list 'consult-buffer-sources '+vertico--consult-org-source 'append))
 
   (defadvice! +vertico--consult-recentf-a (&rest _args)
     "`consult-recent-file' needs to have `recentf-mode' on to work correctly.
@@ -189,8 +139,7 @@ orderless."
     (recentf-mode +1))
 
   ;; HACK: Merge Evil's registers into `consult-register' register list.
-  (when (modulep! :editor evil +everywhere)
-    (advice-add #'consult-register--alist :around #'+evil--propagate-registers-a)))
+  (advice-add #'consult-register--alist :around #'+evil--propagate-registers-a))
 
 
 (use-package! consult-dir
@@ -205,60 +154,8 @@ orderless."
   ;; DEPRECATED: Remove when projectile is replaced with project.el
   (setq consult-dir-project-list-function #'consult-dir-projectile-dirs)
 
-  (when (modulep! :tools docker)
-    ;; TODO: Replace with `tramp-container--completion-function' when we drop
-    ;;   support for <29
-    (defun +vertico--consult-dir-container-hosts (host)
-      "Get a list of hosts from HOST."
-      (cl-loop for line in (cdr
-                            (ignore-errors
-                              (apply #'process-lines +vertico-consult-dir-container-executable
-                                     (append +vertico-consult-dir-container-args (list "ps")))))
-               for cand = (split-string line "[[:space:]]+" t)
-               collect (format "/%s:%s:/" host (car (last cand)))))
-
-    (defun +vertico--consult-dir-podman-hosts ()
-      (dlet ((+vertico-consult-dir-container-executable "podman"))
-        (+vertico--consult-dir-container-hosts "podman")))
-
-    (defun +vertico--consult-dir-docker-hosts ()
-      (dlet ((+vertico-consult-dir-container-executable "docker"))
-        (+vertico--consult-dir-container-hosts "docker")))
-
-    (defvar +vertico--consult-dir-source-tramp-podman
-      `(:name     "Podman"
-        :narrow   ?p
-        :category file
-        :face     consult-file
-        :history  file-name-history
-        :items    ,#'+vertico--consult-dir-podman-hosts)
-      "Podman candidate source for `consult-dir'.")
-
-    (defvar +vertico--consult-dir-source-tramp-docker
-      `(:name     "Docker"
-        :narrow   ?d
-        :category file
-        :face     consult-file
-        :history  file-name-history
-        :items    ,#'+vertico--consult-dir-docker-hosts)
-      "Docker candidate source for `consult-dir'.")
-
-    (add-to-list 'consult-dir-sources '+vertico--consult-dir-source-tramp-podman t)
-    (add-to-list 'consult-dir-sources '+vertico--consult-dir-source-tramp-docker t))
-
   (add-to-list 'consult-dir-sources 'consult-dir--source-tramp-ssh t)
   (add-to-list 'consult-dir-sources 'consult-dir--source-tramp-local t))
-
-
-(use-package! consult-flycheck
-  :when (modulep! :checkers syntax -flymake)
-  :after (consult flycheck))
-
-
-(use-package! consult-yasnippet
-  :when (modulep! :editor snippets)
-  :defer t
-  :init (map! [remap yas-insert-snippet] #'consult-yasnippet))
 
 
 (use-package! embark
@@ -295,8 +192,7 @@ orderless."
   (setf (alist-get 'package embark-keymap-alist) #'+vertico-embark-doom-package-map)
   (map! (:map embark-file-map
          :desc "Open target with sudo"         "S"   #'doom/sudo-find-file
-         (:when (modulep! :tools magit)
-           :desc "Open magit-status of target" "g"   #'+vertico/embark-magit-status)
+         :desc "Open magit-status of target" "g"   #'+vertico/embark-magit-status
          (:when (modulep! :ui workspaces)
            :desc "Open in new workspace"       "TAB" #'+vertico/embark-open-in-new-workspace
            :desc "Open in new workspace"       [tab] #'+vertico/embark-open-in-new-workspace))))
@@ -311,20 +207,12 @@ orderless."
   (dolist (cat '((flycheck-error-list-set-filter . builtin)
                  (persp-switch-to-buffer . buffer)
                  (projectile-switch-to-buffer . buffer)))
-    (add-to-list 'marginalia-command-categories cat))
-
-  (when (modulep! +icons)
-    (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup)))
+    (add-to-list 'marginalia-command-categories cat)))
 
 
 (use-package! wgrep
   :commands wgrep-change-to-wgrep-mode
   :config (setq wgrep-auto-save-buffer t))
-
-
-(use-package! vertico-posframe
-  :when (modulep! +childframe)
-  :hook (vertico-mode . vertico-posframe-mode))
 
 
 ;; From https://github.com/minad/vertico/wiki#candidate-display-transformations-custom-candidate-highlighting

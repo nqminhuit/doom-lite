@@ -10,12 +10,6 @@
         ;; NOTE: We disable eglot-auto-display-help-buffer because :select t in
         ;;   its popup rule causes eglot to steal focus too often.
         eglot-auto-display-help-buffer nil
-        ;; Leave it to our modules and user config to initialize these.
-        eglot-stay-out-of
-        (append (if (modulep! :checkers syntax -flymake)
-                    '(flymake))
-                (if (modulep! :completion company)
-                    '(company)))
         ;; Margin indicator may increase line height due to glyph display
         ;; failures or emoji font height differences; I also think the eldoc
         ;; hint is enough.
@@ -29,14 +23,6 @@
     :implementations #'eglot-find-implementation
     :type-definition #'eglot-find-type-definition
     :documentation   #'+eglot-lookup-documentation)
-
-  (and (modulep! :checkers syntax -flymake)
-       (fboundp 'global-flycheck-eglot-mode)
-       (global-flycheck-eglot-mode +1))
-
-  ;; Leave management of flymake to the :checkers syntax module.
-  (when (modulep! :checkers syntax -flymake)
-    (add-to-list 'eglot-stay-out-of 'flymake))
 
   ;; PERF: Disable the eglot-events-buffer, so Emacs doesn't churn GC and CPU
   ;;   cycles on pretty-printing the events buffer in the background (once it
@@ -67,7 +53,6 @@ server an expensive restart when its buffer is reverted."
 
 
 (use-package! consult-eglot
-  :when (modulep! :completion vertico)
   :defer t
   :init
   (map! :after eglot

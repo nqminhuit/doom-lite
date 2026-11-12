@@ -240,20 +240,13 @@ This backend prefers \"just working\" over accuracy."
 (defun +lookup-project-search-backend-fn (identifier)
   "Conducts a simple project text search for IDENTIFIER.
 
-Uses and requires `+ivy-file-search', `+helm-file-search', or `+vertico-file-search'.
-Will return nil if neither is available. These require ripgrep to be installed."
+Uses and requires `+vertico-file-search', which requires ripgrep to be installed.
+Will return nil if the search fails."
   (when identifier
     (let ((query (doom-pcre-quote identifier)))
       (ignore-errors
-        (cond ((modulep! :completion ivy)
-               (+ivy-file-search :query query)
-               t)
-              ((modulep! :completion helm)
-               (+helm-file-search :query query)
-               t)
-              ((modulep! :completion vertico)
-               (+vertico-file-search :query query)
-               t))))))
+        (+vertico-file-search :query query)
+        t))))
 
 (defun +lookup-evil-goto-definition-backend-fn (_identifier)
   "Uses `evil-goto-definition' to conduct a text search for IDENTIFIER in the
@@ -297,9 +290,7 @@ framework (ivy, helm, vertico, etc), otherwise falling back to
                     (find-file (doom-path dir guess))
                     t))))
           ;; Fallback prompters
-          ((and (modulep! :completion ivy) (doom-project-p))
-           (counsel-file-jump guess (doom-project-root)))
-          ((and (modulep! :completion vertico) (doom-project-p))
+          ((doom-project-p)
            (+vertico/consult-fd-or-find (doom-project-root) guess))
           ((find-file-at-point (ffap-prompter guess))))
     (not (eq initial-buffer (current-buffer)))))

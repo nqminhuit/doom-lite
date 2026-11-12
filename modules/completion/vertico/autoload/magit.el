@@ -1,5 +1,4 @@
 ;;; completion/vertico/autoload/magit.el -*- lexical-binding: t; -*-
-;;;###if (modulep! :tools magit)
 
 ;;;###autoload
 (defun +vertico/embark-magit-status (file)

@@ -30,18 +30,12 @@ output buffer."
   (sp-local-pair (cons mode extra-modes) "`" "`"
                  :unless '(:add sp-point-before-word-p sp-point-before-same-p))
 
-  (when (modulep! +lsp)
-    (dolist (m (cons mode extra-modes))
-      (add-hook (intern (format "%s-local-vars-hook" m)) #'lsp! 'append)))
-
   (map! :map ,(intern (format "%s-map" mode))
         :localleader
         "'" #'markdown-edit-code-block
         "o" #'markdown-open
         "p" #'markdown-preview
         "e" #'markdown-export
-        (:when (modulep! +grip)
-          "p" #'grip-mode)
         (:prefix ("i" . "insert")
          :desc "Table Of Content"  "T" #'markdown-toc-generate-toc
          :desc "Image"             "i" #'markdown-insert-image
@@ -118,10 +112,6 @@ output buffer."
   :config
   (+markdown-common-config 'markdown-mode 'gfm-mode)
 
-  ;; Highly rust blocks correctly
-  (when (modulep! :lang rust)
-    (add-to-list 'markdown-code-lang-modes '("rust" . rustic-mode)))
-
   ;; Don't trigger autofill in code blocks (see `auto-fill-mode')
   (setq-hook! 'markdown-mode-hook
     fill-nobreak-predicate (cons #'markdown-code-block-at-point-p
@@ -142,25 +132,7 @@ output buffer."
     (delay-mode-hooks (apply fn args))))
 
 
-(use-package! markdown-ts-mode  ; 31+ only
-  :when (modulep! +tree-sitter)
-  ;; Emacs 31+ provides `markdown-ts-mode', but for pre-31 users, I use
-  ;; LionyxML/markdown-ts-mode, which neither autoloads the modes nor defines
-  ;; the `markdown' and `markdown-inline' grammars, so redundancy here is fine.
-  :commands (markdown-ts-mode)
-  :defer t
-  :init
-  (set-tree-sitter! '(markdown-mode gfm-mode) 'markdown-ts-mode '(markdown markdown-inline))
-  :config
-  (+markdown-common-config 'markdown-ts-mode)
-  (map! :map markdown-ts-mode-map
-        [remap markdown-toggle-inline-images] #'markdown-ts-toggle-inline-images
-        [remap markdown-toggle-markup-hiding] #'markdown-ts-toggle-hide-markup
-        [remap markdown-toggle-gfm-checkbox]  #'markdown-ts-toggle-checkbox))
-
-
 (use-package! evil-markdown
-  :when (modulep! :editor evil +everywhere)
   :hook (markdown-mode . evil-markdown-mode)
   :hook (markdown-ts-mode . evil-markdown-mode)
   :config

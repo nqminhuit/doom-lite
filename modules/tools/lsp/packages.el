@@ -6,8 +6,7 @@
       (package! eglot :built-in t)
       (package! jsonrpc :built-in t)
       (package! xref :built-in t)
-      (when (modulep! :completion vertico)
-        (package! consult-eglot :pin "3e4d9a40911b897c0a2c5d20199d0f7c30bfc1c2")))
+      (package! consult-eglot :pin "3e4d9a40911b897c0a2c5d20199d0f7c30bfc1c2"))
 
   ;; lsp-mode must be rebuilt if this variable is changed, so expose it here so
   ;; users can change it from $DOOMDIR/packages.el.

@@ -14,11 +14,6 @@ Possible values are:
                  (const :tag "Behaves like `both' in minibuffer, `t' otherwise" minibuffer))
   :group '+corfu)
 
-(defcustom +corfu-buffer-scanning-size-limit (* 1 1024 1024) ; 1 MB
-  "Size limit in bytes for a buffer to be scanned by `cape-dabbrev'."
-  :type 'integer
-  :group '+corfu)
-
 (defcustom +corfu-want-minibuffer-completion t
   "Whether to enable Corfu in the minibuffer.
 
@@ -31,21 +26,6 @@ Possible values are:
   :type '(choice (const :tag "Disabled" nil)
                  (const :tag "Aggressive" aggressive)
                  (const :tag "Only when bound" t))
-  :group '+corfu)
-
-(defcustom +corfu-want-tab-prefer-expand-snippets nil
-  "If non-nil, expand snippets over cycling candidates with TAB."
-  :type 'boolean
-  :group '+corfu)
-
-(defcustom +corfu-want-tab-prefer-navigating-snippets nil
-  "If non-nil, navigate snippets over cycling candidates with TAB/S-TAB."
-  :type 'boolean
-  :group '+corfu)
-
-(defcustom +corfu-want-tab-prefer-navigating-org-tables nil
-  "If non-nil, navigate org tables over cycling candidates with TAB/S-TAB."
-  :type 'boolean
   :group '+corfu)
 
 (defcustom +corfu-inhibit-auto-functions ()
@@ -75,9 +55,7 @@ If any return non-nil, `corfu-auto' will not invoke as-you-type completion."
         corfu-count 16
         corfu-max-width 120
         corfu-on-exact-match nil
-        corfu-quit-at-boundary (if (or (modulep! :completion vertico)
-                                       (modulep! +orderless))
-                                   'separator t)
+        corfu-quit-at-boundary 'separator
         corfu-quit-no-match corfu-quit-at-boundary)
 
   (add-to-list 'completion-category-overrides `(lsp-capf (styles ,@completion-styles)))
@@ -159,9 +137,8 @@ See `+corfu-want-minibuffer-completion'."
         corfu-auto-prefix 2)
   (add-to-list 'corfu-auto-commands #'lispy-colon)
 
-  (when (modulep! :editor evil)
-    ;; Modifying the buffer while in replace mode can be janky.
-    (add-to-list '+corfu-inhibit-auto-functions #'evil-replace-state-p))
+  ;; Modifying the buffer while in replace mode can be janky.
+  (add-to-list '+corfu-inhibit-auto-functions #'evil-replace-state-p)
 
   ;; HACK: Augments Corfu to respect `+corfu-inhibit-auto-functions'.
   (defadvice! +corfu--post-command-a (fn &rest args)
@@ -182,54 +159,12 @@ See `+corfu-want-minibuffer-completion'."
   (add-hook! '(org-mode-hook markdown-mode-hook)
     (defun +corfu-add-cape-elisp-block-h ()
       (add-hook 'completion-at-point-functions #'cape-elisp-block 0 t)))
-  ;; Enable Dabbrev completion basically everywhere as a fallback.
-  (when (modulep! +dabbrev)
-    (setq cape-dabbrev-check-other-buffers t)
-    ;; Set up `cape-dabbrev' options.
-    (add-hook! '(prog-mode-hook
-                 text-mode-hook
-                 conf-mode-hook
-                 comint-mode-hook
-                 minibuffer-setup-hook
-                 eshell-mode-hook)
-      (defun +corfu-add-cape-dabbrev-h ()
-        (add-hook 'completion-at-point-functions #'cape-dabbrev 20 t)))
-    (after! dabbrev
-      (setq dabbrev-friend-buffer-function #'+corfu-dabbrev-friend-buffer-p
-            dabbrev-ignored-buffer-regexps
-            '("\\` "
-              "\\(?:\\(?:[EG]?\\|GR\\)TAGS\\|e?tags\\|GPATH\\)\\(<[0-9]+>\\)?")
-            dabbrev-upcase-means-case-search t)
-      (add-to-list 'dabbrev-ignored-buffer-modes 'pdf-view-mode)
-      (add-to-list 'dabbrev-ignored-buffer-modes 'doc-view-mode)
-      (add-to-list 'dabbrev-ignored-buffer-modes 'tags-table-mode)))
-
   ;; Make these capfs composable.
   (advice-add #'lsp-completion-at-point :around #'cape-wrap-noninterruptible)
   (advice-add #'lsp-completion-at-point :around #'cape-wrap-nonexclusive)
   (advice-add #'comint-completion-at-point :around #'cape-wrap-nonexclusive)
   (advice-add #'eglot-completion-at-point :around #'cape-wrap-nonexclusive)
-  (advice-add #'pcomplete-completions-at-point :around #'cape-wrap-nonexclusive)
-
-  (when (modulep! :lang latex)
-    ;; Allow file completion on latex directives.
-    (setq-hook! '(tex-mode-local-vars-hook
-                  latex-mode-local-vars-hook
-                  LaTeX-mode-local-vars-hook)
-      cape-file-prefix "{")))
-
-(use-package! yasnippet-capf
-  :when (modulep! :editor snippets)
-  :defer t
-  :init
-  (add-hook! 'yas-minor-mode-hook
-    (defun +corfu-add-yasnippet-capf-h ()
-      (add-hook 'completion-at-point-functions #'yasnippet-capf 30 t))))
-
-(use-package! corfu-terminal
-  :when (modulep! :os tty)
-  :unless (featurep 'tty-child-frames)
-  :hook ((corfu-mode . corfu-terminal-mode)))
+  (advice-add #'pcomplete-completions-at-point :around #'cape-wrap-nonexclusive))
 
 
 ;;
@@ -246,19 +181,7 @@ See `+corfu-want-minibuffer-completion'."
   (setq corfu-popupinfo-delay '(0.5 . 1.0)))
 
 (use-package! nerd-icons-corfu
-  :when (modulep! +icons)
   :defer t
   :init
   (after! corfu
     (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)))
-
-;; If vertico is not enabled, orderless will be installed but not configured.
-;; That may break smart separator behavior, so we conditionally configure it.
-(use-package! orderless
-  :when (not (modulep! :completion vertico))
-  :when (modulep! +orderless)
-  :config
-  (setq completion-styles '(orderless basic)
-        completion-category-defaults nil
-        completion-category-overrides '((file (styles orderless partial-completion)))
-        orderless-component-separator #'orderless-escapable-split))

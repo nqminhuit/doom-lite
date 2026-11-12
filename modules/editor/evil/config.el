@@ -24,7 +24,7 @@ directives. By default, this only recognizes C directives."
 
 ;; Set these defaults before `evil'; use `defvar' so they can be changed prior
 ;; to loading.
-(defvar evil-want-keybinding (not (modulep! +everywhere)))
+(defvar evil-want-keybinding nil)
 (defvar evil-want-C-g-bindings t)
 (defvar evil-want-C-i-jump nil)  ; we do this ourselves
 (defvar evil-want-C-u-scroll t)  ; moved the universal arg to <leader> u
@@ -56,10 +56,7 @@ directives. By default, this only recognizes C directives."
         ;; It's infuriating that innocuous "beginning of line" or "end of line"
         ;; errors will abort macros, so suppress them:
         evil-kbd-macro-suppress-motion-error t
-        evil-undo-system
-        (cond ((modulep! :emacs undo +tree) 'undo-tree)
-              ((modulep! :emacs undo) 'undo-fu)
-              ('undo-redo)))
+        evil-undo-system 'undo-redo)
 
   ;; Fix doomemacs/core#7141
   (defadvice! +evil--persist-state-a (fn &rest args)
@@ -199,35 +196,34 @@ directives. By default, this only recognizes C directives."
 
   ;; HACK: Make Emacs registers recognize and treat Evil registers like their
   ;;   own, for consistency's sake.
-  (when (modulep! +everywhere)
-    (defvar +evil--use-evil-registers t)
+  (defvar +evil--use-evil-registers t)
 
-    (defadvice! +evil--use-evil-registers-a (fn register)
-      "Merge Evil's registers into Emacs' register list (when Evil is active)."
-      :around #'get-register
-      (if (and (characterp register)  ; prevent `evil-get-register' type error
-               +evil--use-evil-registers
-               (or (bound-and-true-p evil-mode)
-                   (bound-and-true-p evil-local-mode)))
-          (if (char-equal register ?=)   ; last expression register input
-              evil-last-=-register-input
-            (dlet (+evil--use-evil-registers)
-              (evil-get-register register t)))
-        (funcall fn register)))
+  (defadvice! +evil--use-evil-registers-a (fn register)
+    "Merge Evil's registers into Emacs' register list (when Evil is active)."
+    :around #'get-register
+    (if (and (characterp register)  ; prevent `evil-get-register' type error
+             +evil--use-evil-registers
+             (or (bound-and-true-p evil-mode)
+                 (bound-and-true-p evil-local-mode)))
+        (if (char-equal register ?=)   ; last expression register input
+            evil-last-=-register-input
+          (dlet (+evil--use-evil-registers)
+            (evil-get-register register t)))
+      (funcall fn register)))
 
-    (defadvice! +evil--propagate-registers-a (fn &rest args)
-      "Merge Evil's registers into Emacs' register list (when Evil is active)."
-      :around #'register-swap-out
-      :around #'register-buffer-to-file-query
-      :around #'register-read-with-preview-fancy
-      :around #'list-registers
-      (dlet ((register-alist
-              (if (and +evil--use-evil-registers
-                       (or (bound-and-true-p evil-mode)
-                           (bound-and-true-p evil-local-mode)))
-                  (evil-register-list)
-                register-alist)))
-        (apply fn args))))
+  (defadvice! +evil--propagate-registers-a (fn &rest args)
+    "Merge Evil's registers into Emacs' register list (when Evil is active)."
+    :around #'register-swap-out
+    :around #'register-buffer-to-file-query
+    :around #'register-read-with-preview-fancy
+    :around #'list-registers
+    (dlet ((register-alist
+            (if (and +evil--use-evil-registers
+                     (or (bound-and-true-p evil-mode)
+                         (bound-and-true-p evil-local-mode)))
+                (evil-register-list)
+              register-alist)))
+      (apply fn args)))
 
   ;; Make ESC (from normal mode) the universal escaper. See `doom-escape-hook'.
   (advice-add #'evil-force-normal-state :after #'+evil-escape-a)
@@ -256,7 +252,6 @@ directives. By default, this only recognizes C directives."
 
 (use-package! evil-collection
   :after evil
-  :when (modulep! +everywhere)
   :unless noninteractive
   :unless (doom-context-p 'reload)
   :hook (doom-after-modules-config . evil-collection-init)
@@ -272,7 +267,6 @@ directives. By default, this only recognizes C directives."
 
 The defaults disable modules that we have our own keybinds for or that (IMO)
 don't offer any/enough real value to users.")
-  (defvar evil-collection-company-use-tng (modulep! :completion company +tng))
   (defvar evil-collection-setup-minibuffer nil)
   (defvar evil-collection-want-unimpaired-p nil)  ; we have our own
   ;; We bind goto-reference on gD and goto-assignments on gA ourselves
@@ -294,9 +288,7 @@ don't offer any/enough real value to users.")
           ,@(when (modulep! :tools lookup)
               '((find-definition :enabled nil)
                 (find-usages :enabled nil)
-                (lookup-doc :enabled nil)))
-          ,@(when (modulep! :tools eval)
-              '((goto-repl :enabled nil))))
+                (lookup-doc :enabled nil))))
         evil-collection-key-blacklist
         (append (list doom-leader-key
                       doom-localleader-key
@@ -501,14 +493,6 @@ don't offer any/enough real value to users.")
 (map! :v  "@"     #'+evil:apply-macro
       :m  [C-i]   #'evil-jump-forward
 
-      ;; implement dictionary keybinds
-      ;; evil already defines 'z=' to `ispell-word' = correct word at point
-      (:when (modulep! :checkers spell)
-       :n  "zg"   #'+spell/add-word
-       :n  "zw"   #'+spell/remove-word
-       :m  "[s"   #'+spell/previous-error
-       :m  "]s"   #'+spell/next-error)
-
       ;; ported from vim-unimpaired
       :n  "] SPC" #'+evil/insert-newline-below
       :n  "[ SPC" #'+evil/insert-newline-above
@@ -520,23 +504,13 @@ don't offer any/enough real value to users.")
       :m  "]u"    #'+evil:url-decode
       :m  "[y"    #'+evil:c-string-encode
       :m  "]y"    #'+evil:c-string-decode
-      (:when (modulep! :lang web)
-       :m "[x"   #'+web:encode-html-entities
-       :m "]x"   #'+web:decode-html-entities)
-      (:when (modulep! :ui vc-gutter)
-       :m "]d"   #'+vc-gutter/next-hunk
-       :m "[d"   #'+vc-gutter/previous-hunk)
-      (:when (modulep! :ui hl-todo)
-       :m "]t"   #'hl-todo-next
-       :m "[t"   #'hl-todo-previous)
+      :m  "]d"    #'+vc-gutter/next-hunk
+      :m  "[d"    #'+vc-gutter/previous-hunk
       (:when (modulep! :ui workspaces)
        :n "gt"   #'+workspace:switch-next
        :n "gT"   #'+workspace:switch-previous
        :n "]w"   #'+workspace/switch-right
        :n "[w"   #'+workspace/switch-left)
-      (:when (modulep! :ui tabs)
-       :n "gt"   #'+tabs:next-or-goto
-       :n "gT"   #'+tabs:previous-or-goto)
 
       ;; custom vim-unmpaired-esque keys
       :m  "]#"    #'+evil/next-preproc-directive
@@ -575,26 +549,6 @@ don't offer any/enough real value to users.")
        :nv "gD"  #'+lookup/references
        :nv "gf"  #'+lookup/file
        :nv "gI"  #'+lookup/implementations)
-      (:when (modulep! :tools eval)
-       :nv "gr"  #'+eval:region
-       :n  "gR"  #'+eval/buffer
-       :v  "gR"  #'+eval:replace-region
-       ;; Restore these keybinds, since the blacklisted/overwritten gr/gR will
-       ;; undo them:
-       (:after compile
-        :map (compilation-mode-map compilation-minor-mode-map)
-        :n "gr" #'recompile)
-       (:after dired
-        :map dired-mode-map
-        :n "gr" #'revert-buffer)
-       (:after notmuch
-        :map notmuch-common-keymap
-        :n "gr" #'notmuch-refresh-this-buffer
-        :n "gR" #'notmuch-poll-and-refresh-this-buffer)
-       (:after elfeed
-        :map elfeed-search-mode-map
-        :n "gr" #'elfeed-search-update--force
-        :n "gR" #'elfeed-search-fetch))
 
       ;; custom evil keybinds
       :nv "zn"    #'+evil:narrow-buffer
@@ -684,23 +638,12 @@ don't offer any/enough real value to users.")
       ;; Emulation of Vim's omni-completion keybinds
       (:unless evil-disable-insert-state-bindings
         (:prefix "C-x"
-          (:when (modulep! :completion company)
-           :i "C-l"  #'+company/whole-lines
-           :i "C-k"  #'+company/dict-or-keywords
-           :i "C-f"  #'company-files
-           :i "C-]"  #'company-etags
-           :i "s"    #'company-ispell
-           :i "C-s"  #'company-yasnippet
-           :i "C-o"  #'company-capf
-           :i "C-n"  #'+company/dabbrev
-           :i "C-p"  #'+company/dabbrev-code-previous)
-          (:when (modulep! :completion corfu)
-           :i "C-l"  #'cape-line
-           :i "C-k"  #'cape-keyword
-           :i "C-f"  #'cape-file
-           :i "C-]"  #'complete-tag
-           :i "s"    #'cape-dict
-           :i "C-s"  #'yasnippet-capf
-           :i "C-o"  #'completion-at-point
-           :i "C-n"  #'cape-dabbrev
-           :i "C-p"  #'+corfu/dabbrev-this-buffer))))
+          :i "C-l"  #'cape-line
+          :i "C-k"  #'cape-keyword
+          :i "C-f"  #'cape-file
+          :i "C-]"  #'complete-tag
+          :i "s"    #'cape-dict
+          :i "C-s"  #'yasnippet-capf
+          :i "C-o"  #'completion-at-point
+          :i "C-n"  #'cape-dabbrev
+          :i "C-p"  #'+corfu/dabbrev-this-buffer)))
