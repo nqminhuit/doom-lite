@@ -19,7 +19,7 @@ Set `doom-lite`, conductor `doom-lite-conductor`. Executes `doom-lite-plan.md`. 
 |---|---|---|---|---|
 | SETUP | merged (`7e15dfb`); session removed; worktree and local branch deleted by SETUP itself | [#1](https://github.com/nqminhuit/doom-lite/pull/1) | – | – |
 | S1 | done, session removed (findings and decisions in `docs/handoff/S1.md`) | – | – | user chose A: P11 uses the fallback backend (clone at pin, load-path, autoloads, no package.el). ghostel: download-only (`ghostel-module-auto-install` `'download`, `ghostel-module-directory` outside the package tree; zig compile unsupported). Findings go into P11 after SETUP merges |
-| P1 | implementing, stacea call 1/2 (worktree `/opt/minh/doom-lite-wt/P1`, branch `p1-vendor-modules`) | – | – | review call 1 PR, then call 2 (minh-tests port). Deviations for the PR: `static/` kept (install/sync read it); `set-debug-var!` is live, calls kept; `SPC h d` manual commands lose targets until P10; shellcheck/bats may not run |
+| P1 | call 1 reviewed and passing; stacea call 2/2 (minh-tests port) running (worktree `/opt/minh/doom-lite-wt/P1`, branch `p1-vendor-modules`) | [#2](https://github.com/nqminhuit/doom-lite/pull/2) (draft) | – | call 2, then ready for user's interactive pass. Also vendored `modules/.doommodules` (needed for autodefs). Deviations for the PR: `static/` kept (install/sync read it); `set-debug-var!` is live, calls kept; `SPC h d` manual commands lose targets until P10; shellcheck/bats may not run |
 | P2 | waiting on P1 | – | P1 merged; S1 finished | – |
 | P3 | waiting on P2 | – | P2 merged | – |
 | P4 | waiting on P3 | – | P3 merged | – |
