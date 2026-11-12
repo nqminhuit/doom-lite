@@ -26,20 +26,8 @@
    'remote-direct-async-process))
 
 
-;;;###package lsp-mode
-;; HACK: lsp-mode over TRAMP doesn't work with direct async, so force it off for
-;;   LSP stdio connections.
-(defadvice! +tramp--disable-direct-async-for-lsp-stdio-a (plist)
-  :filter-return #'lsp-stdio-connection
-  (let ((connect-fn (plist-get plist :connect)))
-    (plist-put plist :connect
-               (lambda (&rest args)
-                 (letf! ((#'tramp-direct-async-process-p #'ignore))
-                   (apply connect-fn args))))))
-
-
 ;;;###package eglot
-;; HACK: Same deal with eglot.
+;; HACK: eglot over TRAMP doesn't work with direct async, so force it off.
 (defadvice! +tramp--disable-direct-async-for-eglot-a (fn &rest args)
   :around #'eglot--connect
   (letf! ((#'tramp-direct-async-process-p #'ignore))

@@ -50,16 +50,10 @@ generate `completing-read' candidates."
   (server-start))
 
 ;;;###autoload
-(defun +default/diagnostics (&rest arg)
-  "List diagnostics for the current buffer/project.
-If the lsp module is active, list lsp diagnostics for the
-current project. Otherwise list them for the current buffer"
+(defun +default/diagnostics (&rest _)
+  "List flymake diagnostics for the current buffer"
   (interactive)
-  (cond ((and (modulep! :tools lsp)
-              (bound-and-true-p lsp-mode))
-         (consult-lsp-diagnostics arg))
-        ((bound-and-true-p flymake-mode)
-         (consult-flymake t))
-        (t
-         (user-error "No diagnostics backend detected. Enable flymake, or \
-set up lsp-mode if applicable (see :lang lsp)"))))
+  (if (bound-and-true-p flymake-mode)
+      (consult-flymake t)
+    (user-error "No diagnostics backend detected. Enable flymake, or \
+set up eglot if applicable (see :tools lsp)")))

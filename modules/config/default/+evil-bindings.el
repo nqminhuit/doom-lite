@@ -249,15 +249,7 @@
 
       ;;; <leader> c --- code
       (:prefix-map ("c" . "code")
-       (:when (modulep! :tools lsp -eglot)
-        :desc "LSP Execute code action"              "a"   #'lsp-execute-code-action
-        :desc "LSP Organize imports"                 "o"   #'lsp-organize-imports
-        :desc "LSP"                                  "l"   #'+default/lsp-command-map
-        :desc "LSP Rename"                           "r"   #'lsp-rename
-        :desc "Symbols"                              "S"   #'lsp-treemacs-symbols
-        :desc "Jump to symbol in current workspace"  "j"   #'consult-lsp-symbols
-        :desc "Jump to symbol in any workspace"      "J"   (cmd!! #'consult-lsp-symbols 'all-workspaces))
-       (:when (modulep! :tools lsp +eglot)
+       (:when (modulep! :tools lsp)
         :desc "LSP Execute code action" "a" #'eglot-code-actions
         :desc "LSP Rename" "r" #'eglot-rename
         :desc "LSP Find declaration"                 "j"   #'eglot-find-declaration

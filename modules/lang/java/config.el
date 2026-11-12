@@ -23,14 +23,6 @@ If the depth is 2, the first two directories are removed: net.lissner.game.")
 
 
 ;;
-;;; java-mode
-
-(when (and (modulep! +lsp)
-           (modulep! :tools lsp -eglot))
-  (load! "+lsp"))
-
-
-;;
 ;;; Common packages
 
 (use-package! cc-mode  ; where `java-mode' lives

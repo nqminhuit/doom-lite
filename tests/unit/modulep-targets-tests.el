@@ -16,9 +16,7 @@
 ;; Dead branches inside code that later phases delete wholesale (lsp-mode, the
 ;; lookup docsets backend). Drop each entry when its file loses the branch.
 (defconst modulep-test--pending-removal
-  '("modules/tools/lsp/+lsp.el"
-    "modules/tools/lsp/packages.el"
-    "modules/tools/lookup/packages.el"
+  '("modules/tools/lookup/packages.el"
     "modules/tools/lookup/config.el"
     "modules/tools/lookup/autoload/docsets.el"))
 

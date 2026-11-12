@@ -6,7 +6,7 @@ workspace buffer is closed.
 
 This delay prevents premature server shutdown when a user still intends on
 working on that project after closing the last buffer, or when programmatically
-killing and opening many LSP/eglot-powered buffers.")
+killing and opening many eglot-powered buffers.")
 
 
 ;;
@@ -17,7 +17,7 @@ killing and opening many LSP/eglot-powered buffers.")
 (defvar +lsp--optimization-init-p nil)
 
 (define-minor-mode +lsp-optimization-mode
-  "Deploys universal GC and IPC optimizations for `lsp-mode' and `eglot'."
+  "Deploys universal GC and IPC optimizations for `eglot'."
   :group '+lsp
   :global t
   :init-value nil
@@ -48,6 +48,4 @@ killing and opening many LSP/eglot-powered buffers.")
 ;;
 ;;; Implementations
 
-(if (modulep! +eglot)
-    (load! "+eglot")
-  (load! "+lsp"))
+(load! "+eglot")
