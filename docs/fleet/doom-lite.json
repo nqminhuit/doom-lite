@@ -1,0 +1,22 @@
+{
+  "name": "doom-lite",
+  "cwd": "/opt/minh/doom-lite",
+  "layout": "main-vertical",
+  "stop": "/m-handoff",
+  "sessions": [
+    {
+      "name": "doom-lite-conductor",
+      "agent": "conductor",
+      "start": "You are the conductor of fleet set doom-lite. Ask the user what this set is for and which tickets belong to it, agree a plan with them, and start no worker before they approve it.",
+      "stop": "Bring the board up to date and write the Conductor handoff section, then stop."
+    },
+    {
+      "name": "SETUP",
+      "start": "Read docs/handoff/SETUP.md first (Conductor brief), then doom-lite-plan.md, then do the SETUP task in your own worktree and report STATUS lines to doom-lite-conductor."
+    },
+    {
+      "name": "S1",
+      "start": "Read docs/handoff/S1.md first (Conductor brief), then the S1 section of doom-lite-plan.md, then run the package-vc spike and report STATUS lines to doom-lite-conductor."
+    }
+  ]
+}
