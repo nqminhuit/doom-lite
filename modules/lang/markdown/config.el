@@ -22,7 +22,6 @@ output buffer."
 ;;; Packages
 
 (defun +markdown-common-config (mode &rest extra-modes)
-  (set-flyspell-predicate! (cons mode extra-modes) #'+markdown-flyspell-word-p)
   (set-lookup-handlers! (cons mode extra-modes)
     ;; `markdown-follow-thing-at-point' may open an external program or a
     ;; buffer. No good way to tell, so pretend it's async.

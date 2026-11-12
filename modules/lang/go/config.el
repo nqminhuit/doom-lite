@@ -5,7 +5,6 @@
 
 (defun +go-common-config (mode)
   (set-docsets! mode "Go")
-  (set-repl-handler! mode #'gorepl-run)
   (set-lookup-handlers! mode
     :documentation #'godoc-at-point)
 

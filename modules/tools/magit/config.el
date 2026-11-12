@@ -308,8 +308,6 @@ FUNCTION
 (use-package! git-commit
   :hook (doom-first-file . global-git-commit-mode)
   :config
-  (set-yas-minor-mode! 'git-commit-mode)
-
   ;; Enforce git commit conventions.
   ;; See https://chris.beams.io/posts/git-commit/
   (setq git-commit-summary-max-length 50

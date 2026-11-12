@@ -11,25 +11,6 @@
 
 (defun +javascript-common-config (mode)
   (unless (eq mode 'nodejs-repl-mode)
-    (set-repl-handler! mode #'+javascript/open-repl
-      :send-region #'nodejs-repl-send-region
-      :send-buffer #'nodejs-repl-send-buffer)
-    (set-ligatures! mode
-      ;; Functional
-      :def "function"
-      :lambda "() =>"
-      :composition "compose"
-      ;; Types
-      :null "null"
-      :true "true" :false "false"
-      ;; Flow
-      :not "!"
-      :and "&&" :or "||"
-      :for "for"
-      :return "return"
-      ;; Other
-      :yield "import")
-
     (when (modulep! +lsp)
       (add-hook (intern (format "%s-local-vars-hook" mode)) #'lsp! 'append)))
 
