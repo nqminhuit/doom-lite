@@ -15,7 +15,7 @@ Set `doom-lite`, conductor `doom-lite-conductor`. Executes `doom-lite-plan.md`. 
 
 ## Conductor handoff
 - Restart: `lazarus fleet up doom-lite` from `/opt/minh/doom-lite`; sessions resume their conversations. The main checkout stays on `master`; commit the board there only, then push.
-- Sessions: P4 (implementing). P1–P3 removed. After a phase merges, ask the user before removing its session. Worktrees need no approval (user, 2026-11-13): once the next phase reports the old worktree free, remove it and its local and remote branch.
+- Sessions: P4 (implementing). P1–P3 removed. After a phase merges, remove its session with `fleet remove --yes` (user approved this for every phase, 2026-11-13). Worktrees need no approval either: once the next phase reports the old worktree free, remove it and its local and remote branch.
 - Waiting on user: nothing.
 - Next: when P2's PR is merged, start P3 with a brief in `docs/handoff/P3.md` (same shape as `P2.md`), and so on per the board. P11 gets its own plan pass first.
 - Worker tips (from handoffs): copy `.local` from the previous worktree, then `bin/lite doom sync` (use `--force` if it dies on a prompt); copy tree-sitter grammars after a fresh sync; `bin/` needs `git add -f`; shellcheck via podman.
