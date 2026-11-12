@@ -84,6 +84,9 @@ every side window whose quit is t or `other'. Return non-nil if one closed."
         closed))))
 
 ;;;###autoload
+(add-to-list 'window-persistent-parameters '(quit . writable))
+
+;;;###autoload
 (add-hook 'doom-escape-hook #'doom-popup-close-on-escape-h 'append)
 
 ;;; popup.el ends here

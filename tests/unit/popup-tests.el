@@ -229,4 +229,18 @@
 (pt--shim-test popup-shim/escape-hook-registered
   (should (memq #'doom-popup-close-on-escape-h doom-escape-hook)))
 
+;; `quit' must survive window-state round-trips such as C-`.
+(pt--shim-test popup-shim/quit-survives-toggle
+  (set-popup-rule! "^\\*pt-q" :side 'bottom :quit t)
+  (let ((buf (get-buffer-create "*pt-q*")))
+    (display-buffer buf)
+    (window-toggle-side-windows)
+    (window-toggle-side-windows)
+    (let ((win (get-buffer-window buf)))
+      (should win)
+      (should (eq t (window-parameter win 'quit))))
+    (select-window (window-main-window))
+    (run-hook-with-args-until-success 'doom-escape-hook)
+    (should-not (get-buffer-window buf))))
+
 (provide 'popup-tests)
