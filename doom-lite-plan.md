@@ -33,6 +33,15 @@ This plan lives at the root of the fork repo (`doom-lite-plan.md`).
   - Keep `;;;###autoload` harvesting of the minh `autoload.el` files.
   - Deleting a module also removes the no-op `;;;###autodef` stubs Doom generates for it (`lisp/cli/loaddefs.el:67`). Every phase that deletes a module greps the remaining code for calls to that module's autodefs.
 
+## Tests
+The fork has no tests today. Tests are ERT (built in), live in `tests/`, and run locally with `tests/run.sh`; there is no CI for now, since it would need an Emacs 31 build.
+- **Unit tests** (`tests/unit/*-tests.el`) run with `emacs --batch -Q`, loading only the file under test and its direct dependencies. They need no synced `.local`, except tests that need evil, which add its build dir to the `load-path` and are skipped with a message when it is missing.
+- **Whole-config checks** are the scripted daemon checks in Verification. They live in `tests/smoke.sh`, need a synced `.local`, and are not part of the unit run.
+- **Each phase adds unit tests for the code it writes.** The per-phase lists below are the minimum.
+- **Old behavior first.** When a phase replaces the implementation behind an API that is kept (`map!`, `doom-project-root`, `set-popup-rule!`), its first commit adds tests that pass against the old implementation, and the rewrite must pass the same tests unchanged. A test that has to change records a deliberate behavior change, and the PR description says so.
+- Tests use temp directories and temp keymaps, and never read `~/.config`, the user's config or the network.
+- Not covered by tests: how things look (popup placement, startup buffer, which-key labels, terminals). Those stay in the user's interactive pass.
+
 ## Workspace (isolation from the live Emacs)
 The live install (`~/.config/emacs`, its `.local`, and `~/.config/doom` → `/opt/minh/linux-config/configs/dotfiles/emacs/doom-emacs`) is never edited or synced during the fork work, so the daily Emacs keeps working.
 
@@ -104,6 +113,8 @@ Then:
   ```
 - **Upstream tie.** Delete `bin/doom-upgrade` and the `upgrade` command wiring; a hard fork updates with `git pull`. Delete `docs/`, `static/`, `shell.nix`, `.github/` and `lisp/doom-elpaca.el` after a grep shows no loader references them. Replace the README with a short one for the fork.
 
+- **Test scaffolding.** Add `tests/run.sh` (runs every `tests/unit/*-tests.el` in batch and fails on any failure), `tests/smoke.sh` (the scripted daemon checks from Verification) and one first unit test, for the undefined-autodef check above, so the runner has something to run.
+
 Apart from the removed `doom upgrade`, this phase changes no behavior.
 
 ## P2 — popup → display-buffer-alist
@@ -115,6 +126,8 @@ Apart from the removed `doom upgrade`, this phase changes no behavior.
   - `:vslot`, `:ttl`, `:modeline`, `:autosave` → ignored
 - Handle `:quit` with a `doom-escape-hook` function that closes side windows when ESC is pressed outside them.
 - Delete the rest of the `+popup-*` references in vendored modules: `grep -rn "+popup" modules lisp`. This includes the popup toggle/raise bindings in `config/default`; rebind toggle to `window-toggle-side-windows` and drop raise.
+
+**Tests:** for each of `:side`, `:size`, `:slot` and `:select`, `set-popup-rule!` adds the expected `display-buffer-alist` entry; ignored keywords add nothing and signal nothing; a rule for the same predicate replaces the earlier one; `set-popup-rules!` equals the same calls made one by one. In a batch frame, a matching buffer is displayed in a side window on the requested side.
 
 **Config:**
 - Drop `(popup +defaults)` from `init.el`.
@@ -201,6 +214,13 @@ Apart from the removed `doom upgrade`, this phase changes no behavior.
 
 `F`, `>`, `.`, `o`, `x` and `X` keep their Doom wrappers. `R`, `T`, `g`, `r`, `e` and `i` are dropped, with no new helpers.
 
+**Tests** (in temp directories; the root cases are written first and must pass on the projectile version):
+- `doom-project-root` returns the git root from a nested directory, the `.project` directory when one sits inside a git repo, and nil outside any project.
+- `doom-project-name` returns the directory name, and `"-"` outside a project.
+- `doom/add-directory-as-project` writes `.project` and the directory then appears in `project-known-project-roots`.
+- A root matched by `project-list-exclude` is not remembered.
+- Every key in the `SPC p` table resolves to the listed command.
+
 **Config:** replace the `with-eval-after-load 'projectile` block (`config.el:227-235`) with `project-list-exclude` entries for `~/go/pkg/mod`. Remove the `"pC" nil` unbind.
 
 ## P6 — persp workspaces → tab-bar
@@ -210,6 +230,8 @@ Apart from the removed `doom upgrade`, this phase changes no behavior.
 - `SPC TAB` map
 - project switch opens or reuses a tab named after the project and runs `+workspaces-switch-project-function`
 - tab bar hidden: `tab-bar-show nil`. (`1` would show the bar as soon as there are two tabs.) The display command lists tabs in the echo area, as Doom does.
+
+**Tests:** switching to a project creates a tab named after it, and switching again reuses that tab; `+workspace/switch-to-N` selects tab N and reports an out-of-range N without signalling; new, rename and kill change `tab-bar-tabs` as expected; killing the last tab leaves one tab.
 
 **Buffer scoping changes.** persp isolated buffers per workspace; tab-bar does not. `SPC b b` becomes `project-switch-to-buffer`, falling back to `consult-buffer` outside a project.
 - Update vertico's `+vertico/switch-workspace-buffer` and the persp references in vertico, evil, ghostel and default (`grep -rn "persp\|+workspace" modules lisp`).
@@ -241,6 +263,14 @@ Apart from the removed `doom upgrade`, this phase changes no behavior.
 - Replace the `general-auto-unbind-keys` calls in `lisp/lib/config.el:97,100` and `+keybinds.el:53`, and the `general-key-dispatch` reference in `lisp/doom-lib.el:869`.
 - **Packages:** remove `package! general` and the `+keybinds` flag dependency on it.
 
+**Tests** (written first against the general-based `map!`; the rewrite must pass them unchanged). Each binds into a temp keymap and asserts with `keymap-lookup` or `evil-lookup-key`:
+- one test per supported keyword from the grep above, including nested groups and combined states such as `:nv`
+- `:leader` and `:localleader` bindings land under `doom-leader-map` and the localleader prefix
+- `(:prefix ("x" . "desc"))` and `:desc` register the which-key label
+- `:when`/`:unless` bind or skip, `:after` defers until the feature loads, and a nil definition unbinds
+- `define-key!` and `undefine-key!` with `:keymaps` taking one map and a list
+- the leader key resolves to the leader map in normal, visual and motion states, and is unbound by the override map in insert state
+
 **Config:** none expected. `map!` syntax is preserved. Verify `config.el:243` `define-key! :keymaps +default-minibuffer-maps`.
 
 ## P9 — Package audit (proposed; approving this plan approves this table)
@@ -266,6 +296,8 @@ After P1–P8 these third-party packages remain although a built-in covers the j
 | evil-args, evil-exchange, evil-indent-plus, evil-numbers (+ shift-number), evil-quick-diff, evil-textobj-anyblock, evil-traces, evil-visualstar, evil-escape, evil-surround | keep | kept for now; revisit after cutover |
 | nerd-icons, nerd-icons-corfu | keep | no built-in |
 | consult-dir, consult-eglot, embark, embark-consult, cape, orderless, diff-hl, evil-collection, ghostel, evil-ghostel | keep | per user decisions |
+
+**Tests:** the `gc` operator comments and uncomments a line, a region and a motion (`gcap`) in a temp buffer with a comment syntax, and leaves point where evil-nerd-commenter did.
 
 For each drop: remove the `package!`, its `use-package!` block and bindings, and grep for leftover references. Remove the now-redundant `:disable t` lines from the config `packages.el`.
 
@@ -293,15 +325,16 @@ For each drop: remove the `package!`, its `use-package!` block and bindings, and
 All commands run with `EMACSDIR`/`DOOMDIR` exported for the workspace (see Workspace). stacea cannot press keys, so everything it runs is scripted; the interactive pass is the user's.
 
 Scripted (stacea runs these):
+- `tests/run.sh` passes, including the unit tests the phase adds.
 - `$EMACSDIR/bin/doom sync` succeeds.
 - `$EMACSDIR/bin/doom doctor` shows nothing new against the baseline.
-- `emacs --init-directory "$EMACSDIR" --daemon=doom-lite` starts; then, through `emacsclient -s doom-lite --eval`:
+- `tests/smoke.sh` passes. It starts `emacs --init-directory "$EMACSDIR" --daemon=doom-lite`; then, through `emacsclient -s doom-lite --eval`, checks:
   - `*Messages*` and `*Warnings*` hold no errors or warnings
   - `(key-binding (kbd "SPC SPC"))`, `SPC p p`, `SPC b b`, `SPC /` and `SPC g g` each resolve to a command, checked in a file buffer in normal state
   - opening one Java and one Go file loads their modes without error
   - init time and package count, compared with the baseline
   - stop the daemon afterwards with `(kill-emacs)`
-- Config phases: `tests/run.sh` in the worktree passes (the ERT suite loads `minh/utils/autoload.el` and `minh/gis/autoload.el`).
+- Config phases: the config repo's own `tests/run.sh` in the worktree passes (the ERT suite loads `minh/utils/autoload.el` and `minh/gis/autoload.el`).
 - Grep for the symbols the phase removed (`grep -rn "<prefix>" lisp modules` and the config) returns only intentional hits.
 
 Interactive (user, before a phase is merged): `SPC SPC`, `SPC p p`, `SPC b b`, `SPC /`, magit status, eglot in one Java and one Go project, a ghostel terminal, and an `emacsclient -s doom-lite -c` frame.
