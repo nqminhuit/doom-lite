@@ -7,12 +7,7 @@
       (package! jsonrpc :built-in t)
       (package! xref :built-in t)
       (when (modulep! :completion vertico)
-        (package! consult-eglot :pin "3e4d9a40911b897c0a2c5d20199d0f7c30bfc1c2"))
-      ;; DEPRECATED: Remove when 29 support is dropped
-      (when (and (< emacs-major-version 30) (modulep! +booster))
-        (package! eglot-booster
-          :recipe (:host github :repo "jdtsmith/eglot-booster")
-          :pin "510f579409627c333ef0e9157db713b1004da842")))
+        (package! consult-eglot :pin "3e4d9a40911b897c0a2c5d20199d0f7c30bfc1c2")))
 
   ;; lsp-mode must be rebuilt if this variable is changed, so expose it here so
   ;; users can change it from $DOOMDIR/packages.el.

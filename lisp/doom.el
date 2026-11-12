@@ -75,14 +75,9 @@
                     load-file-name)))
   nil)
 
-;; Doom's CLI supports Emacs 27.1+ for the long haul, but lisp/doom-emacs.el and
-;; module libraries require 29.1+.
-(let ((supported (if noninteractive 27 29)))
-  (when (< emacs-major-version supported)
-    (user-error "Detected Emacs %s, but %sinteractive Doom needs >=%d.1"
-                emacs-version
-                (if noninteractive "non-" "")
-                supported)))
+;; Doom Lite targets Emacs 31+ only, for both the CLI and interactive sessions.
+(when (< emacs-major-version 31)
+  (user-error "Detected Emacs %s, but Doom needs >=31.1" emacs-version))
 
 
 ;;

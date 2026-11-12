@@ -165,15 +165,10 @@
   (let ((data-dir (doom-profile-data-dir t "tree-sitter")))
     (add-to-list 'treesit-extra-load-path data-dir)
     (make-directory data-dir t)
-    ;; Treesit's API saw major changes in 30.x.
-    (if (< emacs-major-version 30)
-        (defadvice! +tree-sitter--install-grammar-to-local-dir-a (fn out-dir &rest args)
-          :around #'treesit--install-language-grammar-1
-          (apply fn (or out-dir data-dir) args))
-      (defadvice! +tree-sitter--install-grammar-to-local-dir-a (fn lang &optional out-dir &rest args)
-        :around #'treesit-install-language-grammar
-        :around #'treesit--build-grammar
-        (apply fn lang (or out-dir data-dir) args))))
+    (defadvice! +tree-sitter--install-grammar-to-local-dir-a (fn lang &optional out-dir &rest args)
+      :around #'treesit-install-language-grammar
+      :around #'treesit--build-grammar
+      (apply fn lang (or out-dir data-dir) args)))
 
   (cl-defun +tree-sitter-source (name &key url rev source-dir cc cpp commit)
     (cons name
@@ -250,9 +245,7 @@
                  (glsl :url "https://github.com/tree-sitter-grammars/tree-sitter-glsl")
                  (graphql :url "https://github.com/bkegley/tree-sitter-graphql")
                  (go :url "https://github.com/tree-sitter/tree-sitter-go"
-                     :rev ,(if (< (treesit-library-abi-version) 15)
-                               (if (< emacs-major-version 30) "v0.20.0" "v0.23.4")
-                             "v0.25.0"))
+                     :rev ,(if (< (treesit-library-abi-version) 15) "v0.23.4" "v0.25.0"))
                  (gomod :url "https://github.com/camdencheek/tree-sitter-go-mod"
                         :commit "3b01edce2b9ea6766ca19328d1850e456fde3103")
                  (gowork :url "https://github.com/omertuc/tree-sitter-go-work"

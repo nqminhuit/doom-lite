@@ -66,21 +66,6 @@ server an expensive restart when its buffer is reverted."
       (funcall fn server))))
 
 
-;; DEPRECATED: Remove when 29 support is dropped
-(use-package! eglot-booster
-  :when (< emacs-major-version 30)
-  :when (modulep! +booster)
-  :after eglot
-  :init
-  (setq eglot-booster-io-only
-        ;; JSON parser on 30+ is faster, so we only exploit eglot-booster's IO
-        ;; buffering (benefits more talkative LSP servers).
-        (and (> emacs-major-version 29)
-             (not (functionp 'json-rpc-connection))))
-  :config
-  (eglot-booster-mode +1))
-
-
 (use-package! consult-eglot
   :when (modulep! :completion vertico)
   :defer t
