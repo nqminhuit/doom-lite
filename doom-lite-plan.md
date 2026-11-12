@@ -9,7 +9,7 @@ User decisions:
 - Swaps to make: smartparens → electric-pair, persp workspaces → tab-bar, general.el → built-in keymaps, dashboard → plain startup buffer, popup → `display-buffer-alist`, projectile → project.el.
 - Swaps NOT to make: vertico/consult, corfu, magit, vc-gutter all stay.
 - Project roots: VC roots (git/.jj) plus `.project` files.
-- Package manager: built-in package.el / package-vc, done as the last phase.
+- Package manager: replace straight with a small backend of the fork's own inside `doom sync` (clone at pin, add to load-path, generate autoloads, no package.el), done as the last phase. Chosen after S1 found package-vc needs as many workarounds as that backend.
 
 Upstream is mid-migration. Projectile lives in `:doom compat +projectile`, at `modules/doom/compat/+projectile.el`. Its flags are hardcoded in `lisp/doom-modules.el:60-64`. Core helpers in `lisp/lib/projects.el` and `lisp/lib/buffers.el` still call projectile, while the user's `:minh` modules already use project.el, so today root detection is split between the two.
 
@@ -96,12 +96,8 @@ Baseline (SETUP, saved next to this plan as `doom-lite-baseline.md`): init time,
 - `config/` copied from linux-config `master` at `3ced698a` (18 files, no symlinks), from the commit rather than the working tree, so uncommitted live edits are not included.
 - First `doom sync` and the baseline (`doom-lite-baseline.md`), run with `EMACSDIR`/`DOOMDIR` exported by hand to the SETUP worktree.
 
-## S1 — package-vc spike (throwaway, before P2)
-P11 is the riskiest phase, so test its assumptions early in a scratch `user-emacs-directory`, not in the fork. Nothing is committed except a short findings note added to P11.
-- Does `package-vc-install` at a pinned rev give a working load-path for multi-directory repos: vertico and corfu (`extensions/`), evil-collection (`modes/*/`), magit (`lisp/`)?
-- Does ghostel's native module build?
-- Are dependencies not named by a `package!` pulled unpinned from archives? If so, pinning is not reproducible unless every dependency is declared.
-- If any answer is bad, P11's fallback is a small "clone at pin, add to load-path, generate autoloads" backend inside `doom sync`, with no package.el.
+## S1 — package-vc spike (DONE)
+Run on 2026-11-12 in scratch `user-emacs-directory`s. Findings, evidence and the user's decisions are in `docs/handoff/S1.md`; the parts P11 needs are folded into P11. In short: package-vc pins exactly, but vertico/corfu `extensions/` get no load-path or autoloads, archive deps come in unpinned, and evil/magit-section hit an activation recursion without `:ignored-files`. The user chose the fallback backend for P11, and a download-only ghostel module.
 
 ## P1 — Vendor enabled modules and cut the upstream tie
 For each enabled module, copy `sources/doom+/modules/<cat>/<mod>/` to `modules/<cat>/<mod>/`. The enabled modules are:
@@ -128,6 +124,7 @@ Then:
 
 - **Wrapper.** Add `bin/lite` as described in Workspace, as the first commit of the phase, and use it for everything after. Add a bats or plain-bash test for its refusals (live `EMACSDIR`, live `DOOMDIR`, missing `init.el`) that runs with a fake `HOME` and never starts Emacs.
 - **Test scaffolding.** Add `tests/run.sh` (runs every `tests/unit/*-tests.el` in batch and fails on any failure), `tests/smoke.sh` (the scripted daemon checks from Verification) and one first unit test, for the undefined-autodef check above, so the runner has something to run.
+- **Config ERT suite.** Port linux-config's `tests/elisp/minh-tests.el` to `tests/unit/minh-tests.el`, loading `minh/utils/autoload.el` and `minh/gis/autoload.el` from `config/modules/minh/` instead of the live tree, so `tests/run.sh` covers the config. At cutover it goes back to linux-config with `config/`.
 
 Apart from the removed `doom upgrade`, this phase changes no behavior.
 
@@ -326,14 +323,17 @@ For each drop: remove the `package!`, its `use-package!` block and bindings, and
 - **compat module:** delete the deprecated aliases and macros that have no callers (`init.el`, after a grep).
 - **Keep:** `doom.el`, `doom-lib.el`, `doom-modules.el`, `doom-emacs.el`, `lib/{files,text,ui,buffers,projects,config,help,debug,fonts,themes,scratch,sessions,process,system,git,strings}`, the CLI, and `doom env`.
 
-## P11 — straight → package.el / package-vc (planned in detail when reached)
+## P11 — straight → built-in clone-at-pin backend (planned in detail when reached)
+Decided after S1 (`docs/handoff/S1.md`): no package.el or package-vc. `doom sync` gets a small backend that clones each package at its pin, adds its dirs to the load-path, generates autoloads and byte-compiles.
 - Startup loads the profile init that `doom sync` generates (loaddefs, load-path, module loader). Keep `doom sync` as the entry point and swap only the installer backend in `doom-packages.el`.
-  - Every `package!` becomes a `package-vc-install` with `:rev` set to the existing `:pin`, which keeps reproducibility only if S1 shows dependencies are pinned too.
-  - GitHub recipes map to package-vc specs.
-  - `:built-in` packages are skipped.
+  - GitHub recipes map to clone URL + pin; `:built-in` packages are skipped.
+- **Pin every transitive dependency.** Today with-editor, llama and goto-chg have no `package!` and are unpinned; enumerate the deps of every other package too and declare each with a `:pin`. A dep that is not declared is an error, never fetched at HEAD.
+- **Built-ins must not shadow pins.** A pinned package goes on the load-path ahead of the built-in of the same name (Emacs 31.1's transient 0.13.3 otherwise satisfies magit instead of the pinned one).
+- **Multi-directory repos.** Put each repo's lisp dir on the load-path (`lisp/` for magit) plus extra dirs: vertico and corfu `extensions/`, with autoloads generated for them too (otherwise `vertico-directory` and `corfu-popupinfo` neither load nor bind). evil-collection needs no extra dirs (it loads `modes/<mode>/` by absolute path). evil-ghostel loads from ghostel's `extensions/evil-ghostel/`.
+- **Build order.** Byte-compile in topological order, dependencies first, so nothing compiles against a missing dep; honour each recipe's `:files` exclusions (test helpers such as evil's `evil-test-helpers.el` are not package code).
+- **ghostel module: download only.** Set `ghostel-module-auto-install` to `download` and `ghostel-module-directory` to a dir outside the package tree (for example under `doom-data-dir`), so a re-clone keeps the module. The zig compile path is unsupported. The live install has no module today, so the first ghostel use in the fork downloads one.
 - Delete `doom-straight.el` and the straight bump tooling in `lib/packages.el`. Port `doom gc` to the package dirs.
-- Fallback if S1 fails: a "clone at pin, add to load-path, generate autoloads" backend, with no package.el.
-- This phase gets its own plan pass before stacea, because the scope only becomes concrete after S1 and P1–P10.
+- This phase gets its own plan pass before stacea, because the scope only becomes concrete after P1–P10.
 
 ## Verification (every phase)
 All commands run through `bin/lite` (see Workspace). stacea cannot press keys, so everything it runs is scripted; the interactive pass is the user's.
@@ -348,7 +348,7 @@ Scripted (stacea runs these):
   - opening one Java and one Go file loads their modes without error
   - init time and package count, compared with the baseline
   - stop the daemon afterwards with `bin/lite stop`, also when a check fails
-- Config phases: the config's ERT suite passes. It lives in linux-config (`tests/elisp/minh-tests.el`, run by its `tests/run.sh`) and loads `minh/utils/autoload.el` and `minh/gis/autoload.el` from the live tree, not from `config/`, so it does not test the fork's copy until it is ported (see Open decisions).
+- Config phases: the config's ERT suite (`tests/unit/minh-tests.el`, ported in P1) passes as part of `tests/run.sh`.
 - Grep for the symbols the phase removed (`grep -rn "<prefix>" lisp modules` and the config) returns only intentional hits.
 
 Interactive (user, before a phase is merged): `SPC SPC`, `SPC p p`, `SPC b b`, `SPC /`, magit status, eglot in one Java and one Go project, a ghostel terminal, and a `bin/lite client -c` frame.
@@ -365,7 +365,7 @@ Phase-specific checks:
 - **P6:** Project switch creates a named tab, `SPC 1..9` switches tabs, `SPC b b` is project-scoped, and no tab bar is drawn.
 - **P8:** `SPC` leader works in magit, dired and ghostel buffers and types a space in insert state. which-key shows labels. `(featurep 'general)` is nil.
 - **P9:** every dropped package is absent from the build dir, and `(featurep ...)` is nil for each after the smoke pass. A `.md` file opens in `markdown-ts-mode`. `gcc` and visual `gc` comment and uncomment.
-- **P11:** On a fresh `.local`, `doom sync` installs every package at its pinned rev.
+- **P11:** On a fresh `.local`, `doom sync` clones every package at its pinned rev (`git rev-parse HEAD` equals the pin) and fetches nothing unpinned. `(locate-library "transient")` points into `.local`, not the Emacs install. `vertico-directory-enter` and `corfu-popupinfo-mode` are bound. ghostel's module loads from `ghostel-module-directory`.
 
 ## Open decisions
-- **Config ERT suite.** linux-config's `tests/elisp/minh-tests.el` loads the live `configs/dotfiles/emacs/doom-emacs/modules/minh/`, not `config/`. Proposal: P1 copies it to `tests/unit/minh-tests.el`, pointed at `config/modules/minh/`, so `tests/run.sh` covers it; at cutover it goes back to linux-config with `config/`. Needs the user's yes.
+None, and nothing is blocked.
