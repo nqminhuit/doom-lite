@@ -13,6 +13,13 @@ Set `doom-lite`, conductor `doom-lite-conductor`. Executes `doom-lite-plan.md`. 
 - P1 ports linux-config `tests/elisp/minh-tests.el` to `tests/unit/minh-tests.el`, pointed at `config/`.
 - P11 uses the fallback backend (clone at pin, load-path, autoloads, no package.el); ghostel module is download-only.
 
+## Conductor handoff
+- Restart: `lazarus fleet up doom-lite` from `/opt/minh/doom-lite`; sessions resume their conversations. The main checkout stays on `master`; commit the board there only, then push.
+- Live sessions: P1 (done; its handoff in `docs/handoff/P1.md`), P2 (just started; worktree `/opt/minh/doom-lite-wt/P2`).
+- Waiting on user: remove the P1 session? delete remote branch `p1-vendor-modules`? P1 worktree stays until P2 has copied its `.local`.
+- Next: when P2's PR is merged, start P3 with a brief in `docs/handoff/P3.md` (same shape as `P2.md`), and so on per the board. P11 gets its own plan pass first.
+- Worker tips (from handoffs): copy `.local` from the previous worktree, then `bin/lite doom sync` (use `--force` if it dies on a prompt); copy tree-sitter grammars after a fresh sync; `bin/` needs `git add -f`; shellcheck via podman.
+
 ## Board
 
 | Key | State | PR | Blocker | Next |
