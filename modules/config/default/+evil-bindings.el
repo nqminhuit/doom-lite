@@ -278,10 +278,7 @@
 
 
 ;;; :ui
-(map! (:when (modulep! :ui popup)
-       "C-`"   #'+popup/toggle
-       "C-~"   #'+popup/raise
-       "C-x p" #'+popup/other)
+(map! "C-`" #'window-toggle-side-windows
 
       (:when (modulep! :ui workspaces)
        :n "C-t"   #'+workspace/new
@@ -342,8 +339,7 @@
       :desc "window"                "w"    #'evil-window-map
       :desc "help"                  "h"    help-map
 
-      (:when (modulep! :ui popup)
-       :desc "Toggle last popup"     "~"    #'+popup/toggle)
+      :desc "Toggle side windows"   "~"    #'window-toggle-side-windows
       :desc "Find file"             "."    #'find-file
       :desc "Switch buffer"         ","    #'switch-to-buffer
       (:when (modulep! :ui workspaces)

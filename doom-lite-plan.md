@@ -355,7 +355,7 @@ Interactive (user, before a phase is merged): `SPC SPC`, `SPC p p`, `SPC b b`, `
 
 Phase-specific checks:
 - **P1:** the undefined-autodef loop prints nothing unexpected. `bin/doom upgrade` is gone.
-- **P2:** `*Async Shell Command*` and `*gis: *` open in the right side window, and ESC closes them.
+- **P2:** `*Async Shell Command*` opens in the bottom side window and ESC closes it (`:quit 'current`, from inside the window); `*gis: *` opens in the left side window and stays open on ESC (`:quit nil`, user decision).
 - **P4:** `ls .local/straight/build-31.1` in the fork no longer lists the built-in duplicates. `gc` still comments. compat: through the daemon, `(require 'vertico)`, `consult`, `corfu`, `embark`, `orderless`, `cape`, `magit` and `ghostel` all load, and `(locate-library "compat")` points into the Emacs install, not `.local`.
 - **P5:**
   - `(featurep 'projectile)` is nil after use.

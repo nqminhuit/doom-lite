@@ -589,10 +589,7 @@
           "P"     #'neotree-select-previous-sibling-node))
 
       ;;; popups
-      (:when (modulep! :ui popup)
-        "C-x p"   #'+popup/other
-        "C-`"     #'+popup/toggle
-        "C-~"     #'+popup/raise)
+      "C-`"     #'window-toggle-side-windows
 
       ;;; smartparens
       (:after smartparens

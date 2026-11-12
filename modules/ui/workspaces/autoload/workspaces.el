@@ -148,11 +148,9 @@ Otherwise return t on success, nil otherwise."
     (error "Can't create a new '%s' workspace" name))
   (when (+workspace-exists-p name)
     (error "A workspace named '%s' already exists" name))
-  (let ((persp (persp-add-new name))
-        (+popup--inhibit-transient t))
+  (let ((persp (persp-add-new name)))
     (save-window-excursion
-      (dlet ((ignore-window-parameters t)
-             (+popup--inhibit-transient t))
+      (dlet ((ignore-window-parameters t))
         (persp-delete-other-windows))
       (switch-to-buffer (doom-fallback-buffer))
       (setf (persp-window-conf persp)
