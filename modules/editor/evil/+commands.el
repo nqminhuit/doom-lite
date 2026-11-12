@@ -19,8 +19,6 @@
 ;; TODO: (evil-ex-define-cmd "db"          #'doom:db)
 ;; TODO: (evil-ex-define-cmd "dbu[se]"     #'doom:db-select)
 ;; TODO: (evil-ex-define-cmd "go[ogle]"    #'doom:google-search)
-(evil-ex-define-cmd "lo[okup]"    #'+lookup:online)
-(evil-ex-define-cmd "dash"        #'+lookup:dash)
 (evil-ex-define-cmd "repl"        #'+eval:repl)             ; invoke or send to repl
 (evil-ex-define-cmd "h[elp]"      #'+evil:help)
 

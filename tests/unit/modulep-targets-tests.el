@@ -13,13 +13,6 @@
   "(\\(?:modulep!\\|doom-module-active-p\\) +\\(:[a-z]+\\) +'?\\([a-z][a-z0-9-]*\\)"
   "Matches the `:CATEGORY MODULE' of a literal modulep! form.")
 
-;; Dead branches inside code that later phases delete wholesale (lsp-mode, the
-;; lookup docsets backend). Drop each entry when its file loses the branch.
-(defconst modulep-test--pending-removal
-  '("modules/tools/lookup/packages.el"
-    "modules/tools/lookup/config.el"
-    "modules/tools/lookup/autoload/docsets.el"))
-
 (defun modulep-test--files ()
   "Every .el file under modules/ and lisp/, minus the CLI module."
   (cl-remove-if
@@ -57,16 +50,10 @@
                    modulep-test--root)))
         ;; `:user' is the special DOOMDIR module and has no directory.
         (unless (or (equal cat "user") (file-directory-p dir))
-          (let ((files (cl-remove-if
-                        (lambda (f)
-                          (member (file-relative-name f modulep-test--root)
-                                  modulep-test--pending-removal))
-                        (cdr entry))))
-            (when files
-              (push (format ":%s %s (in %s)" cat mod
-                            (mapconcat (lambda (f) (file-relative-name f modulep-test--root))
-                                       files ", "))
-                    missing))))))
+          (push (format ":%s %s (in %s)" cat mod
+                        (mapconcat (lambda (f) (file-relative-name f modulep-test--root))
+                                   (cdr entry) ", "))
+                missing))))
     (should-not (progn (when missing
                          (message "modulep! targets without a module dir:\n%s"
                                   (string-join (sort missing #'string<) "\n")))

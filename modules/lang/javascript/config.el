@@ -13,13 +13,7 @@
   (unless (eq mode 'nodejs-repl-mode)
     (add-hook (intern (format "%s-local-vars-hook" mode)) #'lsp! 'append))
 
-  (if (not (memq mode '(typescript-mode typescript-ts-mode)))
-      (set-docsets! mode "JavaScript"
-        "AngularJS" "Backbone" "BackboneJS" "Bootstrap" "D3JS" "EmberJS" "Express"
-        "ExtJS" "JQuery" "JQuery_Mobile" "JQuery_UI" "KnockoutJS" "Lo-Dash"
-        "MarionetteJS" "MomentJS" "NodeJS" "PrototypeJS" "React" "RequireJS"
-        "SailsJS" "UnderscoreJS" "VueJS" "ZeptoJS")
-    (set-docsets! mode :add "TypeScript" "AngularTS")
+  (when (memq mode '(typescript-mode typescript-ts-mode))
     (set-electric! mode :chars '(?\} ?\)) :words '("||" "&&"))))
 
 

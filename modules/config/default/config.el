@@ -153,7 +153,6 @@ Continues comments if executed from a commented line."
   "u"    #'doom/describe-autodef
   "E"    #'doom/sandbox
   "M"    #'doom/describe-active-minor-mode
-  "O"    #'+lookup/online
   "T"    #'doom/toggle-profiler
   "V"    #'doom/describe-option
   "W"    #'+default/man-or-woman

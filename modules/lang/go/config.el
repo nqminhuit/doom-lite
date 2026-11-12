@@ -4,7 +4,6 @@
 ;;; Packages
 
 (defun +go-common-config (mode)
-  (set-docsets! mode "Go")
   (set-lookup-handlers! mode
     :documentation #'godoc-at-point)
 

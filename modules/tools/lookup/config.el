@@ -7,45 +7,13 @@
 ;;                                project
 ;;   + `+lookup/references': find a symbol's references in the current project
 ;;   + `+lookup/file': open the file referenced at point
-;;   + `+lookup/online'; look up a symbol on online resources
-;;   + `+lookup/in-docsets': look up in Dash docsets
 ;;
 ;; This module uses `xref', an experimental new library in Emacs. It may change
 ;; in the future. When xref can't be depended on it will fall back to
 ;; `dumb-jump' to find what you want.
 
-(defvar +lookup-provider-url-alist
-  '(("Doom issues"       "https://github.com/orgs/doomemacs/projects/2/views/30?filterQuery=%s")
-    ("Google"            +lookup--online-backend-google "https://google.com/search?q=%s")
-    ("Google images"     "https://www.google.com/images?q=%s")
-    ("Google maps"       "https://maps.google.com/maps?q=%s")
-    ("Kagi"              "https://kagi.com/search?q=%s")
-    ("Project Gutenberg" "http://www.gutenberg.org/ebooks/search/?query=%s")
-    ("DuckDuckGo"        +lookup--online-backend-duckduckgo "https://duckduckgo.com/?q=%s")
-    ("DevDocs.io"        "https://devdocs.io/#q=%s")
-    ("StackOverflow"     "https://stackoverflow.com/search?q=%s")
-    ("StackExchange"     "https://stackexchange.com/search?q=%s")
-    ("Github"            "https://github.com/search?ref=simplesearch&q=%s")
-    ("Youtube"           "https://youtube.com/results?aq=f&oq=&search_query=%s")
-    ("Wolfram alpha"     "https://wolframalpha.com/input/?i=%s")
-    ("Wikipedia"         "https://wikipedia.org/search-redirect.php?language=en&go=Go&search=%s")
-    ("MDN"               "https://developer.mozilla.org/en-US/search?q=%s")
-    ("Internet archive"  "https://web.archive.org/web/*/%s")
-    ("Sourcegraph"       "https://sourcegraph.com/search?q=context:global+%s&patternType=literal"))
-  "An alist that maps online resources to either:
-
-  1. A search url (needs on '%s' to substitute with an url encoded query),
-  2. A non-interactive function that returns the search url in no.1,
-  3. An interactive command that does its own search for that provider.
-
-Used by `+lookup/online'.")
-
-(defvar +lookup-open-url-fn #'browse-url
-  "Function to use to open search urls.")
-
 (defvar +lookup-definition-functions
-  '(+lookup-dictionary-definition-backend-fn
-    +lookup-xref-definitions-backend-fn
+  '(+lookup-xref-definitions-backend-fn
     +lookup-dumb-jump-backend-fn
     +lookup-project-search-backend-fn
     +lookup-evil-goto-definition-backend-fn)
@@ -77,8 +45,7 @@ argument: the identifier at point. See `set-lookup-handlers!' about adding to
 this list.")
 
 (defvar +lookup-references-functions
-  '(+lookup-thesaurus-definition-backend-fn
-    +lookup-xref-references-backend-fn
+  '(+lookup-xref-references-backend-fn
     +lookup-project-search-backend-fn)
   "Functions for `+lookup/references' to try, before resorting to `dumb-jump'.
 Stops at the first function to return non-nil or change the current
@@ -89,8 +56,7 @@ If the argument is interactive (satisfies `commandp'), it is called with
 argument: the identifier at point. See `set-lookup-handlers!' about adding to
 this list.")
 
-(defvar +lookup-documentation-functions
-  '(+lookup-online-backend-fn)
+(defvar +lookup-documentation-functions ()
   "Functions for `+lookup/documentation' to try, before resorting to
 `dumb-jump'. Stops at the first function to return non-nil or change the current
 window/point.
@@ -111,18 +77,6 @@ If the argument is interactive (satisfies `commandp'), it is called with
 `call-interactively' (with no arguments). Otherwise, it is called with one
 argument: the identifier at point. See `set-lookup-handlers!' about adding to
 this list.")
-
-(defvar +lookup-dictionary-prefer-offline nil
-  "If non-nil, look up dictionaries online.
-
-Setting this to nil will force it to use offline backends, which may be less
-than perfect, but available without an internet connection.
-
-Used by `+lookup/dictionary-definition' and `+lookup/synonyms'.
-
-For `+lookup/dictionary-definition', this is ignored on Mac, where Emacs users
-Dictionary.app behind the scenes to get definitions.")
-
 
 ;;
 ;;; dumb-jump
@@ -151,23 +105,3 @@ Dictionary.app behind the scenes to get definitions.")
     :init
     (setq xref-show-xrefs-function       #'consult-xref
           xref-show-definitions-function #'consult-xref)))
-
-
-;;
-;;; Dash docset integration
-
-(use-package! dash-docs
-  :when (modulep! +docsets)
-  :defer t
-  :init
-  (add-hook '+lookup-documentation-functions #'+lookup-dash-docsets-backend-fn)
-  :config
-  (setq dash-docs-enable-debugging init-file-debug
-        dash-docs-docsets-path (doom-profile-data-dir t "docsets/")
-        dash-docs-min-length 2
-        dash-docs-browser-func #'eww)
-
-  (cond ((modulep! :completion helm)
-         (require 'helm-dash nil t))
-        ((modulep! :completion ivy)
-         (require 'counsel-dash nil t))))

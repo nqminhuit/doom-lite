@@ -7,10 +7,13 @@
   (expand-file-name "../../" (file-name-directory (or load-file-name buffer-file-name))))
 
 (defconst lookup-lsp-test--removed-files
-  '("modules/tools/lsp/+lsp.el"))
+  '("modules/tools/lsp/+lsp.el"
+    "modules/tools/lookup/autoload/docsets.el"
+    "modules/tools/lookup/autoload/online.el"
+    "modules/tools/lookup/autoload/xwidget.el"))
 
 (defconst lookup-lsp-test--banned
-  '("(modulep! :tools lsp -eglot)"))
+  '("(set-docsets! " "+lookup/online" "+lookup/in-docsets" "(modulep! :tools lsp -eglot)"))
 
 (defun lookup-lsp-test--files ()
   "Every .el file under modules/ and lisp/, minus the CLI module."

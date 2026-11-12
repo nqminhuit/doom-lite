@@ -438,17 +438,11 @@
        :desc "Jump to link"                 "L" #'ffap-menu
        :desc "Jump list"                    "j" #'evil-show-jumps
        :desc "Jump to bookmark"             "m" #'bookmark-jump
-       :desc "Look up online"               "o" #'+lookup/online
-       :desc "Look up online (w/ prompt)"   "O" #'+lookup/online-select
-       :desc "Look up in local docsets"     "k" #'+lookup/in-docsets
-       :desc "Look up in all docsets"       "K" #'+lookup/in-all-docsets
        :desc "Search project"               "p" #'+default/search-project
        :desc "Search other project"         "P" #'+default/search-other-project
        :desc "Jump to mark"                 "r" #'evil-show-marks
        :desc "Search buffer"                "s" #'+default/search-buffer
-       :desc "Search buffer for thing at point" "S" #'+vertico/search-symbol-at-point
-       :desc "Dictionary"                   "t" #'+lookup/dictionary-definition
-       :desc "Thesaurus"                    "T" #'+lookup/synonyms)
+       :desc "Search buffer for thing at point" "S" #'+vertico/search-symbol-at-point)
 
       ;;; <leader> t --- toggle
       (:prefix-map ("t" . "toggle")
