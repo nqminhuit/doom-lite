@@ -9,22 +9,22 @@ User decisions:
 - Swaps to make: smartparens → electric-pair, persp workspaces → tab-bar, general.el → built-in keymaps, dashboard → plain startup buffer, popup → `display-buffer-alist`, projectile → project.el.
 - Swaps NOT to make: vertico/consult, corfu, magit, vc-gutter all stay.
 - Project roots: VC roots (git/.jj) plus `.project` files.
-- Package manager: built-in package.el / package-vc, done as the last phase.
+- Package manager: replace straight with a small backend of the fork's own inside `doom sync` (clone at pin, add to load-path, generate autoloads, no package.el), done as the last phase. Chosen after S1 found package-vc needs as many workarounds as that backend.
 
 Upstream is mid-migration. Projectile lives in `:doom compat +projectile`, at `modules/doom/compat/+projectile.el`. Its flags are hardcoded in `lisp/doom-modules.el:60-64`. Core helpers in `lisp/lib/projects.el` and `lisp/lib/buffers.el` still call projectile, while the user's `:minh` modules already use project.el, so today root detection is split between the two.
 
-There are two repos, and each phase lists its changes per repo:
+Everything lives in one repo, and each phase lists its **Fork** and **Config** changes separately:
 - **fork** = `/opt/minh/doom-lite`, a checkout of `nqminhuit/doom-lite`, separate from the live `~/.config/emacs` (see Workspace).
-- **config** = `/opt/minh/linux-config-lite`, a git worktree of `/opt/minh/linux-config` on the long-lived `doom-lite` branch; the Doom config lives at `configs/dotfiles/emacs/doom-emacs/`. Remote is `nqminhuit/linux-config`.
+- **config** = `config/` inside the fork: a copy of linux-config's `configs/dotfiles/emacs/doom-emacs/` taken from `master` at `3ced698a` (SETUP). Paths in a phase's **Config** section (`init.el`, `config.el`, `minh/...`) are relative to `config/`. The live config in `/opt/minh/linux-config` is never edited during the fork work; `config/` goes back to it at cutover.
 
 This plan lives at the root of the fork repo (`doom-lite-plan.md`).
 
 ## Workflow
-- Each phase is one stacea task, reviewed per CLAUDE.md.
-- A phase's fork and config edits are separate stacea calls.
-- Phases are sequential. Each fork phase branches off the fork's `master` after the previous phase is merged. A phase never edits the `doom+` submodule.
-- **Fork:** each phase is a branch off `master` and a draft PR in `nqminhuit/doom-lite` with base `master`.
-- **Config:** each phase gets its own branch off `doom-lite` and a draft PR with base `doom-lite` (never `master`). Nothing merges to `master` before cutover, because `~/.config/doom` symlinks into the live `master` checkout and a config change made for the fork (for example dropping `+smartparens`) would break the daily Emacs. Push `doom-lite` to the remote once, before the first config PR.
+- Each phase is one branch and one draft PR in `nqminhuit/doom-lite` with base `master`, reviewed per CLAUDE.md. Phases are sequential: a phase branches off `master` after the previous phase is merged.
+- A phase's fork and config edits are two separate stacea calls on the same branch and PR.
+- Each worker works in its own git worktree of the fork, `/opt/minh/doom-lite-wt/<KEY>`; the main checkout `/opt/minh/doom-lite` stays on `master`. Each worktree has its own `.local` and needs its own first `doom sync`.
+- A phase never edits the `doom+` submodule (until P1 removes it).
+- The user's interactive pass gates every merge.
 - Global invariants:
   - Keep the `map!`, `add-hook!`, `cmd!`, `define-key!`, `custom-set-faces!` and `after!` APIs.
   - Keep `doom-real-buffer-p`, `doom-font`, `doom-theme`, `doom-cache-dir` and `doom-escape-hook`.
@@ -47,14 +47,15 @@ The live install (`~/.config/emacs`, its `.local`, and `~/.config/doom` → `/op
 
 | | Live (untouched) | Fork workspace |
 |---|---|---|
-| Doom core | `~/.config/emacs` | `/opt/minh/doom-lite` (separate clone, own remotes and submodule state) |
-| Doom config | `/opt/minh/linux-config/.../doom-emacs` | `/opt/minh/linux-config-lite/configs/dotfiles/emacs/doom-emacs` (worktree on `doom-lite`) |
-| Packages/caches | `~/.config/emacs/.local` | `/opt/minh/doom-lite/.local` |
+| Doom core | `~/.config/emacs` | `/opt/minh/doom-lite` (separate clone, own remotes and submodule state), one worktree per worker under `/opt/minh/doom-lite-wt/<KEY>` |
+| Doom config | `/opt/minh/linux-config/.../doom-emacs` | `config/` in the same checkout or worktree |
+| Packages/caches | `~/.config/emacs/.local` | `.local` in the same checkout or worktree |
 
-Setup is done (see P0). To recreate the workspace on another machine:
+Setup is done (see P0 and SETUP). To recreate the workspace on another machine, or a worker's worktree:
 ```sh
 git clone --recurse-submodules git@github.com:nqminhuit/doom-lite.git /opt/minh/doom-lite
-git -C /opt/minh/linux-config worktree add /opt/minh/linux-config-lite doom-lite
+git -C /opt/minh/doom-lite worktree add -b <branch> /opt/minh/doom-lite-wt/<KEY> master
+git -C /opt/minh/doom-lite-wt/<KEY> submodule update --init   # only while sources/doom+ exists (before P1)
 ```
 
 Every command against the fork goes through the wrapper `bin/lite` (added in P1), which is the only supported way to run the fork until cutover:
@@ -66,35 +67,37 @@ bin/lite client -c        # emacsclient -s doom-lite ...
 bin/lite stop             # kill the doom-lite daemon
 ```
 What the wrapper does:
-- Sets `EMACSDIR` to the repo it lives in and `DOOMDIR` to `$DOOM_LITE_CONFIG`, defaulting to `/opt/minh/linux-config-lite/configs/dotfiles/emacs/doom-emacs`. Values already in the environment are overwritten, not trusted.
+- Sets `EMACSDIR` to the checkout or worktree it lives in and `DOOMDIR` to `$DOOM_LITE_CONFIG`, defaulting to `config/` in that same checkout. Values already in the environment are overwritten, not trusted.
 - Refuses to run, with a message and a non-zero exit, when after resolving symlinks `EMACSDIR` is `~/.config/emacs`, or `DOOMDIR` is `~/.config/doom`, lies under `/opt/minh/linux-config/`, or has no `init.el`.
 - Passes `--init-directory "$EMACSDIR"` to every `emacs` call and `-s doom-lite` to every `emacsclient` call; `daemon` refuses to start if that socket is already live.
 - Is plain bash, passes shellcheck, and has no other logic.
 
 Rules:
-- Never call `bin/doom`, `emacs` or `emacsclient` directly for fork work; use `bin/lite`. The one exception is P1 before the wrapper exists, where both variables are exported by hand. Never run `doom upgrade` at all (it pulls upstream; P1 deletes it).
-- The first sync re-downloads ~80 packages into the workspace `.local`.
-- Known leak: five places in the config hardcode `/opt/minh/linux-config` (`config.el:58` eshell aliases, `minh/java/config.el:40`, `minh/utils/autoload.el:3,79,84`), so the test session reads those files from the live tree. Harmless as long as phases don't change them; don't rewrite the paths.
+- Never call `bin/doom`, `emacs` or `emacsclient` directly for fork work; use `bin/lite`. The exceptions are SETUP and P1 before the wrapper exists, where both variables are exported by hand (`EMACSDIR` = the worktree, `DOOMDIR` = its `config/`, never a live dir) and every bare `emacs` call gets `--init-directory "$EMACSDIR"`. Never run `doom upgrade` at all (it pulls upstream; P1 deletes it).
+- The first sync re-downloads ~80 packages into the workspace `.local` (79 build dirs, ~3.5 min at SETUP).
+- The first sync does not install tree-sitter grammars. Without them, opening a Go or Java file asks "Missing tree-sitter grammars ... Install now?", which in a daemon blocks every client. After the first sync, copy them read-only from the live install: `mkdir -p .local/etc/tree-sitter && cp -p ~/.config/emacs/.local/etc/tree-sitter/*.so .local/etc/tree-sitter/`. `tests/smoke.sh` turns any prompt into an error so a check fails instead of hanging.
+- Known leak: five places in `config/` hardcode `/opt/minh/linux-config` (`config.el:58` eshell aliases, `minh/java/config.el:40`, `minh/utils/autoload.el:3,79,84`), so the test session reads those files (read-only) from the live tree. Harmless as long as phases don't change them; don't rewrite the paths.
 
-Baseline (once, before P1, saved next to this plan): init time, package count (80 dirs in `.local/straight/build-31.1` today), `doom doctor` output, and the outputs of the scripted smoke checks (see Verification).
+Baseline (SETUP, saved next to this plan as `doom-lite-baseline.md`): init time, package count, `doom doctor` output, and the outputs of the scripted smoke checks (see Verification), with the exact commands so P1's `tests/smoke.sh` can reproduce them.
 
 ## Cutover (after the last phase, user's call)
 - Point `~/.config/emacs` at the fork (swap dirs or re-clone).
 - Delete `bin/lite` and switch `tests/smoke.sh` to plain `bin/doom`, `emacs` and a test socket; the wrapper's refusals would block the fork once it is the live install.
-- Merge `doom-lite` into `master` so `~/.config/doom` picks it up.
-- In the same merge, update `lazarus.sh` `_install_doom` (line 429 clones `doomemacs/doomemacs`; point it at the fork repo and check the `doom install`/`doom sync` calls still exist), its bats tests, and the Doom paragraph in `CLAUDE.md`.
+- Copy `config/` back to linux-config's `configs/dotfiles/emacs/doom-emacs/` in one linux-config PR to `master`, so `~/.config/doom` picks it up. First diff it against linux-config `master`: any config change made live after `3ced698a` must be carried over, not overwritten.
+- In the same linux-config PR, update `lazarus.sh` `_install_doom` (line 429 clones `doomemacs/doomemacs`; point it at the fork repo and check the `doom install`/`doom sync` calls still exist), its bats tests, and the Doom paragraph in `CLAUDE.md`.
 
 ## P0 — Fork repo (DONE)
 - `/opt/minh/doom-lite` has `origin` = `git@github.com:nqminhuit/doom-lite.git` and `upstream` = `https://github.com/doomemacs/doomemacs` (reference only, never merged). The live `~/.config/emacs` remotes are unchanged.
 - The live checkout was a shallow clone, which cannot be pushed, so `master` starts from one root commit: the tree of doomemacs `7ccac7f64` with the `sources/doom+` submodule at `f054be8f` (v26.11). There is no upstream history in the fork.
-- The config worktree `/opt/minh/linux-config-lite` exists on the local branch `doom-lite` (not pushed yet).
+- There is no config worktree; the config lives in the fork's `config/` (see SETUP).
 
-## S1 — package-vc spike (throwaway, before P2)
-P10 is the riskiest phase, so test its assumptions early in a scratch `user-emacs-directory`, not in the fork. Nothing is committed except a short findings note appended to P10.
-- Does `package-vc-install` at a pinned rev give a working load-path for multi-directory repos: vertico and corfu (`extensions/`), evil-collection (`modes/*/`), magit (`lisp/`)?
-- Does ghostel's native module build?
-- Are dependencies not named by a `package!` pulled unpinned from archives? If so, pinning is not reproducible unless every dependency is declared.
-- If any answer is bad, P10's fallback is a small "clone at pin, add to load-path, generate autoloads" backend inside `doom sync`, with no package.el.
+## SETUP — config, submodule, baseline (DONE)
+- `sources/doom+` initialised at `f054be8f`.
+- `config/` copied from linux-config `master` at `3ced698a` (18 files, no symlinks), from the commit rather than the working tree, so uncommitted live edits are not included.
+- First `doom sync` and the baseline (`doom-lite-baseline.md`), run with `EMACSDIR`/`DOOMDIR` exported by hand to the SETUP worktree.
+
+## S1 — package-vc spike (DONE)
+Run on 2026-11-12 in scratch `user-emacs-directory`s. Findings, evidence and the user's decisions are in `docs/handoff/S1.md`; the parts P11 needs are folded into P11. In short: package-vc pins exactly, but vertico/corfu `extensions/` get no load-path or autoloads, archive deps come in unpinned, and evil/magit-section hit an activation recursion without `:ignored-files`. The user chose the fallback backend for P11, and a download-only ghostel module.
 
 ## P1 — Vendor enabled modules and cut the upstream tie
 For each enabled module, copy `sources/doom+/modules/<cat>/<mod>/` to `modules/<cat>/<mod>/`. The enabled modules are:
@@ -112,14 +115,16 @@ Then:
 - Remove the third entry from `doom-module-load-path` (`lisp/doom.el:185-188`).
 - `git submodule deinit` and `git rm sources/doom+`, and clean up `.gitmodules`.
 - Fix any path or doc references to `sources/doom+`, using `grep -rn "doom+" lisp bin`.
+- `.gitignore` ignores `/modules/*/` except `modules/doom/`, so un-ignore the vendored categories and check `git status --ignored modules` shows none of them ignored.
 - **Autodef stubs.** Vendored modules call autodefs defined in modules that are not vendored; today those are generated no-op stubs, after P1 they are void functions in lazily loaded code that `--debug-init` will not reach. Delete these calls (and their enclosing dead branch where there is one): `set-repl-handler!` (3), `set-eval-handler!` (1), `set-yas-minor-mode!` (2), `set-ligatures!` (1), `set-flyspell-predicate!` (1). `set-debug-var!` (3 calls) has no definition anywhere: find out what it is and delete the calls if it is dead. Re-run the check below until it prints nothing unexpected:
   ```sh
   for c in $(grep -rhoE "\(set-[a-z-]+!" modules | tr -d '(' | sort -u); do grep -rqE "^\(def(un|macro|alias)\*? .?$c( |$)" modules lisp || echo "undefined: $c"; done
   ```
-- **Upstream tie.** Delete `bin/doom-upgrade` and the `upgrade` command wiring; a hard fork updates with `git pull`. Delete `docs/`, `static/`, `shell.nix`, `.github/` and `lisp/doom-elpaca.el` after a grep shows no loader references them. Replace the README with a short one for the fork.
+- **Upstream tie.** Delete `bin/doom-upgrade` and the `upgrade` command wiring; a hard fork updates with `git pull`. Delete `docs/` except `docs/fleet/` and `docs/handoff/` (the fleet board and briefs), `static/`, `shell.nix`, `.github/` and `lisp/doom-elpaca.el` after a grep shows no loader references them. Replace the README with a short one for the fork.
 
 - **Wrapper.** Add `bin/lite` as described in Workspace, as the first commit of the phase, and use it for everything after. Add a bats or plain-bash test for its refusals (live `EMACSDIR`, live `DOOMDIR`, missing `init.el`) that runs with a fake `HOME` and never starts Emacs.
 - **Test scaffolding.** Add `tests/run.sh` (runs every `tests/unit/*-tests.el` in batch and fails on any failure), `tests/smoke.sh` (the scripted daemon checks from Verification) and one first unit test, for the undefined-autodef check above, so the runner has something to run.
+- **Config ERT suite.** Port linux-config's `tests/elisp/minh-tests.el` to `tests/unit/minh-tests.el`, loading `minh/utils/autoload.el` and `minh/gis/autoload.el` from `config/modules/minh/` instead of the live tree, so `tests/run.sh` covers the config. At cutover it goes back to linux-config with `config/`.
 
 Apart from the removed `doom upgrade`, this phase changes no behavior.
 
@@ -168,7 +173,7 @@ Apart from the removed `doom upgrade`, this phase changes no behavior.
   - every `modulep!` branch for a module that is not vendored. This is far more than ivy/helm: company, snippets, org, treemacs, neotree, spell, eval, debugger, multiple-cursors, format, fold and others (about 60 distinct targets). List them with `grep -rhoE "modulep! :[a-z]+ [a-z-]+" modules | sort | uniq -c` and resolve each to its constant value.
   - `tools/lsp/+lsp.el` and `autoload/lsp-mode.el`, keeping eglot only
   - `tools/lookup` `autoload/{docsets,online,xwidget}.el` and their callers, including the 8 `set-docsets!` calls
-- **Config repo:**
+- **Config:**
   - `(package! evil-nerd-commentary :disable t)` is a typo for `evil-nerd-commenter`, which is installed and backs `gc`, the `c` text object and `s-/` (`editor/evil/config.el:433-436,563,642`, `config/default/config.el:162-163`). Delete the line here; P9 decides whether the package goes. Do not "fix" the typo, which would silently remove `gc`.
   - Drop disables that match nothing: evil-vimish-fold, doom-snippets, auto-yasnippet, drag-stuff, expand-region.
   - Remove the dead `+eglot/workspace-configuration` methods in `minh/java/config.el`. If the settings are needed, move them to `eglot-workspace-configuration`.
@@ -318,14 +323,17 @@ For each drop: remove the `package!`, its `use-package!` block and bindings, and
 - **compat module:** delete the deprecated aliases and macros that have no callers (`init.el`, after a grep).
 - **Keep:** `doom.el`, `doom-lib.el`, `doom-modules.el`, `doom-emacs.el`, `lib/{files,text,ui,buffers,projects,config,help,debug,fonts,themes,scratch,sessions,process,system,git,strings}`, the CLI, and `doom env`.
 
-## P11 — straight → package.el / package-vc (planned in detail when reached)
+## P11 — straight → built-in clone-at-pin backend (planned in detail when reached)
+Decided after S1 (`docs/handoff/S1.md`): no package.el or package-vc. `doom sync` gets a small backend that clones each package at its pin, adds its dirs to the load-path, generates autoloads and byte-compiles.
 - Startup loads the profile init that `doom sync` generates (loaddefs, load-path, module loader). Keep `doom sync` as the entry point and swap only the installer backend in `doom-packages.el`.
-  - Every `package!` becomes a `package-vc-install` with `:rev` set to the existing `:pin`, which keeps reproducibility only if S1 shows dependencies are pinned too.
-  - GitHub recipes map to package-vc specs.
-  - `:built-in` packages are skipped.
+  - GitHub recipes map to clone URL + pin; `:built-in` packages are skipped.
+- **Pin every transitive dependency.** Today with-editor, llama and goto-chg have no `package!` and are unpinned; enumerate the deps of every other package too and declare each with a `:pin`. A dep that is not declared is an error, never fetched at HEAD.
+- **Built-ins must not shadow pins.** A pinned package goes on the load-path ahead of the built-in of the same name (Emacs 31.1's transient 0.13.3 otherwise satisfies magit instead of the pinned one).
+- **Multi-directory repos.** Put each repo's lisp dir on the load-path (`lisp/` for magit) plus extra dirs: vertico and corfu `extensions/`, with autoloads generated for them too (otherwise `vertico-directory` and `corfu-popupinfo` neither load nor bind). evil-collection needs no extra dirs (it loads `modes/<mode>/` by absolute path). evil-ghostel loads from ghostel's `extensions/evil-ghostel/`.
+- **Build order.** Byte-compile in topological order, dependencies first, so nothing compiles against a missing dep; honour each recipe's `:files` exclusions (test helpers such as evil's `evil-test-helpers.el` are not package code).
+- **ghostel module: download only.** Set `ghostel-module-auto-install` to `download` and `ghostel-module-directory` to a dir outside the package tree (for example under `doom-data-dir`), so a re-clone keeps the module. The zig compile path is unsupported. The live install has no module today, so the first ghostel use in the fork downloads one.
 - Delete `doom-straight.el` and the straight bump tooling in `lib/packages.el`. Port `doom gc` to the package dirs.
-- Fallback if S1 fails: a "clone at pin, add to load-path, generate autoloads" backend, with no package.el.
-- This phase gets its own plan pass before stacea, because the scope only becomes concrete after S1 and P1–P10.
+- This phase gets its own plan pass before stacea, because the scope only becomes concrete after P1–P10.
 
 ## Verification (every phase)
 All commands run through `bin/lite` (see Workspace). stacea cannot press keys, so everything it runs is scripted; the interactive pass is the user's.
@@ -340,7 +348,7 @@ Scripted (stacea runs these):
   - opening one Java and one Go file loads their modes without error
   - init time and package count, compared with the baseline
   - stop the daemon afterwards with `bin/lite stop`, also when a check fails
-- Config phases: the config repo's own `tests/run.sh` in the worktree passes (the ERT suite loads `minh/utils/autoload.el` and `minh/gis/autoload.el`).
+- Config phases: the config's ERT suite (`tests/unit/minh-tests.el`, ported in P1) passes as part of `tests/run.sh`.
 - Grep for the symbols the phase removed (`grep -rn "<prefix>" lisp modules` and the config) returns only intentional hits.
 
 Interactive (user, before a phase is merged): `SPC SPC`, `SPC p p`, `SPC b b`, `SPC /`, magit status, eglot in one Java and one Go project, a ghostel terminal, and a `bin/lite client -c` frame.
@@ -357,7 +365,7 @@ Phase-specific checks:
 - **P6:** Project switch creates a named tab, `SPC 1..9` switches tabs, `SPC b b` is project-scoped, and no tab bar is drawn.
 - **P8:** `SPC` leader works in magit, dired and ghostel buffers and types a space in insert state. which-key shows labels. `(featurep 'general)` is nil.
 - **P9:** every dropped package is absent from the build dir, and `(featurep ...)` is nil for each after the smoke pass. A `.md` file opens in `markdown-ts-mode`. `gcc` and visual `gc` comment and uncomment.
-- **P11:** On a fresh `.local`, `doom sync` installs every package at its pinned rev.
+- **P11:** On a fresh `.local`, `doom sync` clones every package at its pinned rev (`git rev-parse HEAD` equals the pin) and fetches nothing unpinned. `(locate-library "transient")` points into `.local`, not the Emacs install. `vertico-directory-enter` and `corfu-popupinfo-mode` are bound. ghostel's module loads from `ghostel-module-directory`.
 
 ## Open decisions
 None, and nothing is blocked.
