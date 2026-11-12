@@ -13,6 +13,10 @@
     {
       "name": "P2",
       "start": "Read docs/handoff/P2.md first (Conductor brief), then doom-lite-plan.md, then do phase P2 in your own worktree and report STATUS lines to doom-lite-conductor."
+    },
+    {
+      "name": "P3",
+      "start": "Read docs/handoff/P3.md first (Conductor brief), then doom-lite-plan.md, then do phase P3 in your own worktree and report STATUS lines to doom-lite-conductor."
     }
   ]
 }
