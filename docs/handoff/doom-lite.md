@@ -15,7 +15,7 @@ Set `doom-lite`, conductor `doom-lite-conductor`. Executes `doom-lite-plan.md`. 
 
 ## Conductor handoff
 - Restart: `lazarus fleet up doom-lite` from `/opt/minh/doom-lite`; sessions resume their conversations. The main checkout stays on `master`; commit the board there only, then push.
-- Sessions: P3 (implementing). P1 and P2 removed. Pattern (user-approved): after a phase merges, remove its session; once the next phase reports the old worktree free, remove that worktree and its local and remote branch.
+- Sessions: P3 (merged, awaiting removal approval), P4 (implementing). P1 and P2 removed. After a phase merges, ask the user before removing its session; once the next phase reports the old worktree free, remove that worktree and its local and remote branch.
 - Waiting on user: nothing.
 - Next: when P2's PR is merged, start P3 with a brief in `docs/handoff/P3.md` (same shape as `P2.md`), and so on per the board. P11 gets its own plan pass first.
 - Worker tips (from handoffs): copy `.local` from the previous worktree, then `bin/lite doom sync` (use `--force` if it dies on a prompt); copy tree-sitter grammars after a fresh sync; `bin/` needs `git add -f`; shellcheck via podman.
@@ -28,8 +28,8 @@ Set `doom-lite`, conductor `doom-lite-conductor`. Executes `doom-lite-plan.md`. 
 | S1 | done, session removed (findings and decisions in `docs/handoff/S1.md`) | – | – | user chose A: P11 uses the fallback backend (clone at pin, load-path, autoloads, no package.el). ghostel: download-only (`ghostel-module-auto-install` `'download`, `ghostel-module-directory` outside the package tree; zig compile unsupported). Findings go into P11 after SETUP merges |
 | P1 | merged (`f3c34b1`) after user's pass | [#2](https://github.com/nqminhuit/doom-lite/pull/2) | – session removed, remote branch deleted; worktree and local branch removed. Kept from plan: `static/`, `set-debug-var!`; `SPC h d` manual commands have no targets until P10 |
 | P2 | merged (`cc3f8d8`) by the conductor after review, on the user's go-ahead; session, worktree and branches removed | [#3](https://github.com/nqminhuit/doom-lite/pull/3) | – | after `fleet up`: fork stacea call (old-behavior tests, shim, delete `ui/popup`), then config call. user confirmed: `popup +defaults` rules stay dropped (help, compilation, Warnings, Backtrace open normally); gis rule keeps `:quit nil` (ESC never closes `*gis: *`), so P2 corrects the plan's check; PR notes both |
-| P3 | implementing, fork stacea call; `.local` rebuilt (worktree `/opt/minh/doom-lite-wt/P3`, branch `p3-plain-startup-buffer`) | – | – | fork stacea call, then config call (+ plan wording for conductor merges) |
-| P4 | waiting on P3 | – | P3 merged | – |
+| P3 | merged (`bddd342`) by the conductor after review | [#4](https://github.com/nqminhuit/doom-lite/pull/4) | – | user: remove P3 session? worktree goes once P4 reports it free. Interactive-only: startup buffer look/centring in GUI and client frames; `q` in normal state records a macro instead of quitting |
+| P4 | started (worktree `/opt/minh/doom-lite-wt/P4`) | – | – | built-in duplicates, compat (own commit), Emacs 31 floor, dead code, config cleanups |
 | P5 | waiting on P4 | – | P4 merged | – |
 | P6 | waiting on P5 | – | P5 merged | – |
 | P7 | waiting on P6 | – | P6 merged | – |
