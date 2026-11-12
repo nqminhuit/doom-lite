@@ -17,7 +17,7 @@ Set `doom-lite`, conductor `doom-lite-conductor`. Executes `doom-lite-plan.md`. 
 
 | Key | State | PR | Blocker | Next |
 |---|---|---|---|---|
-| SETUP | draft PR, awaiting user | [#1](https://github.com/nqminhuit/doom-lite/pull/1) | – | SETUP folds S1 findings and decisions into P11 and records the ERT-port decision; then user review and merge |
+| SETUP | draft PR ready for user pass (head `21d654c`; S1 and ERT-port folded into plan) | [#1](https://github.com/nqminhuit/doom-lite/pull/1) | – | user review, interactive pass, merge |
 | S1 | done, session removed (findings and decisions in `docs/handoff/S1.md`) | – | – | user chose A: P11 uses the fallback backend (clone at pin, load-path, autoloads, no package.el). ghostel: download-only (`ghostel-module-auto-install` `'download`, `ghostel-module-directory` outside the package tree; zig compile unsupported). Findings go into P11 after SETUP merges |
 | P1 | waiting on SETUP | – | SETUP PR merged into `master` | brief must say: edit `.gitignore` (`/modules/*/` ignores vendored modules; only `!/modules/doom/` is excepted) |
 | P2 | waiting on P1 | – | P1 merged; S1 finished | – |
