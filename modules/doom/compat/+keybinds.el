@@ -97,17 +97,11 @@ interface.
 
 See `doom-localleader-key' and `doom-localleader-alt-key' to change the
 localleader prefix."
-  (if (modulep! :editor evil)
-      ;; :non-normal-prefix doesn't apply to non-evil sessions (only evil's
-      ;; emacs state)
-      `(general-define-key
-        :states '(normal visual motion emacs insert)
-        :prefix doom-localleader-key
-        :non-normal-prefix doom-localleader-alt-key
-        ,@args)
-    `(general-define-key
-      :prefix doom-localleader-alt-key
-      ,@args)))
+  `(general-define-key
+    :states '(normal visual motion emacs insert)
+    :prefix doom-localleader-key
+    :non-normal-prefix doom-localleader-alt-key
+    ,@args))
 
 (unless (doom-context-p 'reload)
   ;; PERF: We use a prefix commands instead of general's

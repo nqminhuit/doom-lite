@@ -10,13 +10,6 @@
   :hook (ghostel-mode . mode-line-invisible-mode)
   :hook (ghostel-mode . doom-disable-line-numbers-h)
   :init
-  (when (modulep! +everywhere)
-    (add-hook 'comint-mode-hook #'ghostel-comint-mode)
-    ;; HACK: Done to lazy-load this package until first invocation.
-    (setq ghostel-compile-global-mode t)
-    (autoload 'ghostel-compile--compilation-start-advice "ghostel-compile")
-    (advice-add 'compilation-start :around #'ghostel-compile--compilation-start-advice))
-
   ;; REVIEW: PR more elegant solution to solaire-mode.
   (add-hook! 'solaire-global-mode-hook :append
     (defun +ghostel-init-solaire-h ()
@@ -46,14 +39,5 @@
                                 process-environment))))))
 
 
-(use-package! ghostel-eshell
-  :when (modulep! +everywhere)
-  :hook (eshell-load . ghostel-eshell-visual-command-mode)
-  :init
-  (with-eval-after-load 'em-term
-    (add-to-list 'eshell-visual-commands "btop" t)))
-
-
 (use-package! evil-ghostel
-  :when (modulep! :editor evil +everywhere)
   :hook (ghostel-mode . evil-ghostel-mode))

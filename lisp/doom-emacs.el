@@ -3,117 +3,6 @@
 ;;; Code:
 
 ;;
-;;; * Emacs forwards compatibility
-
-(with-no-warnings
-  ;; Introduced in 29.1
-  (unless (boundp 'enable-theme-functions)
-    (defcustom enable-theme-functions nil
-      "Abnormal hook that is run after a theme has been enabled.
-The functions in the hook are called with one parameter -- the
- name of the theme that's been enabled (as a symbol)."
-      :type 'hook
-      :group 'customize
-      :version "29.1")
-    (defcustom disable-theme-functions nil
-      "Abnormal hook that is run after a theme has been disabled.
-The functions in the hook are called with one parameter -- the
- name of the theme that's been disabled (as a symbol)."
-      :type 'hook
-      :group 'customize
-      :version "29.1")
-    (define-advice enable-theme (:after (theme) trigger-hooks)
-      (run-hook-with-args 'enable-theme-functions theme))
-    (define-advice disable-theme (:around (fn theme) trigger-hooks)
-      (when (custom-theme-enabled-p theme)
-        (funcall fn theme)
-        (run-hook-with-args 'enable-theme-functions theme))))
-
-  ;; Introduced in 29.1
-  ;; In case of Emacs builds where treesit isn't built in (to avoid void-function
-  ;; errors and verbose, redundant checks everywhere).
-  (unless (fboundp 'treesit-available-p)
-    (defun treesit-available-p ()
-      "Return non-nil if tree-sitter support is built-in and available."
-      nil))
-
-  (unless (fboundp 'treesit-library-abi-version)
-    (defun treesit-library-abi-version (&optional _min-compatible)
-      0))
-
-  (unless (fboundp 'treesit-language-abi-version)
-    (defun treesit-language-abi-version (&optional _lang)
-      nil))
-
-  ;; Introduced in 30.1
-  (unless (fboundp 'major-mode-remap)
-    (defvar major-mode-remap-alist nil)  ; introduced in 29.1
-    (defvar major-mode-remap-defaults nil)
-    (defun major-mode-remap (mode)
-      "Return the function to use to enable MODE."
-      (or (cdr (or (assq mode major-mode-remap-alist)
-                   (assq mode major-mode-remap-defaults)))
-          mode))
-    (defvar-local set-auto-mode--last nil)
-    (define-advice set-auto-mode-0 (:override (mode &optional keep-mode-if-same) backport-major-mode-remap)
-      (unless (and keep-mode-if-same
-                   (or (eq (indirect-function mode)
-                           (indirect-function major-mode))
-                       (and set-auto-mode--last
-                            (eq mode (car set-auto-mode--last))
-                            (eq major-mode (cdr set-auto-mode--last)))))
-        (when mode
-          (funcall (major-mode-remap mode))
-          (unless (eq mode major-mode)
-            (setq set-auto-mode--last (cons mode major-mode)))
-          mode))))
-
-  ;; Introduced in 30.1
-  (unless (boundp 'safe-local-variable-directories)
-    (defvar safe-local-variable-directories ())
-    (define-advice hack-local-variables-filter
-        (:around (fn variables dir-name) backport-safe-local-variable-directories)
-      (let ((enable-local-variables
-             (if (delq nil (mapcar (lambda (dir)
-                                     (and dir-name dir
-                                          (file-equal-p dir dir-name)))
-                                   safe-local-variable-directories))
-                 :all
-               enable-local-variables)))
-        (funcall fn variables dir-name))))
-
-
-  ;;; ** From Emacs 31+
-
-  (unless (fboundp 'mode-line-invisible-mode)
-    (defvar-local mode-line-invisible--buf-state nil)
-    (define-minor-mode mode-line-invisible-mode
-      "Toggle the mode-line visibility of the current buffer.
-Hide the mode line if it is shown, and show it if it's hidden."
-      :global nil
-      :group 'mode-line
-      (if mode-line-invisible-mode
-          (progn
-            (add-hook 'after-change-major-mode-hook #'mode-line-invisible-mode nil t)
-            (setq mode-line-invisible--buf-state
-                  `(mode-line-format
-                    ,(local-variable-p 'mode-line-format)
-                    ,mode-line-format))
-            (setq-local mode-line-format nil))
-        (remove-hook 'after-change-major-mode-hook #'mode-line-invisible-mode t)
-        (when mode-line-invisible--buf-state
-          (setq mode-line-invisible--buf-state
-                (cl-destructuring-bind (var local val) mode-line-invisible--buf-state
-                  (if local (set var val) (kill-local-variable var)))))
-        (unless mode-line-format
-          (setq-local mode-line-format (default-value 'mode-line-format)))
-        (when (called-interactively-p 'any)
-          (force-mode-line-update))))
-    (put 'mode-line-invisible--buf-state 'permanent-local t)
-    (put 'mode-line-invisible-mode 'permanent-local-hook t)))
-
-
-;;
 ;;; * Variables
 
 (defcustom doom-theme nil
@@ -1156,9 +1045,7 @@ windows, switch to `doom-fallback-buffer'. Otherwise, delegate to original
           (dolist (script '(symbol mathematical))
             (set-fontset-font t script symbol-font)))
         (when emoji-font
-          ;; DEPRECATED: make unconditional when we drop 27 support
-          (when (version<= "28.1" emacs-version)
-            (set-fontset-font t 'emoji emoji-font))
+          (set-fontset-font t 'emoji emoji-font)
           ;; some characters in the Emacs symbol script are often covered by
           ;; emoji fonts
           (set-fontset-font t 'symbol emoji-font nil 'append)))
@@ -1535,9 +1422,7 @@ flush out with a couple RETs, which may execute the broken text in the buffer)."
         compilation-max-output-line-length nil  ; slows down verbose processes
         compilation-scroll-output 'first-error)
   (add-hook 'compilation-filter-hook
-            (if (< emacs-major-version 28)
-                #'doom-apply-ansi-color-to-compilation-buffer-h
-              #'ansi-color-compilation-filter))
+            #'ansi-color-compilation-filter)
   ;; Automatically truncate compilation buffers so they don't accumulate too
   ;; much data and grind Emacs' GC to a halt or crash. Also rate-limit expensive
   ;; calls to `comint-truncate-buffer'.
@@ -1696,13 +1581,6 @@ flush out with a couple RETs, which may execute the broken text in the buffer)."
                (concat "^" (regexp-quote (or (getenv "XDG_RUNTIME_DIR")
                                              "/run"))))
 
-  ;; PERF: Text properties inflate the size of recentf's files, and there is no
-  ;;   reason to persist them (must be first in `recentf-filename-handlers'!)
-  ;; DEPRECATED: Remove when 30.x support is dropped
-  ;;   (see emacs-mirror/emacs@6b901a8e8598)
-  (when (< emacs-major-version 31)
-    (add-to-list 'recentf-filename-handlers #'substring-no-properties))
-
   ;; UX: Reorder the recent files list by frecency (i.e. every time you touch a
   ;;   buffer, bump it to the top of the list).
   (add-hook! '(doom-switch-buffer-hook doom-switch-window-hook)
@@ -1785,15 +1663,7 @@ the unwritable tidbits."
 
   (define-advice save-place-find-file-hook (:before-while (&rest _) only-at-bobp)
     "If something else has moved point, don't try to move it again."
-    (bobp))
-
-  ;;; DEPRECATED: Drop with 30.x support (emacs-mirror/emacs@c270402).
-  (when (< emacs-major-version 31)
-    (define-advice save-place-alist-to-file (:around (fn) use-print1)
-      "`save-place-alist-to-file' uses `pp' to prettify the contents of its cache.
-`pp' can be expensive for longer lists, and there's no reason to prettify cache
-files, so this replace calls to `pp' with the much faster `prin1'."
-      (letf! ((#'pp #'prin1)) (funcall fn)))))
+    (bobp)))
 
 
 ;;;###package so-long

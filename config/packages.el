@@ -55,21 +55,12 @@
 (package! nodejs-repl :disable t)
 (package! evil-lion :disable t)
 (package! evil-embrace :disable t)
-(package! evil-nerd-commentary :disable t)
 (package! exato :disable t) ;; evil xml text object, no need for now.
 (package! evil-snipe :disable t);; experiment 10:59:33 2025-05-20
-(package! evil-vimish-fold :disable t);; experiment 10:05:55 2025-05-22
-(package! doom-snippets :disable t)
 (package! avy :disable t)
 (package! link-hint :disable t)
-(package! drag-stuff :disable t) ;; experiment 15:17:56 2025-05-19
-(package! expand-region :disable t) ;; experiment 15:17:56 2025-05-19
-(package! auto-yasnippet :disable t)
 (package! flymake-popon :disable t)
 (package! evil-markdown :disable t)
-
-;; disable package online lookup
-(package! request :disable t) ;; experiment 15:17:56 2025-05-19
 
 (package! pulsar :recipe (:host github :repo "protesilaos/pulsar"))
 (package! ecoin :recipe (:host github :repo "nqminhuit/ecoin"))

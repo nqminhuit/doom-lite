@@ -82,6 +82,7 @@ Baseline (SETUP, saved next to this plan as `doom-lite-baseline.md`): init time,
 
 ## Cutover (after the last phase, user's call)
 - Point `~/.config/emacs` at the fork (swap dirs or re-clone).
+- If the live `.local` is reused rather than re-synced from scratch, delete the stale build dirs of packages that are now built in (P4: eglot, eldoc, flymake, jsonrpc, project, xref, seq, external-completion, transient, compat) from `.local/straight/build-31.1/`, then run `doom sync --rebuild`. straight still registers them as dependencies, so `doom gc` keeps them, and Doom puts registered build dirs on the `load-path` ahead of the built-ins.
 - Delete `bin/lite` and switch `tests/smoke.sh` to plain `bin/doom`, `emacs` and a test socket; the wrapper's refusals would block the fork once it is the live install.
 - Copy `config/` back to linux-config's `configs/dotfiles/emacs/doom-emacs/` in one linux-config PR to `master`, so `~/.config/doom` picks it up. First diff it against linux-config `master`: any config change made live after `3ced698a` must be carried over, not overwritten.
 - In the same linux-config PR, update `lazarus.sh` `_install_doom` (line 429 clones `doomemacs/doomemacs`; point it at the fork repo and check the `doom install`/`doom sync` calls still exist), its bats tests, and the Doom paragraph in `CLAUDE.md`.
@@ -330,7 +331,7 @@ Decided after S1 (`docs/handoff/S1.md`): no package.el or package-vc. `doom sync
 - Startup loads the profile init that `doom sync` generates (loaddefs, load-path, module loader). Keep `doom sync` as the entry point and swap only the installer backend in `doom-packages.el`.
   - GitHub recipes map to clone URL + pin; `:built-in` packages are skipped.
 - **Pin every transitive dependency.** Today with-editor, llama and goto-chg have no `package!` and are unpinned; enumerate the deps of every other package too and declare each with a `:pin`. A dep that is not declared is an error, never fetched at HEAD.
-- **Built-ins must not shadow pins.** A pinned package goes on the load-path ahead of the built-in of the same name (Emacs 31.1's transient 0.13.3 otherwise satisfies magit instead of the pinned one).
+- **Built-ins must not shadow pins.** A pinned package goes on the load-path ahead of the built-in of the same name. Packages declared `:built-in t` (since P4: eglot, eldoc, flymake, jsonrpc, project, xref, seq, external-completion, transient, compat) are not pinned and load from the Emacs install.
 - **Multi-directory repos.** Put each repo's lisp dir on the load-path (`lisp/` for magit) plus extra dirs: vertico and corfu `extensions/`, with autoloads generated for them too (otherwise `vertico-directory` and `corfu-popupinfo` neither load nor bind). evil-collection needs no extra dirs (it loads `modes/<mode>/` by absolute path). evil-ghostel loads from ghostel's `extensions/evil-ghostel/`.
 - **Build order.** Byte-compile in topological order, dependencies first, so nothing compiles against a missing dep; honour each recipe's `:files` exclusions (test helpers such as evil's `evil-test-helpers.el` are not package code).
 - **ghostel module: download only.** Set `ghostel-module-auto-install` to `download` and `ghostel-module-directory` to a dir outside the package tree (for example under `doom-data-dir`), so a re-clone keeps the module. The zig compile path is unsupported. The live install has no module today, so the first ghostel use in the fork downloads one.
@@ -367,7 +368,7 @@ Phase-specific checks:
 - **P6:** Project switch creates a named tab, `SPC 1..9` switches tabs, `SPC b b` is project-scoped, and no tab bar is drawn.
 - **P8:** `SPC` leader works in magit, dired and ghostel buffers and types a space in insert state. which-key shows labels. `(featurep 'general)` is nil.
 - **P9:** every dropped package is absent from the build dir, and `(featurep ...)` is nil for each after the smoke pass. A `.md` file opens in `markdown-ts-mode`. `gcc` and visual `gc` comment and uncomment.
-- **P11:** On a fresh `.local`, `doom sync` clones every package at its pinned rev (`git rev-parse HEAD` equals the pin) and fetches nothing unpinned. `(locate-library "transient")` points into `.local`, not the Emacs install. `vertico-directory-enter` and `corfu-popupinfo-mode` are bound. ghostel's module loads from `ghostel-module-directory`.
+- **P11:** On a fresh `.local`, `doom sync` clones every package at its pinned rev (`git rev-parse HEAD` equals the pin) and fetches nothing unpinned. `(locate-library "transient")` points into the Emacs install (built in since P4), and so do the other `:built-in t` packages. `vertico-directory-enter` and `corfu-popupinfo-mode` are bound. ghostel's module loads from `ghostel-module-directory`.
 
 ## Open decisions
 None, and nothing is blocked.

@@ -113,8 +113,7 @@ info in the `header-line-format' is a more visible indicator."
     ;; Rehash evil keybindings so they are recognized
     (add-hook 'git-timemachine-mode-hook #'evil-normalize-keymaps))
 
-  (when (modulep! :tools magit)
-    (add-transient-hook! #'git-timemachine-blame (require 'magit-blame)))
+  (add-transient-hook! #'git-timemachine-blame (require 'magit-blame))
 
   (map! :map git-timemachine-mode-map
         :n "C-p" #'git-timemachine-show-previous-revision

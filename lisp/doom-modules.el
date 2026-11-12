@@ -705,15 +705,15 @@ source (except your $DOOMDIR, which is a special module). Like so:
   (modulep! +flag3 +flag1 +flag2)
   (modulep! +flag)
 
-FLAGS can be negated. E.g. This will return non-nil if ':tools lsp' is enabled
-without `+eglot':
+FLAGS can be negated. E.g. This will return non-nil if ':editor evil' is enabled
+without `+everywhere':
 
-  (modulep! :tools lsp -eglot)
+  (modulep! :editor evil -everywhere)
 
 To interpolate dynamic values, use comma:
 
-  (let ((flag '-eglot))
-    (modulep! :tools lsp ,flag))
+  (let ((flag '-everywhere))
+    (modulep! :editor evil ,flag))
 
 For more about modules and flags, see `doom!'."
     (if (keywordp group)

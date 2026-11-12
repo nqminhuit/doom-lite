@@ -23,14 +23,6 @@ If the depth is 2, the first two directories are removed: net.lissner.game.")
 
 
 ;;
-;;; java-mode
-
-(when (and (modulep! +lsp)
-           (modulep! :tools lsp -eglot))
-  (load! "+lsp"))
-
-
-;;
 ;;; Common packages
 
 (use-package! cc-mode  ; where `java-mode' lives
@@ -40,7 +32,6 @@ If the depth is 2, the first two directories are removed: net.lissner.game.")
 
 
 (use-package! java-ts-mode  ; 29.1+ only
-  :when (modulep! +tree-sitter)
   :defer t
   :init
   (set-tree-sitter! 'java-mode 'java-ts-mode '(java doxygen)))
@@ -54,6 +45,4 @@ If the depth is 2, the first two directories are removed: net.lissner.game.")
 
 
 (use-package! groovy-mode
-  :mode "\\.g\\(?:radle\\|roovy\\)\\'"
-  :config
-  (set-docsets! 'groovy-mode "Groovy" "Groovy_JDK"))
+  :mode "\\.g\\(?:radle\\|roovy\\)\\'")

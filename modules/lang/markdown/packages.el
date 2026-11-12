@@ -8,15 +8,6 @@
 ;; present when you call `markdown-edit-code-block'.
 (package! edit-indirect :pin "82a28d8a85277cfe453af464603ea330eae41c05")
 
-(when (and (modulep! +tree-sitter) (treesit-available-p))
-  (package! markdown-ts-mode
-    :built-in 'prefer  ; Emacs 31+ has a superior markdown-ts-mode
-    :pin "801579b9b955f63673dd6dc9742c1fd5311b76c9"))
-
-(when (modulep! +grip)
-  (package! grip-mode :pin "c5b5c3017869c9692f368430f7687abe604eb2d0"))
-
-(when (modulep! :editor evil +everywhere)
-  (package! evil-markdown
-    :recipe (:host github :repo "Somelauw/evil-markdown")
-    :pin "8e6cc68af83914b2fa9fd3a3b8472573dbcef477"))
+(package! evil-markdown
+  :recipe (:host github :repo "Somelauw/evil-markdown")
+  :pin "8e6cc68af83914b2fa9fd3a3b8472573dbcef477")

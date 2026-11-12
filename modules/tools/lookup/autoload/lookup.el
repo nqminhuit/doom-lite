@@ -200,18 +200,6 @@ This can be passed nil as its second argument to unset handlers for MODES. e.g.
             'deferred
           jumped)))))
 
-(defun +lookup-dictionary-definition-backend-fn (identifier)
-  "Look up dictionary definition for IDENTIFIER."
-  (when (derived-mode-p 'text-mode)
-    (+lookup/dictionary-definition identifier)
-    'deferred))
-
-(defun +lookup-thesaurus-definition-backend-fn (identifier)
-  "Look up synonyms for IDENTIFIER."
-  (when (derived-mode-p 'text-mode)
-    (+lookup/synonyms identifier)
-    'deferred))
-
 (defun +lookup-xref-definitions-backend-fn (identifier)
   "Non-interactive wrapper for `xref-find-definitions'"
   (condition-case _
@@ -240,20 +228,13 @@ This backend prefers \"just working\" over accuracy."
 (defun +lookup-project-search-backend-fn (identifier)
   "Conducts a simple project text search for IDENTIFIER.
 
-Uses and requires `+ivy-file-search', `+helm-file-search', or `+vertico-file-search'.
-Will return nil if neither is available. These require ripgrep to be installed."
+Uses and requires `+vertico-file-search', which requires ripgrep to be installed.
+Will return nil if the search fails."
   (when identifier
     (let ((query (doom-pcre-quote identifier)))
       (ignore-errors
-        (cond ((modulep! :completion ivy)
-               (+ivy-file-search :query query)
-               t)
-              ((modulep! :completion helm)
-               (+helm-file-search :query query)
-               t)
-              ((modulep! :completion vertico)
-               (+vertico-file-search :query query)
-               t))))))
+        (+vertico-file-search :query query)
+        t))))
 
 (defun +lookup-evil-goto-definition-backend-fn (_identifier)
   "Uses `evil-goto-definition' to conduct a text search for IDENTIFIER in the
@@ -297,9 +278,7 @@ framework (ivy, helm, vertico, etc), otherwise falling back to
                     (find-file (doom-path dir guess))
                     t))))
           ;; Fallback prompters
-          ((and (modulep! :completion ivy) (doom-project-p))
-           (counsel-file-jump guess (doom-project-root)))
-          ((and (modulep! :completion vertico) (doom-project-p))
+          ((doom-project-p)
            (+vertico/consult-fd-or-find (doom-project-root) guess))
           ((find-file-at-point (ffap-prompter guess))))
     (not (eq initial-buffer (current-buffer)))))
@@ -415,46 +394,3 @@ Otherwise, falls back on `find-file-at-point'."
         ((+lookup--jump-to :file path))
 
         ((user-error "Couldn't find any files here"))))
-
-
-;;
-;;; Dictionary
-
-;;;###autoload
-(defun +lookup/dictionary-definition (identifier &optional arg)
-  "Look up the definition of the word at point (or selection)."
-  (interactive
-   (list (or (if (equal major-mode 'pdf-view-mode)
-                 (car (pdf-view-active-region-text)))
-             (doom-thing-at-point-or-region 'word)
-             (read-string "Look up in dictionary: "))
-         current-prefix-arg))
-  (message "Looking up dictionary definition for %S" identifier)
-  (cond ((and (featurep :system 'macos) (require 'osx-dictionary nil t))
-         (osx-dictionary--view-result identifier))
-        ((and +lookup-dictionary-prefer-offline
-              (require 'wordnut nil t))
-         (unless (executable-find wordnut-cmd)
-           (user-error "Couldn't find %S installed on your system"
-                       wordnut-cmd))
-         (wordnut-search identifier))
-        ((require 'define-word nil t)
-         (define-word identifier nil arg))
-        ((user-error "No dictionary backend is available"))))
-
-;;;###autoload
-(defun +lookup/synonyms (identifier &optional _arg)
-  "Look up and insert a synonym for the word at point (or selection)."
-  (interactive
-   (list (doom-thing-at-point-or-region 'word) ; TODO: actually use this
-         current-prefix-arg))
-  (message "Looking up synonyms for %S" identifier)
-  (cond ((and +lookup-dictionary-prefer-offline
-              (require 'synosaurus-wordnet nil t))
-         (unless (executable-find synosaurus-wordnet--command)
-           (user-error "Couldn't find %S installed on your system"
-                       synosaurus-wordnet--command))
-         (synosaurus-choose-and-replace))
-        ((require 'powerthesaurus nil t)
-         (powerthesaurus-lookup-word-dwim))
-        ((user-error "No thesaurus backend is available"))))

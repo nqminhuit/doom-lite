@@ -2,11 +2,8 @@
 
 ;;;###autodef (fset 'lsp! #'ignore)
 (defun lsp! ()
-  "Dispatch to call the currently used lsp client entrypoint"
-  (if (modulep! +eglot)
-      (when (require 'eglot nil t)
-        (if (eglot--lookup-mode major-mode)
-            (eglot-ensure)
-          (eglot--message "No client defined for %s" major-mode)))
-    (unless (bound-and-true-p lsp-mode)
-      (lsp-deferred))))
+  "Start eglot for the current buffer if a client is defined for its major mode."
+  (when (require 'eglot nil t)
+    (if (eglot--lookup-mode major-mode)
+        (eglot-ensure)
+      (eglot--message "No client defined for %s" major-mode))))

@@ -182,51 +182,7 @@ FUNCTION
   (setq-hook! 'magit-status-mode-hook long-line-threshold nil))
 
 
-(use-package! forge
-  :when (modulep! +forge)
-  ;; We defer loading even further because forge's dependencies will try to
-  ;; compile emacsql, which is a slow and blocking operation.
-  :after-call magit-status
-  :commands forge-create-pullreq forge-create-issue
-  :preface
-  (setq forge-database-file (doom-profile-data-dir t "forge" "forge-database.sqlite"))
-  (setq forge-add-default-bindings (not (modulep! :editor evil +everywhere)))
-  :init
-  (after! ghub-graphql
-    ;; Killing recreating the status buffer prevents progress updates from being
-    ;; relayed through the modeline. Use `message' instead.
-    (setq ghub-graphql-message-progress t))
-  :config
-  ;; All forge list modes are derived from `forge-topic-list-mode'
-  (map! :map forge-topic-list-mode-map :n "q" #'kill-current-buffer)
-  (when (not forge-add-default-bindings)
-    (map! :map magit-mode-map [remap magit-browse-thing] #'forge-browse
-          :map magit-remote-section-map [remap magit-browse-thing] #'forge-browse-remote
-          :map magit-branch-section-map [remap magit-browse-thing] #'forge-browse-branch))
-  (set-popup-rule! "^\\*?[0-9]+:\\(?:new-\\|[0-9]+$\\)" :size 0.45 :modeline t :ttl 0 :quit nil)
-  (set-popup-rule! "^\\*\\(?:[^/]+/[^ ]+ #[0-9]+\\*$\\|Issues\\|Pull-Requests\\|forge\\)" :ignore t))
-
-
-(use-package! code-review
-  :when (modulep! +forge)
-  :defer t
-  :init
-  ;; HACK: See jwiegley/use-package#829
-  (after! magit (require 'code-review))
-  (setq code-review-db-database-file (doom-profile-data-dir t "code-review" "code-review-db-file.sqlite")
-        code-review-log-file (doom-profile-data-dir t "code-review" "code-review-error.log")
-        code-review-download-dir (doom-profile-data-dir t "code-review/"))
-  :config
-  (set-evil-initial-state! 'code-review-mode 'normal)
-  (transient-append-suffix 'magit-merge "d"
-    '("y" "Review pull request" +magit/start-code-review))
-  (after! forge
-    (transient-append-suffix 'forge-dispatch "c u"
-      '("c r" "Review pull request" +magit/start-code-review))))
-
-
 (use-package! evil-collection-magit
-  :when (modulep! :editor evil +everywhere)
   :defer t
   :init (defvar evil-collection-magit-use-z-for-folds t)
   :config
@@ -234,20 +190,13 @@ FUNCTION
   ;; especially when traversing modes in magit buffers.
   (evil-define-key* 'normal magit-status-mode-map [escape] nil)
 
-  (after! code-review
-    (map! :map code-review-mode-map
-          :n "r" #'code-review-transient-api
-          :n "RET" #'code-review-comment-add-or-edit))
-
   ;; Some extra vim-isms I thought were missing from upstream
   (evil-define-key* '(normal visual) magit-mode-map
     "*"  #'magit-worktree
     "zt" #'evil-scroll-line-to-top
     "zz" #'evil-scroll-line-to-center
     "zb" #'evil-scroll-line-to-bottom
-    "g=" #'magit-diff-default-context
-    "gi" #'forge-jump-to-issues
-    "gm" #'forge-jump-to-pullreqs)
+    "g=" #'magit-diff-default-context)
 
   ;; Fix these keybinds because they are blacklisted
   ;; REVIEW: There must be a better way to exclude particular evil-collection
@@ -282,15 +231,10 @@ FUNCTION
         (setcar desc (cdr key))))
     (evil-define-key* evil-collection-magit-state git-rebase-mode-map
       "gj" #'git-rebase-move-line-down
-      "gk" #'git-rebase-move-line-up))
-
-  (after! code-review
-    (pcase-dolist (`(,states _ ,binding ,fn) evil-collection-magit-mode-map-bindings)
-      (evil-collection-define-key states 'code-review-mode-map binding fn))))
+      "gk" #'git-rebase-move-line-up)))
 
 
 (use-package! evil-collection-magit-section
-  :when (modulep! :editor evil +everywhere)
   :defer t
   :init
   (defvar evil-collection-magit-section-use-z-for-folds evil-collection-magit-use-z-for-folds)

@@ -6,13 +6,9 @@
 ;;; * Deprecated variables/constants/features
 
 (with-no-warnings
-  (defconst EMACS28+    (> emacs-major-version 27))
-  (defconst EMACS29+    (> emacs-major-version 28))
   (defconst MODULES     (bound-and-true-p module-file-suffix))
   (defconst NATIVECOMP  (featurep 'native-compile))
 
-  (make-obsolete-variable 'EMACS28+   "Use (>= emacs-major-version 28) instead" "2.1.0")
-  (make-obsolete-variable 'EMACS29+   "Use (>= emacs-major-version 29) instead" "2.1.0")
   (make-obsolete-variable 'MODULES    "Use (bound-and-true-p module-file-suffix) instead" "2.1.0")
   (make-obsolete-variable 'NATIVECOMP "Use (featurep 'native-compile) instead" "2.1.0"))
 
