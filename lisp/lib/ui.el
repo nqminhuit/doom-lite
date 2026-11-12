@@ -146,9 +146,12 @@ See `display-line-numbers' for what these values mean."
   "Close other windows to focus on this one.
 Use `winner-undo' to undo this. Alternatively, use `doom/window-enlargen'."
   (interactive)
-  (when (and (bound-and-true-p +popup-mode)
-             (+popup-window-p))
-    (+popup/raise (selected-window)))
+  ;; A side window can't be the only window, so move its buffer to the main one.
+  (let ((win (selected-window)))
+    (when (window-parameter win 'window-side)
+      (let ((buf (window-buffer win)))
+        (delete-window win)
+        (switch-to-buffer buf))))
   (delete-other-windows))
 
 ;;;###autoload

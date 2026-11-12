@@ -133,4 +133,100 @@
   (pt--with-fixture
    (should (pt--quit-case '(:quit nil) t))))
 
+;;; Shim-only tests: exact `display-buffer-alist' entries.
+
+(defconst pt--fns '(display-buffer-reuse-window display-buffer-in-side-window))
+
+(defun pt--entry (pred &rest plist)
+  "The entry `set-popup-rule!' leaves for PRED, from a clean alist."
+  (setq display-buffer-alist nil)
+  (apply #'set-popup-rule! pred plist)
+  (car display-buffer-alist))
+
+(defmacro pt--shim-test (name &rest body)
+  (declare (indent 1))
+  `(ert-deftest ,name ()
+     (skip-unless (fboundp 'doom-popup-close-on-escape-h))
+     (pt--with-fixture ,@body)))
+
+(pt--shim-test popup-shim/side
+  (should (equal (pt--entry "a" :side 'top :quit nil)
+                 `("a" ,pt--fns (side . top) (window-height . 0.16)))))
+
+(pt--shim-test popup-shim/size
+  (should (equal (pt--entry "a" :size 0.3 :quit nil)
+                 `("a" ,pt--fns (side . bottom) (window-height . 0.3))))
+  (should (equal (pt--entry "a" :side 'left :size 30 :quit nil)
+                 `("a" ,pt--fns (side . left) (window-width . 30))))
+  (should (equal (pt--entry "a" :size 'fit-window-to-buffer :quit nil)
+                 `("a" ,pt--fns (side . bottom)
+                   (window-height . fit-window-to-buffer))))
+  (should (equal (pt--entry "a" :side 'right :height 5 :width 20 :quit nil)
+                 `("a" ,pt--fns (side . right)
+                   (window-height . 5) (window-width . 20)))))
+
+(pt--shim-test popup-shim/default-size
+  (should (equal (pt--entry "a" :side 'left :quit nil)
+                 `("a" ,pt--fns (side . left) (window-width . 40)))))
+
+(pt--shim-test popup-shim/slot
+  (should (equal (pt--entry "a" :slot 2 :quit nil)
+                 `("a" ,pt--fns (side . bottom) (window-height . 0.16)
+                   (slot . 2)))))
+
+(pt--shim-test popup-shim/select
+  (should (equal (pt--entry "a" :select t :quit nil)
+                 `("a" ,pt--fns (side . bottom) (window-height . 0.16)
+                   (body-function . select-window))))
+  (should (equal (pt--entry "a" :select nil :quit nil)
+                 (pt--entry "a" :quit nil)))
+  (should (equal (pt--entry "a" :select #'ignore :quit nil)
+                 (pt--entry "a" :quit nil))))
+
+(pt--shim-test popup-shim/quit
+  (should (equal (pt--entry "a" :quit 'current)
+                 `("a" ,pt--fns (side . bottom) (window-height . 0.16)
+                   (window-parameters (quit . current)))))
+  (should (equal (pt--entry "a")
+                 (pt--entry "a" :quit t)))
+  (should (equal (cdr (assq 'window-parameters (cdr (pt--entry "a"))))
+                 '((quit . t)))))
+
+(pt--shim-test popup-shim/ignored-keywords
+  (should (equal (pt--entry "a" :side 'left :vslot 3 :ttl 0 :modeline nil
+                            :autosave t :actions '(foo) :parameters '((x . 1)))
+                 (pt--entry "a" :side 'left))))
+
+(pt--shim-test popup-shim/replace-same-predicate
+  (setq display-buffer-alist nil)
+  (set-popup-rule! "a" :side 'left)
+  (set-popup-rule! "b" :side 'top)
+  (set-popup-rule! "a" :side 'right)
+  (should (= 2 (length display-buffer-alist)))
+  (should (eq 'right (cdr (assq 'side (cddr (assoc "a" display-buffer-alist)))))))
+
+(pt--shim-test popup-shim/keeps-user-entries
+  (let ((user '("user" display-buffer-pop-up-window)))
+    (setq display-buffer-alist (list user))
+    (set-popup-rule! "a" :side 'left)
+    (should (member user display-buffer-alist))
+    (should (= 2 (length display-buffer-alist)))))
+
+(pt--shim-test popup-shim/rules-equal-one-by-one
+  (setq display-buffer-alist nil)
+  (set-popup-rules! '(("a" :side left :slot 1) ("b" :size 0.5)) nil
+                    '(("c" :select t)))
+  (let ((plural display-buffer-alist))
+    (setq display-buffer-alist nil)
+    (set-popup-rule! "a" :side 'left :slot 1)
+    (set-popup-rule! "b" :size 0.5)
+    (set-popup-rule! "c" :select t)
+    (should (equal plural display-buffer-alist))))
+
+(pt--shim-test popup-shim/ignore
+  (should (equal (pt--entry "a" :ignore t :side 'left) '("a" nil))))
+
+(pt--shim-test popup-shim/escape-hook-registered
+  (should (memq #'doom-popup-close-on-escape-h doom-escape-hook)))
+
 (provide 'popup-tests)

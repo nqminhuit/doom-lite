@@ -35,7 +35,7 @@
 
 (after! vc
   (set-popup-rules!
-    '(("^\\*vc-diff" :select nil :size '+popup-shrink-to-fit)
+    '(("^\\*vc-diff" :select nil :size fit-window-to-buffer)
       ("^\\*vc-change-log" :select t))))
 
 
