@@ -14,7 +14,7 @@ Set `doom-lite`, conductor `doom-lite-conductor`. Executes `doom-lite-plan.md`. 
 
 | Key | State | PR | Blocker | Next |
 |---|---|---|---|---|
-| SETUP | draft PR, awaiting user | [#1](https://github.com/nqminhuit/doom-lite/pull/1) | user: public repo now holds `config/`; port config ERT suite in P1?; PR carries `bdc7b85` until `master` is pushed | user review and merge |
+| SETUP | draft PR, awaiting user | [#1](https://github.com/nqminhuit/doom-lite/pull/1) | user: port config ERT suite in P1? (public `config/` accepted by user); PR carries `bdc7b85` until `master` is pushed | user review and merge |
 | S1 | done (findings and decision in `docs/handoff/S1.md`) | – | – | user chose A: P11 uses the fallback backend (clone at pin, load-path, autoloads, no package.el). ghostel: download-only (`ghostel-module-auto-install` `'download`, `ghostel-module-directory` outside the package tree; zig compile unsupported). Findings go into P11 after SETUP merges |
 | P1 | waiting on SETUP | – | SETUP PR merged into `master` | brief must say: edit `.gitignore` (`/modules/*/` ignores vendored modules; only `!/modules/doom/` is excepted) |
 | P2 | waiting on P1 | – | P1 merged; S1 finished | – |
