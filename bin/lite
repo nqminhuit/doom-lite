@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Isolated entry point: pins EMACSDIR/DOOMDIR to this checkout so the live config is never touched.
+set -euo pipefail
+
+SOCK=doom-lite
+self=$(realpath "${BASH_SOURCE[0]}")
+EMACSDIR=$(dirname "$(dirname "$self")")/
+DOOMDIR=${DOOM_LITE_CONFIG:-${EMACSDIR}config/}
+DOOMDIR=${DOOMDIR%/}/
+export EMACSDIR DOOMDIR
+unset DOOMLOCALDIR DOOMPROFILE
+
+die() { echo "bin/lite: $*" >&2; exit 1; }
+
+emacsdir=$(realpath -m "$EMACSDIR")
+doomdir=$(realpath -m "$DOOMDIR")
+linux_config=$(realpath -m /opt/minh/linux-config)
+
+[[ $emacsdir == "$(realpath -m "$HOME/.config/emacs")" ]] && die "refusing: EMACSDIR is the live Emacs dir ($emacsdir)"
+[[ $doomdir == "$(realpath -m "$HOME/.config/doom")" ]] && die "refusing: DOOMDIR is the live Doom config ($doomdir)"
+[[ $doomdir == "$linux_config" || $doomdir == "$linux_config"/* ]] && die "refusing: DOOMDIR is inside linux-config ($doomdir)"
+[[ -f $doomdir/init.el ]] || die "refusing: no init.el in DOOMDIR ($doomdir)"
+
+cmd=${1:-}
+[[ $# -gt 0 ]] && shift
+case $cmd in
+  doom) exec "$EMACSDIR/bin/doom" "$@" ;;
+  emacs) exec emacs --init-directory "$EMACSDIR" "$@" ;;
+  daemon)
+    if emacsclient -s "$SOCK" --eval t >/dev/null 2>&1; then
+      die "refusing: daemon $SOCK is already running"
+    fi
+    exec emacs --init-directory "$EMACSDIR" --daemon="$SOCK"
+    ;;
+  client) exec emacsclient -s "$SOCK" "$@" ;;
+  stop) exec emacsclient -s "$SOCK" --eval '(kill-emacs)' ;;
+  *)
+    echo "usage: bin/lite {doom|emacs|client} ARGS... | daemon | stop" >&2
+    exit 2
+    ;;
+esac
