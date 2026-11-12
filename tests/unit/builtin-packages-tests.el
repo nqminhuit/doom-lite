@@ -4,7 +4,7 @@
 (require 'cl-lib)
 
 (defconst bp-test-packages
-  '(eglot eldoc flymake jsonrpc project xref seq external-completion transient))
+  '(eglot eldoc flymake jsonrpc project xref seq external-completion transient compat))
 
 (defconst bp-test-root
   (expand-file-name "../.." (file-name-directory (or load-file-name buffer-file-name))))

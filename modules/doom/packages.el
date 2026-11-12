@@ -1,9 +1,7 @@
 ;;; modules/doom/packages.el -*- lexical-binding: t; no-byte-compile: t; -*-
 
 ;; doom.el
-(package! compat
-  :recipe (:host github :repo "emacs-compat/compat")
-  :pin "90880f81419577e1d3f68424d2a3adf31e6d663e")  ; 31.1.0.0
+(package! compat :built-in t)  ; Emacs 31's compat.el satisfies (compat "31")
 (unless (fboundp 'igc-info)
   (package! gcmh
     :pin "0089f9c3a6d4e9a310d0791cf6fa8f35642ecfd9"))
