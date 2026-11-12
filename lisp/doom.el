@@ -46,10 +46,10 @@
 ;;   > $XDG_DATA_HOME/doom/$PROFILE/@/$VERSION/init.el   (replaces $EMACSDIR/init.el)
 ;;     - $EMACSDIR/doom-emacs.el
 ;;     - hook: `doom-before-modules-init-hook'
-;;     - {$DOOMDIR,$EMACSDIR}/{,sources/*/}modules/*/*/init.el
+;;     - {$DOOMDIR,$EMACSDIR}/modules/*/*/init.el
 ;;     - hook: `doom-after-modules-init-hook'
 ;;     - hook: `doom-before-modules-config-hook'
-;;     - {$DOOMDIR,$EMACSDIR}/{,sources/*/}modules/*/*/config.el
+;;     - {$DOOMDIR,$EMACSDIR}/modules/*/*/config.el
 ;;     - hook: `doom-after-modules-config-hook'
 ;;     - $DOOMDIR/config.el
 ;;     - `custom-file' or $DOOMDIR/custom.el
@@ -184,8 +184,7 @@ whichever is found first. Must end in a slash.")
 ;; DEPRECATED: Will be replaced in v3
 (defvar doom-module-load-path
   (list (file-name-concat doom-user-dir "modules")
-        (file-name-concat doom-emacs-dir "modules")
-        (file-name-concat doom-emacs-dir "sources/doom+/modules"))
+        (file-name-concat doom-emacs-dir "modules"))
   "A list of paths where Doom should search for modules.
 
 Order determines priority (from highest to lowest). The first entry should

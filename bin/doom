@@ -311,8 +311,7 @@ SEE ALSO:
   (add-hook! 'doom-cli-before-run-functions
     (defun doom-cli-loaddefs-delete-h (context)
       (when (member (doom-cli-context-command context)
-                    '(("doom" "sync")
-                      ("doom" "upgrade")))
+                    '(("doom" "sync")))
         (doom-log "Deleting loaddefs file: %s" doom-cli-loaddefs-file)
         (delete-file doom-cli-loaddefs-file))))
 
@@ -324,7 +323,6 @@ SEE ALSO:
 
   (defcli-alias! s sync)
   (defcli-alias! pf profile)
-  (defcli-alias! up upgrade)
   (defcli-alias! doc doctor)
 
   (defcli-stub! module)
