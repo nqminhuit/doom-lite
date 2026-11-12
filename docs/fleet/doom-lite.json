@@ -13,10 +13,6 @@
     {
       "name": "SETUP",
       "start": "Read docs/handoff/SETUP.md first (Conductor brief), then doom-lite-plan.md, then do the SETUP task in your own worktree and report STATUS lines to doom-lite-conductor."
-    },
-    {
-      "name": "S1",
-      "start": "Read docs/handoff/S1.md first (Conductor brief), then the S1 section of doom-lite-plan.md, then run the package-vc spike and report STATUS lines to doom-lite-conductor."
     }
   ]
 }

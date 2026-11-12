@@ -9,13 +9,16 @@ Set `doom-lite`, conductor `doom-lite-conductor`. Executes `doom-lite-plan.md`. 
 - P1 deletes `docs/` except `docs/fleet/` and `docs/handoff/`.
 - S1 findings go to P11 (the plan's "P10" there is a typo).
 - The user's interactive pass gates every merge.
+- `doom-lite` stays public with `config/` in it.
+- P1 ports linux-config `tests/elisp/minh-tests.el` to `tests/unit/minh-tests.el`, pointed at `config/`.
+- P11 uses the fallback backend (clone at pin, load-path, autoloads, no package.el); ghostel module is download-only.
 
 ## Board
 
 | Key | State | PR | Blocker | Next |
 |---|---|---|---|---|
-| SETUP | draft PR, awaiting user | [#1](https://github.com/nqminhuit/doom-lite/pull/1) | user: port config ERT suite in P1? (public `config/` accepted by user); PR carries `bdc7b85` until `master` is pushed | user review and merge |
-| S1 | done (findings and decision in `docs/handoff/S1.md`) | – | – | user chose A: P11 uses the fallback backend (clone at pin, load-path, autoloads, no package.el). ghostel: download-only (`ghostel-module-auto-install` `'download`, `ghostel-module-directory` outside the package tree; zig compile unsupported). Findings go into P11 after SETUP merges |
+| SETUP | draft PR, awaiting user | [#1](https://github.com/nqminhuit/doom-lite/pull/1) | – | SETUP folds S1 findings and decisions into P11 and records the ERT-port decision; then user review and merge |
+| S1 | done, session removed (findings and decisions in `docs/handoff/S1.md`) | – | – | user chose A: P11 uses the fallback backend (clone at pin, load-path, autoloads, no package.el). ghostel: download-only (`ghostel-module-auto-install` `'download`, `ghostel-module-directory` outside the package tree; zig compile unsupported). Findings go into P11 after SETUP merges |
 | P1 | waiting on SETUP | – | SETUP PR merged into `master` | brief must say: edit `.gitignore` (`/modules/*/` ignores vendored modules; only `!/modules/doom/` is excepted) |
 | P2 | waiting on P1 | – | P1 merged; S1 finished | – |
 | P3 | waiting on P2 | – | P2 merged | – |
