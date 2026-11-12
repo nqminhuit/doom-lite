@@ -132,8 +132,7 @@
 (pulsar-global-mode 1)
 (editorconfig-mode 1)
 
-(add-hook! (+popup-buffer-mode
-            help-mode
+(add-hook! (help-mode
             magit-mode
             shell-mode
             json-mode
