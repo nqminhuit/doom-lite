@@ -37,7 +37,7 @@ echo "## daemon stderr (errors/warnings only)"; grep -iE "error|warn" "$TMP/daem
 ec '(dolist (f (quote (y-or-n-p yes-or-no-p read-from-minibuffer read-char-choice read-multiple-choice completing-read))) (advice-add f :before (lambda (&rest a) (error "smoke: unexpected prompt: %S" (car a)))))' >/dev/null
 
 echo "## init time (informational)"; ec '(list (emacs-init-time) (bound-and-true-p doom-init-time) gcs-done)'
-echo "## features loaded (informational)"; ec '(length features)'
+echo "## features at startup (informational)"; ec '(length features)'
 echo "## straight build dirs (informational)"; ls "$ROOT/.local/straight/build-31.1" | wc -l
 
 check "*Warnings* empty" "$(ec "$WARN_EL")" '^"none"$'
@@ -49,6 +49,7 @@ ec "(with-current-buffer (find-file-noselect \"$TMP/proj/notes.txt\") (mapcar (l
 files=$(ec "(mapcar (lambda (f) (condition-case e (with-current-buffer (find-file-noselect (expand-file-name f \"$TMP/proj/\")) (list f major-mode)) (error (list f 'ERROR e)))) '(\"Foo.java\" \"main.go\"))")
 check "Java and Go modes" "$files" '^\(\("Foo.java" java-ts-mode\) \("main.go" go-ts-mode\)\)$'
 check "*Messages* clean after opening files" "$(ec "$LINES_EL")" '^"none"$'
+echo "## features after opening files (baseline: 375) (informational)"; ec '(length features)'
 
 [[ $fails -eq 0 ]] || { echo "$fails check(s) failed"; exit 1; }
 echo "smoke passed"
