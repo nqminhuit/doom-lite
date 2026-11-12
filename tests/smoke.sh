@@ -38,7 +38,7 @@ ec '(dolist (f (quote (y-or-n-p yes-or-no-p read-from-minibuffer read-char-choic
 
 echo "## init time (informational)"; ec '(list (emacs-init-time) (bound-and-true-p doom-init-time) gcs-done)'
 echo "## features at startup (informational)"; ec '(length features)'
-echo "## straight build dirs (informational)"; ls "$ROOT/.local/straight/build-31.1" | wc -l
+echo "## straight build dirs (informational)"; find "$ROOT/.local/straight/build-31.1" -mindepth 1 -maxdepth 1 | wc -l
 
 check "*Warnings* empty" "$(ec "$WARN_EL")" '^"none"$'
 check "*Messages* clean before opening files" "$(ec "$LINES_EL")" '^"none"$'
