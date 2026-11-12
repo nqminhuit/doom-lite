@@ -11,6 +11,7 @@ Set `doom-lite`, conductor `doom-lite-conductor`. Executes `doom-lite-plan.md`. 
 - From P2 on (user, 2026-11-13): the conductor reviews each phase PR (`gh pr diff`, re-run `tests/run.sh`, check the phase's greps) and merges it when it passes; no user interactive pass before merge. The conductor lists in its report what only an interactive check would catch.
 - `doom-lite` stays public with `config/` in it.
 - P1 ports linux-config `tests/elisp/minh-tests.el` to `tests/unit/minh-tests.el`, pointed at `config/`.
+- transient stays built-in (Emacs 0.13.3; user confirmed 2026-11-13), not pinned in `.local`.
 - P11 uses the fallback backend (clone at pin, load-path, autoloads, no package.el); ghostel module is download-only.
 
 ## Conductor handoff
