@@ -3,27 +3,16 @@
 ;;
 ;;; Custom commands
 ;; Editing
-(evil-ex-define-cmd "@"            #'+evil:macro-on-all-lines)
 (evil-ex-define-cmd "al[ign]"      #'+evil:align)
 (evil-ex-define-cmd "ral[ign]"     #'+evil:align-right)
-(evil-ex-define-cmd "enhtml"       #'+web:encode-html-entities)
-(evil-ex-define-cmd "dehtml"       #'+web:decode-html-entities)
-(evil-ex-define-cmd "mc"           #'+multiple-cursors:evil-mc)
-(evil-ex-define-cmd "iedit"        #'evil-multiedit-ex-match)
 (evil-ex-define-cmd "na[rrow]"     #'+evil:narrow-buffer)
 (evil-ex-define-cmd "retab"        #'+evil:retab)
 (evil-ex-define-cmd "rev[erse]"    #'+evil:reverse-lines)
 (evil-ex-define-cmd "ldiff"        #'evil-quick-diff)
 
 ;;; External resources
-;; TODO: (evil-ex-define-cmd "db"          #'doom:db)
-;; TODO: (evil-ex-define-cmd "dbu[se]"     #'doom:db-select)
-;; TODO: (evil-ex-define-cmd "go[ogle]"    #'doom:google-search)
-(evil-ex-define-cmd "repl"        #'+eval:repl)             ; invoke or send to repl
 (evil-ex-define-cmd "h[elp]"      #'+evil:help)
 
-;; TODO: (evil-ex-define-cmd "rx"          'doom:regex)             ; open re-builder
-(evil-ex-define-cmd "sh[ell]"     #'+eshell:run)
 (evil-ex-define-cmd "pad"         #'+evil:open-scratch-buffer)
 
 ;;; Dealing with buffers
@@ -46,7 +35,6 @@
 (evil-ex-define-cmd "com[pile]"   #'+evil:compile)
 (evil-ex-define-cmd "make"        #'+evil:make)
 (evil-ex-define-cmd "mk"          #'+evil:make) ; convenience alias
-(evil-ex-define-cmd "debug"       #'+debugger/start)
 (evil-ex-define-cmd "er[rors]"    #'+default/diagnostics)
 
 ;;; File operations

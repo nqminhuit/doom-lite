@@ -73,12 +73,7 @@
            ((fboundp 'evil-jump-item)
             #'evil-jump-item))))
 
-      (:after help :map help-mode-map
-       :n "o"       #'link-hint-open-link)
-      (:after info :map Info-mode-map
-       :n "o"       #'link-hint-open-link)
       (:after apropos :map apropos-mode-map
-       :n "o"       #'link-hint-open-link
        :n "TAB"     #'forward-button
        :n [tab]     #'forward-button
        :n [backtab] #'backward-button)
@@ -86,8 +81,6 @@
        [escape]  #'View-quit-all)
       (:after man :map Man-mode-map
        :n "q"    #'kill-current-buffer)
-      (:after geiser-doc :map geiser-doc-mode-map
-       :n "o"    #'link-hint-open-link)
 
       ;; misc
       :n "C-S-f"  #'toggle-frame-fullscreen
