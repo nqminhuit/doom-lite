@@ -139,7 +139,7 @@ Relevant: `doom-project-hook'."
                                        'change-major-mode-after-body-hook
                                      (intern (format "%s-hook" mode)))
                                    hook-name))))
-                 `((add-hook 'change-major-mode-after-body-hook #',fn)))))))))
+                 `((add-hook 'change-major-mode-after-body-hook #',fn))))))))))
 
 
 (provide 'doom-projects)
