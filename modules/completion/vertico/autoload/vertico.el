@@ -166,8 +166,10 @@ grep-edit-mode and xref-edit-mode need Emacs 31+)."
                               (push buf buffers))
                             (with-current-buffer buf
                               (goto-char (min pt (point-max)))
-                              (font-lock-fontify-region
-                               (line-beginning-position) (line-end-position))
+                              ;; Fontifying moves point; keep it on the jump's line.
+                              (save-excursion
+                                (font-lock-fontify-region
+                                 (line-beginning-position) (line-end-position)))
                               (format "%s:%d: %s"
                                       (car (cl-sort (list (abbreviate-file-name (buffer-file-name buf))
                                                           (file-relative-name (buffer-file-name buf) dir))
