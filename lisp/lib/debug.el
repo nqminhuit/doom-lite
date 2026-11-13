@@ -108,11 +108,6 @@ DEBUG-LEVEL dictates at what `doom-log-level' it should be set at, defaulting to
          (setq doom-debug--unbound-vars nil)
          (message "Debug mode disabled!"))))
 
-(defun doom-debug-shut-up-a (fn &rest args)
-  "Suppress output from FN, even in debug mode."
-  (let (init-file-debug)
-    (apply #'doom-shut-up-a fn args)))
-
 
 ;;
 ;;; * Custom debugger
