@@ -206,11 +206,6 @@
                '(flycheck-error-list-set-filter . builtin)))
 
 
-(use-package! wgrep
-  :commands wgrep-change-to-wgrep-mode
-  :config (setq wgrep-auto-save-buffer t))
-
-
 ;; From https://github.com/minad/vertico/wiki#candidate-display-transformations-custom-candidate-highlighting
 ;;
 ;; Uses `add-face-text-property' instead of `propertize' unlike the above

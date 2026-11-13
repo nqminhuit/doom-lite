@@ -140,11 +140,6 @@ directives. By default, this only recognizes C directives."
 
 
   ;; --- keybind fixes ----------------------
-  (after! wgrep
-    ;; A wrapper that invokes `wgrep-mark-deletion' across lines you use
-    ;; `evil-delete' in wgrep buffers.
-    (define-key wgrep-mode-map [remap evil-delete] #'+evil-delete))
-
   (add-hook! 'doom-escape-hook
     (defun +evil-disable-ex-highlights-h ()
       "Disable ex search buffer highlights."
