@@ -11,7 +11,7 @@
   "The name of the primary and initial workspace, which cannot be deleted.")
 
 (defvar +workspaces-switch-project-function #'doom-project-find-file
-  "The function to run after `projectile-switch-project'.
+  "The function to run after `project-switch-project'.
 This function must take one argument: the
 new project directory.")
 
@@ -183,7 +183,8 @@ stored in `persp-save-dir'.")
   (add-hook 'server-done-hook #'+workspaces-delete-associated-workspace-h)
 
   ;; Per-project workspaces, but reuse current workspace if empty
-  (setq projectile-switch-project-action #'+workspaces-switch-to-project-h)
+  (with-eval-after-load 'project
+    (setq project-switch-commands #'+workspaces/switch-to-project))
 
   ;; Don't bother auto-saving the session if no real buffers are open.
   (advice-add #'persp-asave-on-exit :around #'+workspaces-autosave-real-buffers-a)

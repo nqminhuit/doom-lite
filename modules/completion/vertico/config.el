@@ -151,8 +151,7 @@
          "C-x C-d" #'consult-dir
          "C-x C-j" #'consult-dir-jump-file))
   :config
-  ;; DEPRECATED: Remove when projectile is replaced with project.el
-  (setq consult-dir-project-list-function #'consult-dir-projectile-dirs)
+  (setq consult-dir-project-list-function #'consult-dir-project-dirs)
 
   (add-to-list 'consult-dir-sources 'consult-dir--source-tramp-ssh t)
   (add-to-list 'consult-dir-sources 'consult-dir--source-tramp-local t))
@@ -205,8 +204,7 @@
         :desc "Cycle marginalia views" "M-A" #'marginalia-cycle)
   :config
   (dolist (cat '((flycheck-error-list-set-filter . builtin)
-                 (persp-switch-to-buffer . buffer)
-                 (projectile-switch-to-buffer . buffer)))
+                 (persp-switch-to-buffer . buffer)))
     (add-to-list 'marginalia-command-categories cat)))
 
 

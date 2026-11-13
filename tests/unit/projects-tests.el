@@ -8,27 +8,11 @@
 
 (defun prt--path (rel) (expand-file-name rel prt--root))
 
-;; Same tests run against the old projectile implementation and the project.el rewrite.
-(defconst prt--old (file-exists-p (prt--path "modules/doom/compat/+projectile.el")))
-(defvar prt--skip nil "Non-nil (a message) when the old loader cannot run.")
-
-(if prt--old
-    (let ((build (prt--path ".local/straight/build-31.1/projectile")))
-      (if (not (file-directory-p build))
-          (setq prt--skip "projectile build dir missing")
-        (add-to-list 'load-path build)
-        (require 'projectile)
-        (load (prt--path "lisp/doom-lib.el") nil t)
-        (load (prt--path "lisp/doom-projects.el") nil t)
-        (load (prt--path "lisp/lib/projects.el") nil t)
-        (setq projectile-project-root-files '()
-              projectile-project-root-files-top-down-recurring '("Makefile"))
-        (add-to-list 'projectile-project-root-files-bottom-up ".project")))
-  (load (prt--path "lisp/doom-lib.el") nil t)
-  (unless (boundp 'doom-profile-state-dir)
-    (defvar doom-profile-state-dir (make-temp-file "prt-state" t)))
-  (load (prt--path "lisp/doom-projects.el") nil t)
-  (load (prt--path "lisp/lib/projects.el") nil t))
+(load (prt--path "lisp/doom-lib.el") nil t)
+(unless (boundp 'doom-profile-state-dir)
+  (defvar doom-profile-state-dir (make-temp-file "prt-state" t)))
+(load (prt--path "lisp/doom-projects.el") nil t)
+(load (prt--path "lisp/lib/projects.el") nil t)
 
 (defvar prt--base nil "Fresh temp root holding all fixtures of the running test.")
 
@@ -36,7 +20,6 @@
   "Run BODY with `prt--base' a fresh dir and project state isolated from the user's."
   (declare (indent 0))
   `(progn
-     (when prt--skip (ert-skip prt--skip))
      (unless (executable-find "git") (ert-skip "git missing"))
      (let* ((prt--base (file-name-as-directory
                         (file-truename (make-temp-file "prt-base" t))))
@@ -91,7 +74,6 @@
 
 (ert-deftest projects/add-directory-as-project ()
   (prt--with-fixture
-    (when prt--old (ert-skip "project.el only"))
     (let ((dir (expand-file-name "plain" prt--base)))
       (make-directory dir)
       (doom/add-directory-as-project dir)
@@ -100,7 +82,6 @@
 
 (ert-deftest projects/excluded-root-not-remembered ()
   (prt--with-fixture
-    (when prt--old (ert-skip "project.el only"))
     ;; `temporary-file-directory' is rebound by the fixture and thus ignored as a project.
     (let ((dir (expand-file-name "ignored" temporary-file-directory)))
       (make-directory dir)
@@ -110,7 +91,6 @@
 
 (ert-deftest projects/find-file-respects-gitignore ()
   (prt--with-fixture
-    (when prt--old (ert-skip "project.el only"))
     (let ((root (prt--git-repo "repo")) offered)
       (write-region "ignored.txt\n" nil (expand-file-name ".gitignore" root))
       (write-region "" nil (expand-file-name "ignored.txt" root))

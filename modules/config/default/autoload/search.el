@@ -57,12 +57,11 @@ input and search the whole buffer for it."
   "Conduct a text search in the current project root.
 If prefix ARG is set, include ignored/hidden files."
   (interactive "P")
-  (let* ((projectile-project-root nil)
-         (disabled-command-function nil)
+  (let* ((disabled-command-function nil)
          (current-prefix-arg (unless (eq arg 'other) arg))
          (default-directory
            (if (eq arg 'other)
-               (if-let* ((projects (projectile-relevant-known-projects)))
+               (if-let* ((projects (project-known-project-roots)))
                    (completing-read "Search project: " projects nil t)
                  (user-error "There are no known projects"))
              default-directory)))
@@ -80,12 +79,11 @@ If prefix ARG is set, include ignored/hidden files."
 If prefix ARG is set, prompt for a known project to search from."
   (interactive
    (list (or (doom-thing-at-point-or-region) "")
-         (dlet ((projectile-project-root nil))
-           (if current-prefix-arg
-               (if-let* ((projects (projectile-relevant-known-projects)))
-                   (completing-read "Search project: " projects nil t)
-                 (user-error "There are no known projects"))
-             (doom-project-root default-directory)))))
+         (if current-prefix-arg
+             (if-let* ((projects (project-known-project-roots)))
+                 (completing-read "Search project: " projects nil t)
+               (user-error "There are no known projects"))
+           (doom-project-root default-directory))))
   (+vertico/project-search nil symbol dir))
 
 ;;;###autoload

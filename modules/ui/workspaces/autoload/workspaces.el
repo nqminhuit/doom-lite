@@ -548,15 +548,10 @@ to it. If in the main workspace and it's empty, recycle that workspace, without
 renaming it.
 
 Afterwords, runs `+workspaces-switch-project-function'. By default, this prompts
-the user to open a file in the new project.
-
-This be hooked to `projectile-after-switch-project-hook'."
+the user to open a file in the new project."
   (let* ((default-directory (or dir default-directory))
          (pname (doom-project-name))
-         (proot (file-truename default-directory))
-         ;; HACK: Clear projectile-project-root or cached roots could interfere
-         ;;   with project switching (see doomemacs/core#3166).
-         projectile-project-root)
+         (proot (file-truename default-directory)))
     (when persp-mode
       (if (and (not (null +workspaces-on-switch-project-behavior))
                (or (eq +workspaces-on-switch-project-behavior t)
@@ -602,6 +597,14 @@ This be hooked to `projectile-after-switch-project-hook'."
           (+workspace-rename (+workspace-current-name) pname))
         (unless current-prefix-arg
           (funcall +workspaces-switch-project-function proot))))))
+
+;;;###autoload
+(defun +workspaces/switch-to-project ()
+  "Open the project at `default-directory' in its own workspace.
+Used as `project-switch-commands', so `project-switch-project' lands here."
+  (interactive)
+  (+workspaces-switch-to-project-h
+   (expand-file-name (project-root (project-current t)))))
 
 ;;;###autoload
 (defun +workspaces-save-tab-bar-data-h (&rest _)
