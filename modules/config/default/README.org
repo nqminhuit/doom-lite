@@ -6,8 +6,9 @@
 * Description :unfold:
 This module provides a set of reasonable defaults, including:
 
-- A Spacemacs-inspired keybinding scheme
-- A configuration for (almost) universally repeating searches with [[kbd:;]] and [[kbd:,]]
+- A Spacemacs-inspired keybinding scheme (leader keys in =+evil-bindings.el=)
+- Custom =help-map= keys (~SPC h d m~ opens a module's README, ~doom/describe-package~, ~load-theme~ on [[kbd:C-h t]], ...)
+- Smarter =C-a= / =C-e= and RET variants
 
 ** Maintainers
 - [[github:hlissner]]
@@ -16,20 +17,13 @@ This module provides a set of reasonable defaults, including:
 [[doom-contrib-maintainer:][Become a maintainer?]]
 
 ** Module flags
-- +bindings :: ...
-- +gnupg ::
-  Enable GnuPG integration and defaults, allowing Emacs to pick up on your
-  default GPG keys, including interop with pinentry-emacs.
+/This module has no flags./
 
 ** Packages
-- [[package:avy]]
-- [[package:drag-stuff]]
-- [[package:link-hint]]
-- [[package:expand-region]] unless [[module::editor evil]]
+/This module installs no packages./
 
 ** Hacks
-- ~epa-pinentry-mode~ is set to ~'loopback~, forcing gpg-agent to use the Emacs
-  minibuffer when prompting for your passphrase. *Only works with GPG 2.1+!*
+/No hacks documented for this module./
 
 * Installation
 [[id:01cffea4-3329-45e2-a892-95a384ab2338][Enable this module in your ~doom!~ block.]]

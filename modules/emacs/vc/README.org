@@ -4,8 +4,7 @@
 #+since:    2.0.0
 
 * Description :unfold:
-This module augments Emacs builtin version control support and provides better
-integration with =git=.
+This module configures Emacs builtin version control support (=vc=, =vc-annotate=, =smerge-mode=) and installs the =git-modes= major modes (gitignore, gitattributes, gitconfig).
 
 ** Maintainers
 - [[github:hlissner]]
@@ -16,13 +15,10 @@ integration with =git=.
 /This module has no flags./
 
 ** Packages
-- [[package:git-link]]
-- [[package:git-timemachine]]
 - [[package:git-modes]]
 
 ** Hacks
-- [[package:git-timemachine]] buffers will display revision details in the header-line,
-  rather than the minibuffer (easier to see).
+/No hacks documented for this module./
 
 * Installation
 [[id:01cffea4-3329-45e2-a892-95a384ab2338][Enable this module in your ~doom!~ block.]]

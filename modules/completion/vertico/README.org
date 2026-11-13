@@ -8,8 +8,7 @@ This module enhances the Emacs search and completion experience, and also
 provides a united interface for project search and replace, powered by [[https://github.com/BurntSushi/ripgrep/][ripgrep]].
 
 It does this with several modular packages focused on enhancing the built-in
-~completing-read~ interface, rather than replacing it with a parallel ecosystem
-like [[pkg:ivy]] and [[pkg:helm]] do. The primary packages are:
+~completing-read~ interface, rather than replacing it with a parallel ecosystem. The primary packages are:
 
 - Vertico, which provides the vertical completion user interface
 - Consult, which provides a suite of useful commands using ~completing-read~
@@ -23,24 +22,16 @@ like [[pkg:ivy]] and [[pkg:helm]] do. The primary packages are:
 [[doom-contrib-maintainer:][Become a maintainer?]]
 
 ** Module flags
-- +childframe ::
-  Display completion candidates in a [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Child-Frames.html][child frame]] rather than an overlay or
-  tooltip. *Requires GUI Emacs.*
-
-- +icons ::
-  Add icons to =file= and =buffer= category completion selections.
+/This module has no flags./
 
 ** Packages
-- [[package:nerd-icons-completion]] if [[module:+icons]]
 - [[package:consult]]
-- [[package:consult-flycheck]] if [[module::checkers syntax]]
+- [[package:consult-dir]]
 - [[package:embark]]
 - [[package:embark-consult]]
 - [[package:marginalia]]
 - [[package:orderless]]
 - [[package:vertico]]
-- [[package:vertico-posframe]] if [[module:+childframe]]
-- [[package:wgrep]]
 
 ** Hacks
 /No hacks documented for this module./
@@ -48,14 +39,7 @@ like [[pkg:ivy]] and [[pkg:helm]] do. The primary packages are:
 * Installation
 [[id:01cffea4-3329-45e2-a892-95a384ab2338][Enable this module in your ~doom!~ block.]]
 
-This module has only one requirement: [[https://github.com/BurntSushi/ripgrep][Ripgrep]] (built with [[https://www.pcre.org/][PCRE]] support; run ~$
-doom doctor~ to determine if your build meets this requirement), which is a hard
-dependency of Doom itself, so you should already have it installed.
-
-Otherwise, Consult (a plugin this module installs) provides many commands to
-interface with a variety of programs from [[https://github.com/junegunn/fzf][fzf]] to [[https://kapeli.com/dash][Dash docsets]] to [[https://www.passwordstore.org/][pass]] and /much/
-more. These programs are optional for this module, but must be installed if you
-intend to use their associated Helm command or plugin.
+This module has only one requirement: [[https://github.com/BurntSushi/ripgrep][Ripgrep]] (built with [[https://www.pcre.org/][PCRE]] support; run ~$ doom doctor~ to determine if your build meets this requirement).
 
 * TODO Usage
 #+begin_quote wip
@@ -81,7 +65,9 @@ keybindings are available:
 | [[kbd:C-;]] or [[kbd:<leader> a]] | Open an ~embark-act~ menu to chose a useful action             |
 | [[kbd:C-c C-;]]                     | export the current candidate list to a buffer                |
 | [[kbd:C-c C-l]]                     | ~embark-collect~ the current candidate list (collect verbatim) |
+| [[kbd:C-c C-e]]                     | export to a writable buffer (~+vertico/embark-export-write~)   |
 | [[kbd:C-SPC]]                       | Preview the current candidate                                |
+| [[kbd:M-RET]]                       | Exit with the input as typed                                 |
 
 ~embark-act~ will prompt you with a =which-key= menu with useful commands on the
 selected candidate or candidate list, depending on the completion category. Note
@@ -90,13 +76,12 @@ options with a Vertico buffer, that also has slightly more detailed descriptions
 due to Marginalia annotations.
 
 ** Jump-to navigation
-This module provides an interface to navigate within a project using
-=project.el=:
+This module provides an interface to navigate within a project using =project.el=:
 
 | Keybind                              | Description                         |
 |--------------------------------------+-------------------------------------|
 | [[kbd:SPC p f]], [[kbd:SPC SPC]] | Jump to file in project             |
-| [[kbd:SPC f f]], [[kbd:SPC .]]   | Jump to file from current directory |
+| [[kbd:SPC f f]], [[kbd:SPC .]]   | Jump to file                        |
 | [[kbd:SPC s i]]                    | Jump to symbol in file              |
 
 ** Project search & replace
@@ -109,39 +94,28 @@ This module provides interactive text search and replace using ripgrep.
 | [[kbd:<leader> s d]] | Search this directory    |
 | [[kbd:<leader> s D]] | Search another directory |
 
-[[asset:https://assets.doomemacs.org/completion/vertico/search.png]]
-
-Prefixing these keys with the universal argument ([[kbd:SPC u]] for evil users; [[kbd:C-u]]
-otherwise) changes the behavior of these commands, instructing the underlying
-search engine to include ignored files.
+Prefixing these keys with the universal argument ([[kbd:SPC u]] for evil users; [[kbd:C-u]] otherwise) changes the behavior of these commands, instructing the underlying search engine to include ignored files.
 
 This module also provides Ex Commands for evil users:
 | Ex command           | Description                                                    |
 |----------------------+----------------------------------------------------------------|
 | ~:pg[rep][!] [QUERY]~  | Search project (if ~!~, include hidden files)                    |
-| ~:pg[rep]d[!] [QUERY]~ | Search from current directory (if ~!~, don't search recursively) |
+| ~:pdg[rep][!] [QUERY]~ | Search from current directory (if ~!~, don't search recursively) |
 
 The optional ~!~ is equivalent to the universal argument for the previous
 commands.
 
 -----
 
-On top of the usual Vertico keybindings, search commands also offer support for
-exporting the current candidate list to an editable buffer [[kbd:C-c C-e]]. After
-editing the changes can be committed with [[kbd:C-c C-c]] and aborted with [[kbd:C-c C-k]]
-(alternatively [[kbd:ZZ]] and [[kbd:ZQ]], for evil users). It uses [[pkg:wgrep]] for grep searches,
-[[pkg:wdired]] for file searches, and =occur= for buffer searches.
+-----
 
-[[asset:https://assets.doomemacs.org/completion/vertico/search-replace.png]]
+On top of the usual Vertico keybindings, search commands also offer support for exporting the current candidate list to an editable buffer with [[kbd:C-c C-e]]. It uses ~grep-edit-mode~ for grep searches, [[pkg:wdired]] for file searches, and =occur= for buffer searches.
 
 ** In-buffer searching
 This module provides some in buffer searching bindings:
 
-- [[kbd:SPC s s]] (~isearch~)
+- [[kbd:SPC s s]] and [[kbd:SPC s b]] (~+default/search-buffer~ via ~consult-line~)
 - [[kbd:SPC s S]] (~+vertico/search-symbol-at-point~ via ~consult-line~)
-- [[kbd:SPC s b]] (~consult-line~)
-
-[[asset:https://assets.doomemacs.org/completion/vertico/buffer-search.png]]
 
 An ~occur-edit~ buffer can be opened from ~consult-line~ with [[kbd:C-c C-e]].
 
@@ -156,31 +130,25 @@ An ~occur-edit~ buffer can be opened from ~consult-line~ with [[kbd:C-c C-e]].
 | Keybind                              | Description                           |
 |--------------------------------------+---------------------------------------|
 | [[kbd:SPC RET]]                    | Find bookmark                         |
-| [[kbd:SPC f f]], [[kbd:SPC .]]   | Browse from current directory         |
+| [[kbd:SPC f f]], [[kbd:SPC .]]   | Find file                             |
 | [[kbd:SPC p f]], [[kbd:SPC SPC]] | Find file in project                  |
 | [[kbd:SPC f r]]                    | Find recently opened file             |
 | [[kbd:SPC p p]]                    | Open another project                  |
-| [[kbd:SPC b b]], [[kbd:SPC ,]]   | Switch to buffer in current workspace |
+| [[kbd:SPC b b]], [[kbd:SPC ,]]   | Switch to buffer (in the project, inside one) |
 | [[kbd:SPC b B]], [[kbd:SPC <]]   | Switch to buffer                      |
-
-[[kbd:SPC b b]] and [[kbd:SPC ,]] support changing the workspace you're selecting a buffer from
-via [[https://github.com/minad/consult#narrowing-and-grouping][Consult narrowing]], e.g. if you're on the first workspace, you can switch to
-selecting a buffer from the third workspace by typing [[kbd:3 SPC]] into the prompt, or
-the last workspace by typing [[kbd:0 SPC]].
 
 [[kbd:SPC f f]] and [[kbd:SPC .]] support exporting to a [[kbd:wdired]] buffer using [[kbd:C-c C-e]].
 
 *** Search
 | Keybind           | Description                               |
 |-------------------+-------------------------------------------|
-| [[kbd:SPC p t]] | List all TODO/FIXMEs in project           |
 | [[kbd:SPC s b]] | Search the current buffer                 |
 | [[kbd:SPC s d]] | Search this directory                     |
 | [[kbd:SPC s D]] | Search another directory                  |
-| [[kbd:SPC s i]] | Search for symbol in current buffer       |
+| [[kbd:SPC s i]] | Jump to symbol in current buffer          |
 | [[kbd:SPC s p]] | Search project                            |
 | [[kbd:SPC s P]] | Search another project                    |
-| [[kbd:SPC s s]] | Search the current buffer (incrementally) |
+| [[kbd:SPC s s]] | Search the current buffer                 |
 
 *** File Path Completion
 Note that Emacs allows you to switch directories with shadow paths, for example
@@ -191,14 +159,6 @@ the path from the minibuffer, so in the previous example the path will be reset
 to =~/=.
 
 ** Consult
-*** Multiple candidate search
-This module modifies the default keybindings used in
-~consult-completing-read-multiple~:
-| Keybind       | Description                                                 |
-|---------------+-------------------------------------------------------------|
-| [[kbd:TAB]] | Select or deselect current candidate                        |
-| [[kbd:RET]] | Enters selected candidates (also toggles current candidate) |
-
 *** Async search commands
 :PROPERTIES:
 :ID:       4ab16bf0-f9e8-4798-8632-ee7b13d2291e
@@ -250,6 +210,8 @@ you can use to further specify each space separated input in the following ways:
 | ~%foo~ or ~foo%~ | perform ~char-fold-to-regexp~ on input =foo= |
 | ~`foo~ or ~foo`~ | match input =foo= as an initialism         |
 | ~=foo~ or ~foo=~ | match only with literal input =foo=        |
+| ~^foo~ or ~foo^~ | match input =foo= as a literal prefix      |
+| ~&foo~ or ~foo&~ | match input =foo= against the annotation   |
 | ~~foo~ or ~foo~~ | match input =foo= with fuzzy/flex matching |
 
 * TODO Configuration
@@ -289,7 +251,4 @@ defining them [[https://github.com/minad/marginalia/#adding-custom-annotators-or
 /There are no known problems with this module./ [[doom-report:][Report one?]]
 
 * Frequently asked questions
-[[doom-contrib-faq:][Ask a question?]]
-
-** Helm vs Ivy vs Ido vs Vertico
-See [[id:4f36ae11-1da8-4624-9c30-46b764e849fc][this answer]].
+/This module has no FAQs yet./ [[doom-contrib-faq:][Ask one?]]

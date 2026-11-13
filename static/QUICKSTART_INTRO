@@ -9,7 +9,7 @@ But before you doom yourself, here are some things you should know:
 3. Use 'doom upgrade' to update Doom. Doing it any other way will require
    additional steps (see 'doom help upgrade').
 
-4. Access Doom's documentation from within Emacs via 'SPC h d h' or 'C-h d h'
-   (or 'M-x doom/help').
+4. Read a module's documentation from within Emacs via 'SPC h d m' or 'C-h d m'
+   (or 'M-x doom/describe-module'); it opens the module's README.
 
 Have fun!

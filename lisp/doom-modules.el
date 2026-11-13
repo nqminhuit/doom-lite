@@ -454,7 +454,7 @@ See `doom-module-key' for the format and documentation for module keys."
 The key is in the format (SOURCE GROUP MODULE [FLAG]) and is deduced from the
 arguments of the surrounding `doom!' or `modulep!' call. In `modulep!', all its
 arguments are processed into a module key. In `doom!', it depends on what the
-cursor is on (see demos).
+cursor is on.
 
 The key is a list of the form (SOURCE GROUP MODULE [FLAGS...])."
   (with-syntax-table emacs-lisp-mode-syntax-table

@@ -19,16 +19,14 @@ Like vterm, it requires extra steps to set up.
 [[doom-contrib-maintainer:][Become a maintainer?]]
 
 ** Module flags
-- +everywhere ::
-  Globally integrate ghostel into various parts of Emacs, like compilation
-  commands, comint, and eshell.
+/This module has no flags./
 
 ** Packages
 - [[package:ghostel]]
-- [[package:evil-ghostel]] if [[module::editor evil +everywhere]]
+- [[package:evil-ghostel]]
 
 ** Hacks
-/No hacks documented for this module./
+- =DIRENV_*= variables are stripped from the environment of new ghostel shells so direnv can run again in them.
 
 * Installation
 [[id:01cffea4-3329-45e2-a892-95a384ab2338][Enable this module in your ~doom!~ block.]]

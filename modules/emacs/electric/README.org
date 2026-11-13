@@ -4,8 +4,7 @@
 #+since:    2.0.0
 
 * Description :unfold:
-This module augments the built-in [[pkg:electric]] package with keyword-based
-indentation (as opposed to character-based).
+This module augments the built-in [[pkg:electric]] package with keyword-based indentation (as opposed to character-based), makes RET continue commented lines (~+electric-continue-comments~), and enables ~electric-pair-mode~. ~set-electric!~ registers electric characters and words per major mode.
 
 ** Maintainers
 - [[github:hlissner]]
