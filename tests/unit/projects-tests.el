@@ -78,6 +78,35 @@
       (should (file-exists-p (expand-file-name ".project" dir)))
       (should (cl-some (lambda (r) (file-equal-p r dir)) (project-known-project-roots))))))
 
+(ert-deftest projects/add-directory-git-root-remembered ()
+  (prt--with-fixture
+    (let ((root (prt--git-repo "repo")))
+      (doom/add-directory-as-project root)
+      (should-not (file-exists-p (expand-file-name ".project" root)))
+      (should (cl-some (lambda (r) (file-equal-p r root)) (project-known-project-roots))))))
+
+(ert-deftest projects/add-directory-dot-project-root-remembered ()
+  (prt--with-fixture
+    (let ((dir (expand-file-name "marked" prt--base)))
+      (make-directory dir)
+      (write-region "" nil (expand-file-name ".project" dir))
+      (doom/add-directory-as-project dir)
+      (should (cl-some (lambda (r) (file-equal-p r dir)) (project-known-project-roots))))))
+
+(ert-deftest projects/add-directory-inside-project-errors ()
+  (prt--with-fixture
+    (let* ((root (prt--git-repo "repo"))
+           (sub (expand-file-name "a" root)))
+      (should-error (doom/add-directory-as-project sub) :type 'user-error)
+      (should-not (file-exists-p (expand-file-name ".project" sub))))))
+
+(ert-deftest projects/add-directory-excluded-errors ()
+  (prt--with-fixture
+    (let ((dir (expand-file-name "ignored" temporary-file-directory)))
+      (make-directory dir)
+      (write-region "" nil (expand-file-name ".project" dir))
+      (should-error (doom/add-directory-as-project dir) :type 'user-error))))
+
 (ert-deftest projects/excluded-root-not-remembered ()
   (prt--with-fixture
     ;; `temporary-file-directory' is rebound by the fixture and thus ignored as a project.

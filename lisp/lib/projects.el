@@ -67,31 +67,30 @@ unless they begin with a slash."
 
 ;;;###autoload
 (defun doom/add-directory-as-project (dir)
-  "Register an arbitrary directory as a project.
+  "Remember DIR as a project; plain directories get a .project file first.
 
-Unlike `project-remember-project', if DIR isn't a valid project, a .project
-file will be created within it so that it will always be treated as one. This
-command will throw an error if a parent of DIR is a valid project (which would
-mask DIR)."
+Existing project roots are remembered as-is. Errors if DIR is inside another
+project (which would mask it) or matches `project-list-exclude'."
   (interactive "D")
   (setq dir (file-name-as-directory (expand-file-name dir)))
-  (when-let* ((proj-dir (doom-project-root dir)))
-    (if (file-equal-p proj-dir dir)
-        (user-error "ERROR: Directory is already a project: %s" proj-dir)
-      (user-error "ERROR: Directory is already inside another project: %s" proj-dir)))
   (let ((short-dir (abbreviate-file-name dir)))
     (when (doom--project-excluded-p dir)
       (user-error "ERROR: Directory is in project-list-exclude: %s" short-dir))
-    (dolist (proj (project-known-project-roots))
-      (when (file-in-directory-p proj dir)
-        (user-error "ERROR: Directory contains a known project: %s" short-dir))
-      (when (file-equal-p proj dir)
-        (user-error "ERROR: Directory is already a known project: %s" short-dir)))
-    (with-temp-file (expand-file-name ".project" dir))
-    (message "Added directory as a project: %s" short-dir)
-    ;; project.el caches negative lookups for a few seconds; drop that for the new marker.
-    (project--clear-cache)
-    (project-remember-project (project-current nil dir))))
+    (if-let* ((proj-dir (doom-project-root dir)))
+        (if (file-equal-p proj-dir dir)
+            (progn (project-remember-project (project-current nil dir))
+                   (message "Remembered project: %s" short-dir))
+          (user-error "ERROR: Directory is already inside another project: %s" proj-dir))
+      (dolist (proj (project-known-project-roots))
+        (when (file-in-directory-p proj dir)
+          (user-error "ERROR: Directory contains a known project: %s" short-dir))
+        (when (file-equal-p proj dir)
+          (user-error "ERROR: Directory is already a known project: %s" short-dir)))
+      (with-temp-file (expand-file-name ".project" dir))
+      (message "Added directory as a project: %s" short-dir)
+      ;; project.el caches negative lookups for a few seconds; drop that for the new marker.
+      (project--clear-cache)
+      (project-remember-project (project-current nil dir)))))
 
 
 ;;
@@ -162,6 +161,7 @@ If DIR is not a project, it will be indexed (but not cached)."
 
 (defun doom--project-excluded-p (dir)
   "Return non-nil if DIR would be dropped by `project-list-exclude'."
+  (require 'project)  ; `project-list-exclude' is void until project.el loads
   (let ((pr (cons 'transient dir)))
     (cl-some (lambda (ex)
                (if (stringp ex)
