@@ -168,6 +168,18 @@ Paths that do not live under PROJ fall back to `file-relative-name'."
                     i)
               cand)))))
 
+(defun m--project-file-candidates (root)
+  "Run `fd' in ROOT and return the `mm--get-file-names' alist.
+ROOT is expanded first: `project-root' may be `~'-abbreviated and `fd' runs without a shell."
+  (let* ((root (file-name-as-directory (expand-file-name root)))
+         (files (split-string
+                 (apply #'m--call "fd" (append (m--fd-args) (list "." root)))
+                 "\n" t)))
+    ;; alist: (("display" . "realpath") ...).  `assoc' on it is O(n) but runs
+    ;; once per invocation -- a hash table costs more to build (4.7ms at 20k
+    ;; candidates) than the single lookup it saves.
+    (mm--get-file-names files root)))
+
 ;;;###autoload
 (defun m/find-file ()
   "Find and open a file in the current project using `fd` and `consult'."
@@ -178,13 +190,7 @@ Paths that do not live under PROJ fall back to `file-relative-name'."
   (let* ((project (project-current))
          (proj (or (and project (project-root project))
                    (user-error "Not in a project")))
-         (candidates (split-string
-                      (apply #'m--call "fd" (append (m--fd-args) (list "." proj)))
-                      "\n" t))
-         ;; alist: (("display" . "realpath") ...).  `assoc' here is O(n) but
-         ;; runs once per invocation -- a hash table costs more to build
-         ;; (4.7ms at 20k candidates) than the single lookup it saves.
-         (resolved-cand (mm--get-file-names candidates proj)))
+         (resolved-cand (m--project-file-candidates proj)))
     (unless resolved-cand
       (user-error "No matching files found via fd in project"))
     (when-let ((selected (consult--read resolved-cand

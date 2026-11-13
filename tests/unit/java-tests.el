@@ -3,6 +3,7 @@
 ;; Run with: tests/run.sh (or emacs --batch -Q -l tests/unit/java-tests.el -f ert-run-tests-batch-and-exit)
 
 (require 'ert)
+(require 'cl-lib)
 (require 'eglot)
 
 (load (expand-file-name "../../config/modules/minh/java/config.el"
@@ -25,6 +26,27 @@
           (project-find-functions (list #'project-try-vc)))
      (unwind-protect (progn ,@body)
        (dolist (d (list dir other cache)) (delete-directory d t)))))
+
+(ert-deftest java-contact/lombok-agent-added-when-jar-exists ()
+  (java-tests--with-dirs
+   (let ((jar (expand-file-name "lombok.jar" dir)))
+     (write-region "" nil jar)
+     (cl-letf (((symbol-function '+java--lombok-jar) (lambda () jar)))
+       (should (member (concat "--jvm-arg=-javaagent:" jar) (jdtls-command-contact nil)))))))
+
+(ert-deftest java-contact/missing-lombok-jar-warns-once-and-omits-agent ()
+  (java-tests--with-dirs
+   (let ((jar (expand-file-name "missing.jar" dir))
+         (+java--lombok-warned nil)
+         warnings)
+     (cl-letf (((symbol-function '+java--lombok-jar) (lambda () jar))
+               ((symbol-function 'display-warning)
+                (lambda (_type msg &rest _) (push msg warnings))))
+       (dotimes (_ 2)
+         (should-not (cl-some (lambda (a) (string-prefix-p "--jvm-arg=-javaagent" a))
+                              (jdtls-command-contact nil))))
+       (should (= (length warnings) 1))
+       (should (string-search jar (car warnings)))))))
 
 (ert-deftest java-contact/no-project-uses-the-file-directory ()
   (java-tests--with-dirs

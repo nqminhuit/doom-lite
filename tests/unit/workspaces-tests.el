@@ -155,3 +155,17 @@
     (set-frame-parameter nil 'tabs nil)
     (+workspaces-init-frame-h)
     (should (equal (wst--names) '("main")))))
+
+(defun wst--messages-have-renamed-p ()
+  (with-current-buffer "*Messages*"
+    (save-excursion (goto-char (point-min))
+                    (search-forward "Renamed tab to" nil t))))
+
+(ert-deftest workspaces/no-tab-renamed-message ()
+  (wst--with-fixture
+    (with-current-buffer "*Messages*" (let ((inhibit-read-only t)) (erase-buffer)))
+    (set-frame-parameter nil 'tabs nil)
+    (+workspaces-init-frame-h)
+    (+workspace/new "other")
+    (+workspace/rename "other2")
+    (should-not (wst--messages-have-renamed-p))))
