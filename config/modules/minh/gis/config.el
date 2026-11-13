@@ -1,8 +1,8 @@
 ;;; minh/gis/config.el -*- lexical-binding: t; -*-
 
 ;; Its name starts with `*', which Doom's `doom-special-buffer-p' treats as
-;; "unreal" and so never registers with the current workspace -- making the
-;; buffer invisible to `+vertico/switch-workspace-buffer' (`SPC b b').
+;; "unreal", so `next-buffer'/`previous-buffer' (via the frame buffer
+;; predicate) would skip it.
 (add-hook! 'gis-status-mode-hook
   #'(lambda ()
       (setq-local hl-line-face 'highlight)

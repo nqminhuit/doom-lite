@@ -219,10 +219,8 @@
       (evil-local-set-key 'normal "C" #'s3-manager-dired-do-copy))))
 
 ;; ecim's buffers start with `*', which Doom's `doom-special-buffer-p'
-;; treats as "unreal", so Doom's own workspace-tracking hook never
-;; registers them with the current workspace -- invisible to
-;; `+vertico/switch-workspace-buffer' (`SPC b b'), same root cause as
-;; the gis fix above. `ecim-list-mode-hook' covers all four
+;; treats as "unreal", so `next-buffer'/`previous-buffer' skip them, same
+;; root cause as the gis fix above. `ecim-list-mode-hook' covers all four
 ;; tabulated-list views (runs/jobs/workflows/artifacts) in one hook,
 ;; since `provided-mode-derived-p' (which `doom-real-buffer-p' uses)
 ;; respects mode inheritance; `ecim-log-mode' derives from
