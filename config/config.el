@@ -50,17 +50,16 @@
 (with-eval-after-load 'sh-script (add-hook 'sh-mode-hook #'outline-minor-mode))
 
 (with-eval-after-load 'eshell
+  ;; NOTE no `capf-autosuggest-mode' hook here: the package is not installed
+  ;; (see packages.el), and a hook entry for a void function makes
+  ;; `run-mode-hooks' signal, which aborts `eshell-mode' half-initialised and
+  ;; skips every hook registered after it.
   (setq
    eshell-hist-ignoredups t
    eshell-history-size 5000
    eshell-buffer-maximum-lines 5000
    eshell-scroll-to-bottom-on-input t
-   eshell-aliases-file "/opt/minh/linux-config/configs/dotfiles/emacs/aliases")
-  ;; NOTE no `capf-autosuggest-mode' hook here: the package is not installed
-  ;; (see packages.el), and a hook entry for a void function makes
-  ;; `run-mode-hooks' signal, which aborts `eshell-mode' half-initialised and
-  ;; skips every hook registered after it.
-  (add-hook! 'eshell-mode-hook #'(lambda() (smartparens-mode 1))))
+   eshell-aliases-file "/opt/minh/linux-config/configs/dotfiles/emacs/aliases"))
 
 (with-eval-after-load 'flymake
   ;; Diagnostics are already counted on the modeline (see modules/minh/modeline),

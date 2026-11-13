@@ -27,9 +27,6 @@ output buffer."
     ;; buffer. No good way to tell, so pretend it's async.
     :file '(markdown-follow-thing-at-point :async t))
 
-  (sp-local-pair (cons mode extra-modes) "`" "`"
-                 :unless '(:add sp-point-before-word-p sp-point-before-same-p))
-
   (map! :map ,(intern (format "%s-map" mode))
         :localleader
         "'" #'markdown-edit-code-block

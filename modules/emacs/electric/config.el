@@ -43,14 +43,14 @@ current line."
       (when (and (eolp) +electric-indent-words)
         (save-excursion
           (backward-word)
-          (looking-at-p (concat "\\<" (regexp-opt +electric-indent-words)))))))
+          (looking-at-p (concat "\\<" (regexp-opt +electric-indent-words))))))))
 
-  ;; Fix doomemacs/core#5051: Ensure electric-quote's handler runs before
-  ;; smartparens' on `post-self-insert-hook', so that
-  ;; `electric-quote-inhibit-functions' (e.g. `org-in-src-block-p') is respected
-  ;; in org src blocks.
-  (add-hook! 'electric-quote-mode-hook
-    (defun +electric-quote-reorder-post-self-insert-h ()
-      (when electric-quote-mode
-        (remove-hook 'post-self-insert-hook #'electric-quote-post-self-insert-function)
-        (add-hook 'post-self-insert-hook #'electric-quote-post-self-insert-function -50)))))
+
+;;
+;;; Auto-pairing
+
+(add-hook 'doom-first-buffer-hook #'electric-pair-mode)
+;; Depth -90: must run before the depth-0 function `read--expression' adds
+;; to run `eval-expression-minibuffer-setup-hook', or it would undo it.
+(add-hook 'minibuffer-setup-hook #'+electric-pair-minibuffer-h -90)
+(add-hook 'eval-expression-minibuffer-setup-hook #'+electric-pair-eval-expression-h)

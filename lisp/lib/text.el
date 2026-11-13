@@ -29,31 +29,6 @@ P is the point at which we run `syntax-ppss'"
             doom--sppss-memo-last-result (syntax-ppss p)))))
 
 ;;;###autoload
-(defun doom-surrounded-p (pair &optional inline balanced)
-  "Returns t if point is surrounded by a brace delimiter: {[(
-
-If INLINE is non-nil, only returns t if braces are on the same line, and
-whitespace is balanced on either side of the cursor.
-
-If INLINE is nil, returns t if the opening and closing braces are on adjacent
-lines, above and below, with only whitespace in between."
-  (when pair
-    (let ((beg (plist-get pair :beg))
-          (end (plist-get pair :end))
-          (pt (point)))
-      (when (and (> pt beg) (< pt end))
-        (when-let* ((cl (plist-get pair :cl))
-                    (op (plist-get pair :op)))
-          (and (not (string= op ""))
-               (not (string= cl ""))
-               (let ((nbeg (+ (length op) beg))
-                     (nend (- end (length cl))))
-                 (let ((content (buffer-substring-no-properties nbeg nend)))
-                   (and (string-match-p (format "[ %s]*" (if inline "" "\n")) content)
-                        (or (not balanced)
-                            (= (- pt nbeg) (- nend pt))))))))))))
-
-;;;###autoload
 (defun doom-point-in-comment-p (&optional pt)
   "Return non-nil if point is in a comment.
 PT defaults to the current position."
