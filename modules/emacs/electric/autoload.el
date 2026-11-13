@@ -27,10 +27,15 @@ Enables `electric-indent-local-mode' in MODES.
 
 ;;;###autoload
 (defun +electric-pair-minibuffer-h ()
-  "Pair only in the `eval-expression' and `evil-ex' minibuffers.
-Symmetric because minibuffer buffers are reused; no-op if the global mode is off."
+  "Pair in the `evil-ex' minibuffer only; off elsewhere (buffers are reused).
+Runs first (depth -90) so `+electric-pair-eval-expression-h' can re-enable it."
   (when (default-value 'electric-pair-mode)
-    (electric-pair-local-mode
-     (if (memq this-command '(eval-expression evil-ex)) 1 -1))))
+    (electric-pair-local-mode (if (eq this-command 'evil-ex) 1 -1))))
+
+;;;###autoload
+(defun +electric-pair-eval-expression-h ()
+  "Pair in minibuffers reading an elisp expression (any `read--expression' caller)."
+  (when (default-value 'electric-pair-mode)
+    (electric-pair-local-mode 1)))
 
 ;;; autoload.el ends here

@@ -30,32 +30,42 @@
   (unwind-protect
       (progn
         (electric-pair-mode 1)
-        (dolist (cmd '(execute-extended-command eval-expression evil-ex))
+        (dolist (cmd '(execute-extended-command evil-ex))
           (with-temp-buffer
             (let ((this-command cmd))
               (+electric-pair-minibuffer-h))
-            (should (eq (and electric-pair-mode t)
-                        (and (memq cmd '(eval-expression evil-ex)) t))))))
+            (should (eq (and electric-pair-mode t) (eq cmd 'evil-ex))))))
     (electric-pair-mode -1)))
 
-(ert-deftest electric/minibuffer-pairing-reused-buffer ()
+(ert-deftest electric/minibuffer-eval-expression-order ()
   (unwind-protect
       (progn
         (electric-pair-mode 1)
         (with-temp-buffer
-          (let ((this-command 'execute-extended-command))
+          (let ((this-command 'pp-eval-expression))
             (+electric-pair-minibuffer-h))
           (should-not electric-pair-mode)
-          (let ((this-command 'eval-expression))
-            (+electric-pair-minibuffer-h))
+          (+electric-pair-eval-expression-h)
           (should electric-pair-mode)))
     (electric-pair-mode -1)))
 
-(ert-deftest electric/minibuffer-hook-respects-global-off ()
+(ert-deftest electric/minibuffer-hook-registration ()
+  (let ((minibuffer-setup-hook nil)
+        (eval-expression-minibuffer-setup-hook nil))
+    (load (et--path "modules/emacs/electric/config.el") nil t)
+    (add-hook 'minibuffer-setup-hook #'ignore)
+    (should (< (seq-position minibuffer-setup-hook #'+electric-pair-minibuffer-h)
+               (seq-position minibuffer-setup-hook #'ignore)))
+    (should (memq #'+electric-pair-eval-expression-h
+                  eval-expression-minibuffer-setup-hook))))
+
+(ert-deftest electric/minibuffer-hooks-respect-global-off ()
   (electric-pair-mode -1)
   (with-temp-buffer
-    (let ((this-command 'eval-expression))
+    (let ((this-command 'evil-ex))
       (+electric-pair-minibuffer-h))
+    (should-not electric-pair-mode)
+    (+electric-pair-eval-expression-h)
     (should-not electric-pair-mode)))
 
 ;;; electric-tests.el ends here

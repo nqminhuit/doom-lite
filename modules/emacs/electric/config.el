@@ -50,4 +50,7 @@ current line."
 ;;; Auto-pairing
 
 (add-hook 'doom-first-buffer-hook #'electric-pair-mode)
-(add-hook 'minibuffer-setup-hook #'+electric-pair-minibuffer-h)
+;; Depth -90: must run before the depth-0 function `read--expression' adds
+;; to run `eval-expression-minibuffer-setup-hook', or it would undo it.
+(add-hook 'minibuffer-setup-hook #'+electric-pair-minibuffer-h -90)
+(add-hook 'eval-expression-minibuffer-setup-hook #'+electric-pair-eval-expression-h)
