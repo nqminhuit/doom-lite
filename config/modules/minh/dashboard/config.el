@@ -59,7 +59,7 @@
       (let ((fmt (format "%3d" day)))
         (setq line (concat line
                            (if (= day today-day)
-                               (propertize fmt 'face 'ansi-color-inverse)
+                               (propertize fmt 'face '(:inverse-video t))
                              fmt)
                            " ")
               col (1+ col)

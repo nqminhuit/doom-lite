@@ -2,6 +2,7 @@
 
 (require 'ert)
 (require 'calendar)
+(require 'cl-lib)
 
 (defconst st--root
   (expand-file-name "../../" (file-name-directory (or load-file-name buffer-file-name))))
@@ -78,11 +79,26 @@
    (with-current-buffer (m-startup-buffer)
      (let ((pos (point-min)) found)
        (while (and (not found) (setq pos (next-single-property-change pos 'face)))
-         (when (eq (get-text-property pos 'face) 'ansi-color-inverse)
+         (when (equal (get-text-property pos 'face) '(:inverse-video t))
            (setq found (string-trim
                         (buffer-substring-no-properties
                          pos (next-single-property-change pos 'face))))))
        (should (equal found (number-to-string (nth 3 (decode-time (current-time))))))))))
+
+(defun st--valid-face-p (face)
+  "Non-nil if FACE is a face spec Emacs can render without an invalid-face error."
+  (cond ((symbolp face) (facep face))
+        ((consp face) (or (keywordp (car face))
+                          (cl-every (lambda (f) (or (not (symbolp f)) (facep f))) face)))))
+
+(ert-deftest startup-buffer-faces-are-defined ()
+  (st--with-buffer
+   (with-current-buffer (m-startup-buffer)
+     (let ((pos (point-min)))
+       (while (setq pos (next-single-property-change pos 'face))
+         (let ((face (get-text-property pos 'face)))
+           (when face
+             (should (st--valid-face-p face)))))))))
 
 (ert-deftest startup-initial-buffer-choice ()
   (should (eq initial-buffer-choice #'m-startup-buffer)))
