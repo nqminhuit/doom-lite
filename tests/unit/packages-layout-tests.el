@@ -49,7 +49,9 @@
 (defun pl-test--capture-package (name)
   (let ((dir (expand-file-name name (pl-test--build-root))))
     (list name
-          :el (sort (directory-files-recursively dir "\\.el\\'" nil nil nil)
+          ;; .dir-locals.el is a dotfile, not a library; recipes may drop it.
+          :el (sort (cl-remove-if (lambda (f) (equal (file-name-nondirectory f) ".dir-locals.el"))
+                                  (directory-files-recursively dir "\\.el\\'" nil nil nil))
                     #'string<)
           :dirs (mapcar (lambda (d) (cons d (file-directory-p (expand-file-name d dir))))
                         (cdr (assoc name pl-test-recipe-dirs)))
