@@ -14,12 +14,16 @@
                         (file-name-directory (or load-file-name buffer-file-name))))
      (buffer-string))))
 
+(defun +java--project ()
+  "The current project, or eglot's transient project for `default-directory' when there is none."
+  (or (project-current) `(transient . ,(expand-file-name default-directory))))
+
 (with-eval-after-load 'eglot
   ;; ref: https://github.com/zsxh/emacs.d/blob/master/lisp/init-lang-java.el
-  (defun jdtls-command-contact (&optional interactive)
+  (defun jdtls-command-contact (&optional interactive project)
     (let* ((jdtls-cache-dir (file-name-concat user-emacs-directory "lsp-cache"))
            ;; The full root, not its basename: two checkouts named alike must not share a workspace.
-           (project-dir (directory-file-name (expand-file-name (project-root (project-current)))))
+           (project-dir (directory-file-name (expand-file-name (project-root (or project (+java--project))))))
            (data-dir (expand-file-name (file-name-concat jdtls-cache-dir (md5 project-dir))))
            (java-agent-path
             (expand-file-name
@@ -115,15 +119,16 @@
                `(jdtls
                  modes (java-mode java-ts-mode)
                  fn (lambda (config)
-                      (with-current-buffer
-                          (find-file-noselect (expand-file-name (plist-get config :program)
-                                                                (project-root (project-current))))
-                        (thread-first
-                          config
-                          (plist-put 'hostname "localhost")
-                          (plist-put 'port (eglot-execute-command (eglot-current-server)
-                                                                  "vscode.java.startDebugSession" nil))
-                          (plist-put :projectName (project-name (project-current))))))
+                      (let ((project (+java--project)))
+                        (with-current-buffer
+                            (find-file-noselect (expand-file-name (plist-get config :program)
+                                                                  (project-root project)))
+                          (thread-first
+                            config
+                            (plist-put 'hostname "localhost")
+                            (plist-put 'port (eglot-execute-command (eglot-current-server)
+                                                                    "vscode.java.startDebugSession" nil))
+                            (plist-put :projectName (project-name project))))))
                  :program dape-buffer-default
                  :request "attach"
                  :hostname "localhost"
