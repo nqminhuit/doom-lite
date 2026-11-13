@@ -40,6 +40,7 @@ and still exits 0 -- so it is shown as a message; a non-zero exit signals."
 (defun m--get-parent-dir-only (mdir)
   (file-name-nondirectory (directory-file-name (file-name-directory mdir))))
 
+;;;###autoload
 (defun mtime/insert-current-millis ()
   "Insert the current time as milliseconds since the Unix epoch at point.
 Also copies the value to the kill ring and displays a message with the copied value."
@@ -49,6 +50,7 @@ Also copies the value to the kill ring and displays a message with the copied va
     (kill-new millis)
     (message "Copied: '%s'" millis)))
 
+;;;###autoload
 (defun mtime/convert-millis-to-date (millis)
   "Convert a Unix timestamp in milliseconds (as a string) to a human-readable date.
 The output format is `%H:%M:%S %Y-%m-%d`.  Copies the result to the kill ring
@@ -98,6 +100,7 @@ a message with the copied command."
       (user-error "No uuid generator found (install uuidgen or dbus-uuidgen)"))
     (string-trim (m--call uuidcmd))))
 
+;;;###autoload
 (defun m/kill-and-insert-uuid ()
   (interactive)
   (let ((uuid (m/uuid)))
@@ -191,6 +194,7 @@ Paths that do not live under PROJ fall back to `file-relative-name'."
       (find-file selected)))
   (setq this-command 'find-file))
 
+;;;###autoload
 (defun m/dict (word)
   (interactive
    ;; `word-at-point' is nil off a word; `downcase' would signal there.
@@ -209,6 +213,7 @@ Paths that do not live under PROJ fall back to `file-relative-name'."
       (let ((path (abbreviate-file-name filename)))
         (message "%s" path))))
 
+;;;###autoload
 (defun m/empty-kill-ring ()
   (interactive)
   (setq kill-ring nil))
