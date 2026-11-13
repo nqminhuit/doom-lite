@@ -17,7 +17,7 @@
         (delete-region (region-beginning) (region-end)))
     ""))
 
-;;; go-mode
+;;; go-ts-mode
 
 (define-skeleton m/go-clogdebug
   "Insert a debug log.Printf statement."

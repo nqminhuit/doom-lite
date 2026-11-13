@@ -134,7 +134,6 @@
 (add-hook! (help-mode
             magit-mode
             shell-mode
-            json-mode
             json-ts-mode
             java-mode
             java-ts-mode

@@ -20,8 +20,8 @@
                   +workspace/switch-to-7
                   +workspace/switch-to-8
                   kill-current-buffer
-                  better-jumper-jump-backward
-                  better-jumper-jump-forward
+                  evil-jump-backward
+                  evil-jump-forward
                   evil-jump-item
                   evil-window-down
                   evil-window-up
