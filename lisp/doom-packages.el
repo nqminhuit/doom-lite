@@ -2,7 +2,7 @@
 ;;; Commentary:
 ;;
 ;; Doom's package manager is a small backend of its own: no package.el, no
-;; straight and no recipe repos. Every installed package is declared with
+;; third-party package manager and no recipe repos. Every installed package is declared with
 ;; `package!', a full-SHA `:pin' and an explicit `:recipe'. 'doom sync' clones
 ;; each package's repo at its pin under .local/packages/repos/, lays out a build
 ;; dir per package (symlinks to the files its recipe selects), byte-compiles in
@@ -61,6 +61,10 @@ package's name as a symbol, and whose CDR is the plist supplied to its
 
 (defconst doom-packages--recipe-keys '(:host :repo :files :compile :branch)
   "The keys a recipe may have. :branch is accepted but ignored; the pin decides.")
+
+(defconst doom-packages--remote "origin")
+
+(defconst doom-packages--quiet "--quiet")
 
 (defconst doom-packages--sha-re "\\`[0-9a-fA-F]\\{40\\}\\'")
 
@@ -244,17 +248,17 @@ Returns (STATUS . OUTPUT)."
             (unless head
               (when (file-exists-p dir) (delete-directory dir t))
               (make-directory dir t)
-              (doom-packages--git! package dir "init" "--quiet")
-              (doom-packages--git! package dir "remote" "add" "origin" remote))
+              (doom-packages--git! package dir "init" doom-packages--quiet)
+              (doom-packages--git! package dir "remote" "add" doom-packages--remote remote))
             (when head
-              (doom-packages--git! package dir "remote" "set-url" "origin" remote))
-            (unless (and (zerop (car (doom-packages--git dir "fetch" "--quiet" "--depth" "1"
-                                                         "--no-tags" "origin" pin)))
-                         (zerop (car (doom-packages--git dir "checkout" "--quiet" "--detach"
+              (doom-packages--git! package dir "remote" "set-url" doom-packages--remote remote))
+            (unless (and (zerop (car (doom-packages--git dir "fetch" doom-packages--quiet "--depth" "1"
+                                                         "--no-tags" doom-packages--remote pin)))
+                         (zerop (car (doom-packages--git dir "checkout" doom-packages--quiet "--detach"
                                                          "FETCH_HEAD"))))
               (cl-pushnew repo doom-packages--full-fetches :test #'equal)
-              (doom-packages--git! package dir "fetch" "--quiet" "origin")
-              (doom-packages--git! package dir "checkout" "--quiet" "--detach" pin))
+              (doom-packages--git! package dir "fetch" doom-packages--quiet doom-packages--remote)
+              (doom-packages--git! package dir "checkout" doom-packages--quiet "--detach" pin))
             (let ((actual (doom-packages--head dir)))
               (unless (equal actual pin)
                 (doom-packages--error package "repos/%s is at %s after checkout, not its pin %s"

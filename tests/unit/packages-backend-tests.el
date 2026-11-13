@@ -40,6 +40,12 @@
     "GIT_COMMITTER_NAME=t" "GIT_COMMITTER_EMAIL=t@example.com"))
 (defconst pb-test-pin-1 "1111111111111111111111111111111111111111")
 (defconst pb-test-pin-2 "2222222222222222222222222222222222222222")
+(defconst pb-test-version "1.0")
+(defconst pb-test-head "HEAD")
+(defconst pb-test-foo-main "foo.el")
+(defconst pb-test-pin-error "full 40-character :pin")
+(defconst pb-test-data-file "data/b.txt")
+(defconst pb-test-shadowed-library "tabulated-list")
 
 (defvar pb-test--root nil "The temp dir of the running test, with a trailing slash.")
 
@@ -84,13 +90,15 @@
         (with-temp-file file (insert text))))
     (pb-test--git dir "add" "-A")
     (pb-test--git dir "commit" "--quiet" "-m" "x")
-    (pb-test--git dir "rev-parse" "HEAD")))
+    (pb-test--git dir "rev-parse" pb-test-head)))
 
 (defun pb-test--lib (name &optional requires body)
   "FILES for a repo whose main file is NAME.el, requiring REQUIRES ((DEP \"V\") ...)."
   (list (cons (format "%s.el" name)
               (format ";;; %1$s.el --- test -*- lexical-binding: t -*-\n;; Package-Requires: %2$s\n;;; Code:\n;;;###autoload\n(defun %1$s-hello () 1)\n%3$s(provide '%1$s)\n"
-                      name (prin1-to-string (cons '(emacs "28.1") requires)) (or body "")))))
+                      name (prin1-to-string (cons '(emacs "28.1")
+                                                                (mapcar (lambda (r) (if (consp r) r (list r pb-test-version)))
+                                                                        requires))) (or body "")))))
 
 (defun pb-test--decl (name pin &optional recipe plist)
   "A `doom-packages' entry for NAME at PIN; RECIPE and PLIST add to the defaults."
@@ -104,7 +112,7 @@
   (pb-test--decl name (pb-test--commit (format "o/%s" name) (pb-test--lib name requires)) recipe))
 
 (defun pb-test--head (repo)
-  (pb-test--git (doom-packages--repos-dir repo) "rev-parse" "HEAD"))
+  (pb-test--git (doom-packages--repos-dir repo) "rev-parse" pb-test-head))
 
 (defun pb-test--error (thunk)
   "Call THUNK, which must signal a `doom-package-error', and return its message."
@@ -125,14 +133,14 @@
 (ert-deftest pb-test-checkout-at-pin-and-incremental-rebuild ()
   (pb-test--with-env
     (let* ((c (pb-test--package 'c))
-           (b (pb-test--package 'b '((a "1.0"))))
+           (b (pb-test--package 'b '(a)))
            (a (pb-test--package 'a)))
       (setq doom-packages (list c b a))
       (should-not (doom-packages-ensure))
       (dolist (decl (list a b c))
         (should (equal (pb-test--head (symbol-name (car decl))) (plist-get (cdr decl) :pin))))
       (should-not doom-packages--full-fetches)
-      (should (= 1 (string-to-number (pb-test--git (doom-packages--repos-dir "a") "rev-list" "--count" "HEAD"))))
+      (should (= 1 (string-to-number (pb-test--git (doom-packages--repos-dir "a") "rev-list" "--count" pb-test-head))))
       (should (file-exists-p (expand-file-name "a.elc" (doom-packages--build-dir 'a))))
       (should (equal (sort (copy-sequence doom-packages--last-build-order) #'string<) '(a b c)))
       ;; Nothing changed: nothing is rebuilt.
@@ -174,13 +182,13 @@
       (should-not (file-exists-p (doom-packages--repos-dir))))))
 
 (ert-deftest pb-test-unpinned-package-fails-before-fetch ()
-  (pb-test--stage-1 (pb-test--decl 'bad nil) "full 40-character :pin"))
+  (pb-test--stage-1 (pb-test--decl 'bad nil) pb-test-pin-error))
 
 (ert-deftest pb-test-short-pin-fails-before-fetch ()
-  (pb-test--stage-1 (pb-test--decl 'bad "abc1234") "full 40-character :pin"))
+  (pb-test--stage-1 (pb-test--decl 'bad "abc1234") pb-test-pin-error))
 
 (ert-deftest pb-test-non-hex-pin-fails-before-fetch ()
-  (pb-test--stage-1 (pb-test--decl 'bad (make-string 40 ?g)) "full 40-character :pin"))
+  (pb-test--stage-1 (pb-test--decl 'bad (make-string 40 ?g)) pb-test-pin-error))
 
 (ert-deftest pb-test-unknown-recipe-key-fails-before-fetch ()
   (pb-test--stage-1 (pb-test--decl 'bad pb-test-pin-1 '(:build (:not compile))) "unknown recipe key :build"))
@@ -208,10 +216,10 @@
       (should-not (file-exists-p (doom-packages--build-root))))))
 
 (ert-deftest pb-test-undeclared-dependency-fails-after-checkout ()
-  (pb-test--stage-2 '((ghost "1.0")) nil "ghost, which is not declared"))
+  (pb-test--stage-2 '(ghost) nil "ghost, which is not declared"))
 
 (ert-deftest pb-test-disabled-dependency-fails-after-checkout ()
-  (pb-test--stage-2 '((ghost "1.0")) `((ghost :disable t :declared-in ,pb-test-packages-file))
+  (pb-test--stage-2 '(ghost) `((ghost :disable t :declared-in ,pb-test-packages-file))
                     "ghost, which is disabled"))
 
 (ert-deftest pb-test-old-built-in-fails-after-checkout ()
@@ -231,8 +239,8 @@
 
 (ert-deftest pb-test-dependencies-are-built-before-dependents ()
   (pb-test--with-env
-    (let* ((c (pb-test--package 'c '((b "1.0"))))
-           (b (pb-test--package 'b '((a "1.0"))))
+    (let* ((c (pb-test--package 'c '(b)))
+           (b (pb-test--package 'b '(a)))
            (a (pb-test--package 'a)))
       (setq doom-packages (list c b a))
       (doom-packages-ensure)
@@ -240,7 +248,7 @@
 
 (ert-deftest pb-test-dependency-cycle-is-an-error ()
   (pb-test--with-env
-    (setq doom-packages (list (pb-test--package 'a '((b "1.0"))) (pb-test--package 'b '((a "1.0")))))
+    (setq doom-packages (list (pb-test--package 'a '(b)) (pb-test--package 'b '(a))))
     (should (string-match-p "dependency cycle: a -> b -> a" (pb-test--error #'doom-packages-ensure)))
     (should-not (file-exists-p (doom-packages--build-root)))))
 
@@ -257,12 +265,12 @@
 ;;; Build dir layout
 
 (defconst pb-test-files-repo
-  '(("foo.el" . ";;; foo.el --- x -*- lexical-binding: t -*-\n;;; Code:\n(provide 'foo)\n")
+  `((,pb-test-foo-main . ";;; foo.el --- x -*- lexical-binding: t -*-\n;;; Code:\n(provide 'foo)\n")
     ("foo-test.el" . "(provide 'foo-test)\n")
     ("foo-pkg.el" . "(define-package \"foo\" \"1\" \"x\")\n")
     ("lisp/extra.el" . ";;; extra.el --- x -*- lexical-binding: t -*-\n(provide 'extra)\n")
     ("extensions/foo-ext.el" . ";;; foo-ext.el --- x -*- lexical-binding: t -*-\n(provide 'foo-ext)\n")
-    ("data/b.txt" . "b")
+    (,pb-test-data-file . "b")
     ("data/icons/a.txt" . "a")
     ("README.md" . "x")))
 
@@ -275,31 +283,31 @@
 
 (ert-deftest pb-test-default-files-drop-tests-and-pkg-files ()
   (pb-test--with-env
-    (should (equal (pb-test--build-foo nil) '("extra.el" "foo.el")))
+    (should (equal (pb-test--build-foo nil) (list "extra.el" pb-test-foo-main)))
     (should (file-exists-p (expand-file-name "foo.elc" (doom-packages--build-dir 'foo))))))
 
 (ert-deftest pb-test-files-globs-defaults-excludes-and-directories ()
   (pb-test--with-env
     (should (equal (pb-test--build-foo
                     '(:files (:defaults "extensions/foo-*.el" "data" (:exclude "lisp/extra.el"))))
-                   '("data/b.txt" "data/icons/a.txt" "foo-ext.el" "foo.el")))
+                   (list pb-test-data-file "data/icons/a.txt" "foo-ext.el" pb-test-foo-main)))
     (let ((dir (doom-packages--build-dir 'foo)))
       ;; A directory entry is a real directory of file symlinks, so byte-code never lands in the checkout.
       (should-not (file-symlink-p (expand-file-name "data" dir)))
-      (should (file-symlink-p (expand-file-name "data/b.txt" dir)))
-      (should (file-symlink-p (expand-file-name "foo.el" dir))))
+      (should (file-symlink-p (expand-file-name pb-test-data-file dir)))
+      (should (file-symlink-p (expand-file-name pb-test-foo-main dir))))
     (should-not (cl-remove-if-not (lambda (f) (string-suffix-p ".elc" f))
                                   (directory-files-recursively (doom-packages--repos-dir "foo") "")))))
 
 (ert-deftest pb-test-explicit-files-select-only-those ()
   (pb-test--with-env
-    (should (equal (pb-test--build-foo '(:files ("foo.el"))) '("foo.el")))))
+    (should (equal (pb-test--build-foo (list :files (list pb-test-foo-main))) (list pb-test-foo-main)))))
 
 (ert-deftest pb-test-compile-nil-leaves-no-byte-code ()
   (pb-test--with-env
     (pb-test--build-foo '(:compile nil))
     (should-not (directory-files-recursively (doom-packages--build-dir 'foo) "\\.elc\\'"))
-    (should (file-exists-p (expand-file-name "foo.el" (doom-packages--build-dir 'foo))))))
+    (should (file-exists-p (expand-file-name pb-test-foo-main (doom-packages--build-dir 'foo))))))
 
 (ert-deftest pb-test-extension-files-get-autoloads ()
   (pb-test--with-env
@@ -359,7 +367,7 @@
     ;; `tabulated-list' ships with Emacs; the pinned package shadows it.
     (let* ((tl (pb-test--package 'tabulated-list))
            (initial (copy-sequence load-path))
-           (emacs-lib (file-name-directory (locate-library "tabulated-list")))
+           (emacs-lib (file-name-directory (locate-library pb-test-shadowed-library)))
            (build (file-name-as-directory (doom-packages--build-dir 'tabulated-list))))
       (setq doom-packages (list tl))
       (doom-packages-ensure)
@@ -367,13 +375,13 @@
              (generated (pb-test--generated-load-path initial)))
         (should (< (cl-position (directory-file-name build) generated :test #'file-equal-p)
                    (cl-position (directory-file-name emacs-lib) generated :test #'file-equal-p)))
-        (should (equal (file-name-sans-extension (locate-library "tabulated-list" nil generated))
-                       (concat build "tabulated-list")))))))
+        (should (equal (file-name-sans-extension (locate-library pb-test-shadowed-library nil generated))
+                       (concat build pb-test-shadowed-library)))))))
 
 (ert-deftest pb-test-package-autoloads-are-scanned-dependencies-first ()
   (pb-test--with-env
-    (let ((c (pb-test--package 'c '((b "1.0"))))
-          (b (pb-test--package 'b '((a "1.0"))))
+    (let ((c (pb-test--package 'c '(b)))
+          (b (pb-test--package 'b '(a)))
           (a (pb-test--package 'a))
           scanned)
       (setq doom-packages (list c b a))

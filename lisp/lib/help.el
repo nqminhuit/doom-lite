@@ -249,6 +249,8 @@ If prefix arg is present, refresh the cache."
                           packages nil t nil nil
                           (when guess (symbol-name guess))))))))
   ;; REVIEW: Refactor me.
+  (require 'package)
+  (require 'finder-inf nil t)
   (doom-initialize-packages)
   (help-setup-xref (list #'doom/describe-package package)
                    (called-interactively-p 'interactive))
@@ -278,14 +280,14 @@ If prefix arg is present, refresh the cache."
              (if (file-exists-p repo-dir)
                  (doom--help-insert-button (abbreviate-file-name repo-dir))
                (insert "n/a"))
-             (insert "\n" indent))
+             (insert "\n"))
 
            (package--print-help-section "Build location")
            (let ((build-dir (doom-packages--build-dir package)))
              (if (file-exists-p build-dir)
                  (doom--help-insert-button (abbreviate-file-name build-dir))
                (insert "n/a")))
-           (insert "\n" indent)
+           (insert "\n")
 
            (package--print-help-section "Homepage")
            (let ((homepage (doom-package-homepage package)))

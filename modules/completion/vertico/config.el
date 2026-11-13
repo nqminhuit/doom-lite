@@ -184,7 +184,6 @@
     :doc "Keymap for Embark package actions for packages installed by Doom."
     :parent embark-general-map
     "h" #'doom/help-packages
-    "b" #'doom/bump-package
     "c" #'doom/help-package-config
     "u" #'doom/help-package-homepage)
   (setf (alist-get 'package embark-keymap-alist) #'+vertico-embark-doom-package-map)
