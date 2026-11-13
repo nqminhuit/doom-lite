@@ -550,7 +550,6 @@ don't offer any/enough real value to users.")
        "J"       #'+evil/window-move-down
        "K"       #'+evil/window-move-up
        "L"       #'+evil/window-move-right
-       "C-S-w"   #'ace-swap-window
        ;; Window undo/redo
        (:prefix ("m" . "maximize")
         "m"       #'doom/window-maximize-buffer
@@ -562,7 +561,6 @@ don't offer any/enough real value to users.")
        "o"       #'doom/window-enlargen
        ;; Delete window
        "d"       #'evil-window-delete
-       "C-C"     #'ace-delete-window
        "T"       #'tear-off-window)
 
       ;; text objects
