@@ -38,4 +38,24 @@
                         (and (memq cmd '(eval-expression evil-ex)) t))))))
     (electric-pair-mode -1)))
 
+(ert-deftest electric/minibuffer-pairing-reused-buffer ()
+  (unwind-protect
+      (progn
+        (electric-pair-mode 1)
+        (with-temp-buffer
+          (let ((this-command 'execute-extended-command))
+            (+electric-pair-minibuffer-h))
+          (should-not electric-pair-mode)
+          (let ((this-command 'eval-expression))
+            (+electric-pair-minibuffer-h))
+          (should electric-pair-mode)))
+    (electric-pair-mode -1)))
+
+(ert-deftest electric/minibuffer-hook-respects-global-off ()
+  (electric-pair-mode -1)
+  (with-temp-buffer
+    (let ((this-command 'eval-expression))
+      (+electric-pair-minibuffer-h))
+    (should-not electric-pair-mode)))
+
 ;;; electric-tests.el ends here
