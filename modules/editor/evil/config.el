@@ -436,8 +436,7 @@ don't offer any/enough real value to users.")
   :after evil-ex
   :config
   (dolist (argtype '((+evil:align . evil-traces-global)
-                     (+evil:align-right . evil-traces-global)
-                     (+multiple-cursors:evil-mc . evil-traces-substitute)))
+                     (+evil:align-right . evil-traces-global)))
     (add-to-list 'evil-traces-argument-type-alist argtype))
   (evil-traces-mode))
 
