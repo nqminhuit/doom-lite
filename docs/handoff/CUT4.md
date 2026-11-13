@@ -16,9 +16,10 @@
 ## Context for continuing
 - No code changed and there were no tests to run. The conductor reviewed the PR.
 
+- The conductor committed this handoff and the board in `01d792e`. The cutover (CUT1–CUT4) is complete, and nothing is open or unpushed.
+
 ## Next steps
-1. Conductor: commit this handoff with the board and mark CUT4 done.
-2. Optional (user): re-check eglot in a Go project, because gopls is now v0.24.0.
+1. Optional (user): re-check eglot in a Go project, because gopls is now v0.24.0.
 
 ## Watch out
-- The main checkout has the conductor's uncommitted `docs/handoff/doom-lite.md` edit, so leave it alone.
+- Generate env files only from the user's own terminal (see Plan § Cutover).
