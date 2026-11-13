@@ -1159,7 +1159,6 @@ All valid contexts:
     error      -- while Doom is in an error state
 
   `emacs' sub-contexts:
-    docs       -- while rendering docs in `doom-docs-mode'
     reload     -- while reloading doom with `doom/reload'
     sandbox    -- this session was launched from Doom's sandbox
     eval       -- while interactively evaluating elisp
@@ -1176,7 +1175,7 @@ All valid contexts:
   `cli' sub-contexts:
     run        -- running a CLI command")
 (put 'doom-context 'valid
-     '(compile error startup emacs docs reload sandbox eval module external
+     '(compile error startup emacs reload sandbox eval module external
        config doctor init package test cli run))
 (put 'doom-context 'risky-local-variable t)
 

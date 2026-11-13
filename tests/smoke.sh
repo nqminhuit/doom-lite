@@ -44,6 +44,9 @@ check "*Warnings* empty" "$(ec "$WARN_EL")" '^"none"$'
 check "*Messages* clean before opening files" "$(ec "$LINES_EL")" '^"none"$'
 keys=$(ec "(with-current-buffer (find-file-noselect \"$TMP/proj/notes.txt\") (evil-normal-state) (mapcar (lambda (k) (cons k (commandp (key-binding (kbd k))))) '(\"SPC SPC\" \"SPC p p\" \"SPC b b\" \"SPC /\" \"SPC g g\")))")
 check "leader keys are commands" "$keys" '^\(\("SPC SPC" \. t\) \("SPC p p" \. t\) \("SPC b b" \. t\) \("SPC /" \. t\) \("SPC g g" \. t\)\)$'
+# Only doom* commands: other bindings point at lazily loaded packages that are unbound until first use.
+UNBOUND_EL='(let (bad seen) (cl-labels ((walk (m path) (unless (memq m seen) (push m seen) (map-keymap (lambda (ev b) (let ((p (append path (list ev))) (b (if (eq (car-safe b) (quote menu-item)) (nth 2 b) (if (and (consp b) (stringp (car b))) (cdr b) b)))) (cond ((keymapp b) (walk (if (symbolp b) (symbol-function b) b) p)) ((and b (symbolp b) (string-prefix-p "doom" (symbol-name b)) (not (fboundp b))) (push (cons (key-description (vconcat p)) b) bad))))) m)))) (dolist (m (list help-map doom-leader-map)) (walk m nil))) (or (nreverse bad) "none"))'
+check "doom commands in help-map and leader are fboundp" "$(ec "$UNBOUND_EL")" '^"none"$'
 echo "## leader key bindings (informational)"
 ec "(with-current-buffer (find-file-noselect \"$TMP/proj/notes.txt\") (mapcar (lambda (k) (cons k (key-binding (kbd k)))) '(\"SPC SPC\" \"SPC p p\" \"SPC b b\" \"SPC /\" \"SPC g g\")))"
 files=$(ec "(mapcar (lambda (f) (condition-case e (with-current-buffer (find-file-noselect (expand-file-name f \"$TMP/proj/\")) (list f major-mode)) (error (list f 'ERROR e)))) '(\"Foo.java\" \"main.go\"))")

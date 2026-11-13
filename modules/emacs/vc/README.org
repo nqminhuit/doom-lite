@@ -1,4 +1,3 @@
-# -*- doom-docs -*-
 #+title:    :emacs vc
 #+subtitle: Be the difference you want to see in the fringe
 #+created:  February 20, 2017

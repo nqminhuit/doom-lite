@@ -1,4 +1,3 @@
-# -*- doom-docs -*-
 #+title: Doom Core API Demos
 #+property: header-args:elisp :results pp :exports both :eval never-export
 
