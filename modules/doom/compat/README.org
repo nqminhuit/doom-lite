@@ -33,15 +33,12 @@ section below.
 ** Module flags
 - -better-jumper ::
   Don't install or configure [[pkg:better-jumper]].
-- -general ::
-  Don't install [[pkg:general]] and don't provide the [[fns:map!]] macro.
 - -use-package ::
   Don't install or configure [[pkg:use-package]], or define [[fns:use-package!]] or
   [[fns:use-package-hook!]].
 
 ** Packages
 - [[package:better-jumper]] unless [[module:-better-jumper]]
-- [[package:general]] unless [[module:-general]]
 - [[package:use-package]] unless [[module:-use-package]]
 
 ** Hacks

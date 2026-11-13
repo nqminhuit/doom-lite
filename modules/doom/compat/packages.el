@@ -10,6 +10,3 @@
 
 (when (modulep! +better-jumper)
   (package! better-jumper :pin "b1bf7a3c8cb820d942a0305e0e6412ef369f819c"))
-
-(when (modulep! +keybinds)
-  (package! general :pin "a48768f85a655fe77b5f45c2880b420da1b1b9c3"))

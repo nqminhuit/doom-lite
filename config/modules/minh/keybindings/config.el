@@ -189,7 +189,7 @@
 ;; s3-manager is optional (commented out in packages.el).  Without this
 ;; guard the dired hook below rebinds `C' to a void command in every dired
 ;; buffer, and the `:map' form leaks a permanent deferred binding into
-;; general.el's `after-load-functions' check.  `locate-library' answers
+;; `map!''s pending list.  `locate-library' answers
 ;; "is it on the load-path" without loading it, so lazy loading is kept.
 (when (locate-library "s3-manager")
   (map!

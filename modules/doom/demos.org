@@ -290,15 +290,6 @@ Or to create aliases for functions that behave differently:
         (funcall (fn! (length %*)) :foo :bar :baz "hello" 123 t))
 #+end_src
 
-* kbd!
-:PROPERTIES:
-:added: 2.1.0
-:END:
-#+begin_src emacs-lisp :eval no
-(global-set-key "," (kbd! "SPC"))
-(global-set-key ";" (kbd! ":"))
-#+end_src
-
 * lambda!
 #+begin_src emacs-lisp
 (mapcar (lambda! ((&key foo bar baz))

@@ -124,7 +124,7 @@ This is a variadic `cl-pushnew'."
 ;;; * Deprecated sub-modules
 
 (load! "+use-package")
-(if (modulep! +keybinds)    (load! "+keybinds"))  ; `general' & `map!'
+(if (modulep! +keybinds)    (load! "+keybinds"))  ; `map!'
 (if (modulep! +better-jumper) (load! "+better-jumper"))
 
 ;;; init.el ends here

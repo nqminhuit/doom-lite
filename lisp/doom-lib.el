@@ -707,9 +707,7 @@ The last element of BRANCHES can be a COMMANd with no CONDITION. This acts as
 the fallback if all other conditions fail.
 
 Otherwise, Emacs will fall through the keybind and search the next keymap for a
-keybind (as if this keybind never existed).
-
-See `general-key-dispatch' for what other arguments it accepts in BRANCHES."
+keybind (as if this keybind never existed)."
   (declare (doc-string 1))
   (let ((docstring (if (stringp (car branches)) (pop branches) ""))
         fallback)
