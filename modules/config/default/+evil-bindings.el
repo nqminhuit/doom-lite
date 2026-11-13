@@ -173,7 +173,7 @@
       :desc "Find file"             "."    #'find-file
       :desc "Switch buffer"         ","    #'switch-to-buffer
       (:when (modulep! :ui workspaces)
-       :desc "Switch workspace buffer" "," #'persp-switch-to-buffer
+       :desc "Switch workspace buffer" "," #'+vertico/switch-workspace-buffer
        :desc "Switch buffer"           "<" #'switch-to-buffer)
       :desc "Switch to last buffer" "`"    #'evil-switch-to-windows-last-buffer
       :desc "Resume last search"    "'"    #'vertico-repeat
@@ -192,13 +192,9 @@
         :desc "Switch to last workspace"  "`"   #'+workspace/other
         :desc "New workspace"             "n"   #'+workspace/new
         :desc "New named workspace"       "N"   #'+workspace/new-named
-        :desc "Load workspace from file"  "l"   #'+workspace/load
-        :desc "Save workspace to file"    "s"   #'+workspace/save
-        :desc "Kill session"              "x"   #'+workspace/kill-session
         :desc "Kill this workspace"       "d"   #'+workspace/kill
-        :desc "Delete saved workspace"    "D"   #'+workspace/delete
         :desc "Rename workspace"          "r"   #'+workspace/rename
-        :desc "Restore last session"      "R"   #'+workspace/restore-last-session
+        :desc "Restore last session"      "R"   #'doom/quickload-session
         :desc "Next workspace"            "]"   #'+workspace/switch-right
         :desc "Previous workspace"        "["   #'+workspace/switch-left
         :desc "Switch to 1st workspace"   "1"   #'+workspace/switch-to-0
@@ -218,9 +214,8 @@
        :desc "Previous buffer"             "["   #'previous-buffer
        :desc "Next buffer"                 "]"   #'next-buffer
        (:when (modulep! :ui workspaces)
-        :desc "Switch workspace buffer" "b" #'persp-switch-to-buffer
-        :desc "Switch buffer"           "B" #'switch-to-buffer
-        :desc "ibuffer workspace"       "I" #'+ibuffer/open-for-current-workspace)
+        :desc "Switch workspace buffer" "b" #'+vertico/switch-workspace-buffer
+        :desc "Switch buffer"           "B" #'switch-to-buffer)
        (:unless (modulep! :ui workspaces)
         :desc "Switch buffer"           "b" #'switch-to-buffer)
        :desc "Clone buffer"                "c"   #'clone-indirect-buffer

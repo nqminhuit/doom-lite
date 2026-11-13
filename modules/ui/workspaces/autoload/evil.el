@@ -1,19 +1,9 @@
 ;;; ui/workspaces/autoload/evil.el -*- lexical-binding: t; -*-
 
-;;;###autoload (autoload '+workspace:save "ui/workspaces/autoload/evil" nil t)
-(evil-define-command +workspace:save (&optional name)
-  "Ex wrapper around `+workspace/save-session'."
-  (interactive "<a>") (+workspace/save name))
-
-;;;###autoload (autoload '+workspace:load "ui/workspaces/autoload/evil" nil t)
-(evil-define-command +workspace:load (&optional name)
-  "Ex wrapper around `+workspace/load-session'."
-  (interactive "<a>") (+workspace/load name))
-
 ;;;###autoload (autoload '+workspace:new "ui/workspaces/autoload/evil" nil t)
-(evil-define-command +workspace:new (bang name)
-  "Ex wrapper around `+workspace/new'. If BANG, clone the current workspace."
-  (interactive "<!><a>") (+workspace/new name bang))
+(evil-define-command +workspace:new (&optional name)
+  "Ex wrapper around `+workspace/new'."
+  (interactive "<a>") (+workspace/new name))
 
 ;;;###autoload (autoload '+workspace:rename "ui/workspaces/autoload/evil" nil t)
 (evil-define-command +workspace:rename (new-name)
@@ -27,12 +17,12 @@
 
 ;;;###autoload (autoload '+workspace:switch-next "ui/workspaces/autoload/evil" nil t)
 (evil-define-command +workspace:switch-next (&optional count)
-  "Switch to next workspace. If COUNT, switch to COUNT-th workspace."
+  "Switch to next workspace. If COUNT, switch to the COUNT-th workspace (1-based)."
   (interactive "<c>")
-  (if count (+workspace/switch-to count) (+workspace/cycle +1)))
+  (if count (+workspace/switch-to (1- count)) (+workspace/cycle +1)))
 
 ;;;###autoload (autoload '+workspace:switch-previous "ui/workspaces/autoload/evil" nil t)
 (evil-define-command +workspace:switch-previous (&optional count)
-  "Switch to previous workspace. If COUNT, switch to COUNT-th workspace."
+  "Switch to previous workspace. If COUNT, switch to the COUNT-th workspace (1-based)."
   (interactive "<c>")
-  (if count (+workspace/switch-to count) (+workspace/cycle -1)))
+  (if count (+workspace/switch-to (1- count)) (+workspace/cycle -1)))

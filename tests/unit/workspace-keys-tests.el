@@ -61,6 +61,24 @@
                   ,@(wkt--digits "%s" 9))
                 (wkt--pairs map))))
 
+;; Step 2 extensions: dropped keys and the new session/buffer bindings.
+(ert-deftest workspace-keys/leader-tab-map-changes ()
+  (let* ((map (wkt--find-prefix-map (wkt--read-all wkt--evil-bindings) '("TAB" . "workspace")))
+         (pairs (wkt--pairs map)))
+    (dolist (k '("l" "s" "x" "D"))
+      (should-not (assoc k pairs)))
+    (should (member '("R" . doom/quickload-session) pairs))))
+
+(ert-deftest workspace-keys/buffer-switching ()
+  (let* ((forms (wkt--read-all wkt--evil-bindings))
+         (b-map (wkt--find-prefix-map forms '("b" . "buffer")))
+         (b-pairs (wkt--pairs b-map)))
+    (should (member '("b" . +vertico/switch-workspace-buffer) b-pairs))
+    (should (member '("B" . switch-to-buffer) b-pairs))
+    (should-not (assoc "I" b-pairs))
+    (wkt--check nil '(("," . +vertico/switch-workspace-buffer) ("<" . switch-to-buffer))
+                (wkt--pairs forms))))
+
 (ert-deftest workspace-keys/global-bindings ()
   (wkt--check wkt--evil-bindings
               `(("C-t" . +workspace/new) ("C-S-t" . +workspace/display)

@@ -120,7 +120,7 @@ And these are text objects added by this module:
 | ~:enhtml [INPUT]~        | HTML encode selected text / inserts result if INPUT is given                       |
 | ~:iedit REGEXP~          | Invoke iedit on all matches for REGEXP                                             |
 | ~:kill~                  | Kill the current buffer                                                            |
-| ~:killa[ll][!]~          | Kill all buffers (if BANG, affect buffer across workspaces)                        |
+| ~:killa[ll][!]~          | Kill all buffers                        |
 | ~:killb[uried]~          | Kill all buried buffers                                                            |
 | ~:killm[atch][!] REGEXP~ | Kill buffers whose name matches REGEXP (if BANG, affect buffers across workspaces) |
 | ~:killo[ther]~           | Kill all other buffers besides the selected one                                    |
@@ -140,20 +140,17 @@ And these are text objects added by this module:
 | ~:rev[erse]~             | Reverse the selected lines                                                         |
 | ~:rm[!] [PATH]~          | Delete the current buffer's file and buffer                                        |
 | ~:sh[ell] CMD~           | Execute a command in the last opened eshell buffer (or make one)                   |
-| ~:sclear~                | ([[module::ui workspaces]]) Kill all workspaces                                   |
 | ~:sl[oad]~               | ([[module::ui workspaces]]) Load the last saved session                           |
 | ~:ss[ave]~               | ([[module::ui workspaces]]) Save the current session                              |
 | ~:tabc[lose]~            | ([[module::ui workspaces]]) Close the current workspace                           |
 | ~:tabclear~              | ([[module::ui workspaces]]) Kill all buffers in current workspace                 |
 | ~:tabf[irst]~            | ([[module::ui workspaces]]) Switch to the first workspace                         |
 | ~:tabl[ast]~             | ([[module::ui workspaces]]) Switch to the last workspace                          |
-| ~:tabload [NAME]~        | ([[module::ui workspaces]]) Load a workspace from file                            |
 | ~:tabn[ew][!]~ [NAME]    | ([[module::ui workspaces]]) Create a new workspace                                |
 | ~:tabnext~               | ([[module::ui workspaces]]) Switch to next workspace                              |
 | ~:tabprev~               | ([[module::ui workspaces]]) Switch to previous workspace                          |
 | ~:tabr[ename]~ NAME      | ([[module::ui workspaces]]) Rename the current workspace to NAME                  |
 | ~:tabs~                  | ([[module::ui workspaces]]) Display all workspaces in the echo area               |
-| ~:tabsave [NAME]~        | ([[module::ui workspaces]]) Save the selected workspace to file                   |
 
 * TODO Configuration
 #+begin_quote wip
