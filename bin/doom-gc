@@ -62,15 +62,6 @@ remains lean."
         (doom-gc--eln))))
   t)
 
-;; (defcli! gc
-;;     ((keep           (     "--keep" time)     "Don't delete generations in the last TIME units")
-;;      (keep-last      (     "--keep-last" num) "Don't delete last NUM generations")
-;;      (keep-elpa-p    ("-e" "--keep-elpa")     "Don't delete package.el-installed packages")
-;;      (keep-orphans-p ("-o" "--keep-orphaned") "Don't delete unused packages")
-;;      (keep-history-p (     "--keep-history")  "Don't regraft repos"))
-;;   "Purge unused profile data, generations, and packages.")
-
-
 ;;
 ;;; * Execute
 
