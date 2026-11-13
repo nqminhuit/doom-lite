@@ -14,12 +14,10 @@
   "Matches the `:CATEGORY MODULE' of a literal modulep! form.")
 
 (defun modulep-test--files ()
-  "Every .el file under modules/ and lisp/, minus the CLI module."
-  (cl-remove-if
-   (lambda (f) (string-match-p "/modules/doom/cli/" f))
-   (cl-loop for d in '("modules" "lisp")
-            append (directory-files-recursively
-                    (expand-file-name d modulep-test--root) "\\.el\\'"))))
+  "Every .el file under modules/ and lisp/."
+  (cl-loop for d in '("modules" "lisp")
+           append (directory-files-recursively
+                   (expand-file-name d modulep-test--root) "\\.el\\'")))
 
 (defun modulep-test--targets ()
   "Alist of (CATEGORY . MODULE) -> files that reference it."

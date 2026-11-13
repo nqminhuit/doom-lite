@@ -1868,14 +1868,6 @@ and whether the line count of the buffer exceeds that matching entry in
               (when (or (doom-context-p 'startup)
                         (doom-context-p 'reload))
                 (doom-startup))))
-        ;; TODO: Add safe-mode profile.
-        ;; (error
-        ;;  ;; HACK: This is not really this variable's intended purpose, but it
-        ;;  ;;   doesn't mind what value its set to, only that its non-nil, so I'm
-        ;;  ;;   exploiting its dynamic scope to pass the error to the profile.
-        ;;  (setq init-file-had-error error)
-        ;;  (load (file-name-concat doom-emacs-dir "profiles" "safe-mode" "init.el")
-        ;;        nil 'nomessage 'nosuffix))
         (error
          (display-warning
           'initialization

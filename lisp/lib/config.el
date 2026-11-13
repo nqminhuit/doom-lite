@@ -34,13 +34,6 @@
           (emacs-bin (doom-path invocation-directory invocation-name))
           (exec-path (cons doom-bin-dir exec-path))
           (shell-file-name shell-file-name))
-     (when (and (featurep :system 'windows)
-                (string-match-p "cmdproxy.exe$" shell-file-name))
-       (if-let* ((pwsh (or (executable-find "pwsh")
-                           (executable-find "powershell"))))
-           (setq doom-bin "doom.ps1"
-                 shell-file-name pwsh)
-         (user-error "Powershell 3.0+ is required for `doom/reload', but no pwsh.exe or powershell.exe found in your $PATH")))
      ;; Ensure the bin/doom operates with the same environment as this running
      ;; session.
      (with-current-buffer

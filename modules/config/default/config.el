@@ -134,7 +134,6 @@ Continues comments if executed from a commented line."
   ;; new keybinds
   "'"    #'doom/describe-char
   "u"    #'doom/describe-autodef
-  "E"    #'doom/sandbox
   "M"    #'doom/describe-active-minor-mode
   "T"    #'doom/toggle-profiler
   "V"    #'doom/describe-option
@@ -181,7 +180,6 @@ Continues comments if executed from a commented line."
   "dpp"  #'doom/describe-package
   "dt"   #'doom/toggle-profiler
   "dv"   #'doom/version
-  "dx"   #'doom/sandbox
 
   ;; replaces `apropos-command'
   "a"    #'apropos
