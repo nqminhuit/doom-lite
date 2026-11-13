@@ -1555,16 +1555,7 @@ flush out with a couple RETs, which may execute the broken text in the buffer)."
 
 
 ;;;###package project
-(setq project-list-file (doom-profile-state-dir t "projects"))
-(with-eval-after-load 'project
-  ;; Not valid vc backends, but I use it to inform (global) file index
-  ;; exclusions below and elsewhere.
-  (add-to-list 'project-vc-backend-markers-alist '(Jujutsu . ".jj"))
-  (add-to-list 'project-vc-backend-markers-alist '(Sapling . ".sl"))
-  (add-to-list 'project-vc-extra-root-markers ".jj")
-
-  ;; TODO: Advice or add command for project-wide `find-sibling-file'.
-  )
+(require 'doom-projects)
 
 
 ;;;###package recentf

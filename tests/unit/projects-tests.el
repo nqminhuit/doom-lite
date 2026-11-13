@@ -19,6 +19,7 @@
         (add-to-list 'load-path build)
         (require 'projectile)
         (load (prt--path "lisp/doom-lib.el") nil t)
+        (load (prt--path "lisp/doom-projects.el") nil t)
         (load (prt--path "lisp/lib/projects.el") nil t)
         (setq projectile-project-root-files '()
               projectile-project-root-files-top-down-recurring '("Makefile"))
@@ -87,6 +88,25 @@
                               (progn (make-directory (expand-file-name "plain" prt--base))
                                      (expand-file-name "plain" prt--base)))))
       (should (equal "-" (doom-project-name))))))
+
+(ert-deftest projects/add-directory-as-project ()
+  (prt--with-fixture
+    (when prt--old (ert-skip "project.el only"))
+    (let ((dir (expand-file-name "plain" prt--base)))
+      (make-directory dir)
+      (doom/add-directory-as-project dir)
+      (should (file-exists-p (expand-file-name ".project" dir)))
+      (should (cl-some (lambda (r) (file-equal-p r dir)) (project-known-project-roots))))))
+
+(ert-deftest projects/excluded-root-not-remembered ()
+  (prt--with-fixture
+    (when prt--old (ert-skip "project.el only"))
+    ;; `temporary-file-directory' is rebound by the fixture and thus ignored as a project.
+    (let ((dir (expand-file-name "ignored" temporary-file-directory)))
+      (make-directory dir)
+      (write-region "" nil (expand-file-name ".project" dir))
+      (project-remember-project (project-current nil dir))
+      (should-not (cl-some (lambda (r) (file-equal-p r dir)) (project-known-project-roots))))))
 
 (provide 'projects-tests)
 ;;; projects-tests.el ends here
