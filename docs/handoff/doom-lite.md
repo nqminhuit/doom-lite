@@ -16,11 +16,24 @@ Set `doom-lite`, conductor `doom-lite-conductor`. Executes `doom-lite-plan.md`. 
 - P11 uses the fallback backend (clone at pin, load-path, autoloads, no package.el); ghostel module is download-only.
 
 ## Conductor handoff
-- Restart: `lazarus fleet up doom-lite` from `/opt/minh/doom-lite`; sessions resume their conversations. The main checkout stays on `master`; commit the board there only, then push.
-- Sessions: none. All phases P1–P11 (plus SETUP, S1, P10b, FIX1–FIX4) are merged. Recorded test reviewed (video only, logs not saved); untested there: ghostel, yaml/json/go.mod, `gcc`, jumps, `SPC TAB` new/rename/kill, `SPC ;`/`:` pairing, Java outside git.
-- Waiting on user: nothing. Cutover is deferred (user, 2026-11-13: "when everything is ready"); start it only when the user asks. User chose the symlink design (2026-11-13): both installs side by side, switch by flipping `~/.config/emacs` and `~/.config/doom` links. The main checkout `/opt/minh/doom-lite` is the user's place to try the fork; its `.local` is on the new backend (user synced 2026-11-13: `.local/straight` gone, 41 builds, ghostel module in `.local/etc/ghostel/`, ghostel works) and gitignored.
-- Next: Cutover (plan section, symlink design, PR #19) when the user asks: brief one worker for the two PRs (linux-config first, then fork); the user runs steps 2–8 (live dirs, daemon) with the worker, so confirm before it starts.
-- Worker tips (from handoffs): copy `.local` from the previous worktree or the main checkout, then `yes y | bin/lite doom sync` (a copied `.local` asks to rebuild; `</dev/null` crashes on that prompt); copy tree-sitter grammars after a fresh sync; `bin/` needs `git add -f`.
+- **Task**: set `doom-lite`, executing `doom-lite-plan.md` (hard fork of Doom Emacs). Conductor `doom-lite-conductor`; no tracker. Status: every phase is done; the cutover is deferred until the user asks for it.
+- **Done**: SETUP, S1, P1–P11, P10b, FIX1–FIX4 and CUT0 are merged into `master` (PRs #1–#19; last merge `639118f`). Nothing is unpushed, no PR is open, no worker is running, and no worktree is left besides the main checkout.
+- **Gaps**: the main checkout has an untracked `config/custom.el` that Emacs wrote. Don't commit it. The cutover gitignores `custom.el` in linux-config.
+- **Context for continuing**:
+  - User decisions are under Decisions above and in the board rows.
+  - The conductor reviews and merges every PR and removes sessions and worktrees after a merge, without asking. Conductors never edit code: even one-line fixes go through a worker with a brief in `docs/handoff/<KEY>.md`.
+  - The main checkout `/opt/minh/doom-lite` is where the user tries the fork (`bin/lite emacs`). Its `.local` uses the new backend.
+  - Still untested by the user: ghostel, yaml/json/go.mod, `gcc`, jumps, `SPC TAB` new/rename/kill, `SPC ;`/`:` pairing, Java outside git.
+- **Next steps**:
+  1. Wait for the user's next request: a bug from testing goes to a FIX worker; "start the cutover" follows Plan § Cutover.
+  2. Cutover: one worker for the linux-config PR first, then the fork PR. Run steps 2–8 with the user present and confirm before each live step.
+- **Watch out**:
+  - linux-config has an uncommitted change in `doom-emacs/config.el`. The carry-over must diff the working tree.
+  - The live daemon socket is `eterm`; never touch it from tests.
+  - Force-push is denied in workers.
+  - A copied `.local` needs `yes y | bin/lite doom sync`.
+  - A plan-only worker needs the user's own go-ahead in its pane before it implements.
+  - Restart with `lazarus fleet up doom-lite` from `/opt/minh/doom-lite`. Commit the board on `master` only, then push.
 
 ## Board
 
