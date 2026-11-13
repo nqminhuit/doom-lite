@@ -257,7 +257,7 @@ Or to create aliases for functions that behave differently:
 
        :config
        literate
-       (default +bindings +smartparens))
+       (default +bindings))
 #+end_src
 
 * file-exists-p!

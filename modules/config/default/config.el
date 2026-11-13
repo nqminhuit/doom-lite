@@ -45,19 +45,9 @@
 ;; This section is dedicated to "fixing" certain keys so that they behave
 ;; sensibly (and consistently with similar contexts).
 
-;; Highjacks backspace to delete up to nearest column multiple of `tab-width' at
-;; a time. If you have smartparens enabled, it will also:
-;;  a) balance spaces inside brackets/parentheses ( | ) -> (|)
-;;  b) close empty multiline brace blocks in one step:
-;;     {
-;;     |
-;;     }
-;;     becomes {|}
-;;  c) refresh smartparens' :post-handlers, so SPC and RET expansions work even
-;;     after a backspace.
-;;  d) properly delete smartparen pairs when they are encountered, without the
-;;     need for strict mode.
-;;  e) do none of this when inside a string
+;; Highjacks backspace to delete up to the nearest column multiple of `tab-width'
+;; at a time through leading whitespace. Pairs are deleted by
+;; `electric-pair-mode's own DEL binding.
 (advice-add #'delete-backward-char :override #'+default--delete-backward-char-a)
 
 ;; HACK: Makes `newline-and-indent' continue comments (and more reliably).

@@ -25,4 +25,10 @@ Enables `electric-indent-local-mode' in MODES.
                        (if words (setq-local +electric-indent-words words))))))
              (add-hook hook fn))))))
 
+;;;###autoload
+(defun +electric-pair-minibuffer-h ()
+  "Pair only in the `eval-expression' and `evil-ex' minibuffers."
+  (unless (memq this-command '(eval-expression evil-ex))
+    (electric-pair-local-mode -1)))
+
 ;;; autoload.el ends here

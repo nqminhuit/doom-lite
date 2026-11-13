@@ -1727,9 +1727,7 @@ and whether the line count of the buffer exceeds that matching entry in
         highlight-indent-guides-mode
         hl-fill-column-mode
         ;; These are redundant on Emacs 29+
-        flycheck-mode
-        smartparens-mode
-        smartparens-strict-mode))))
+        flycheck-mode))))
 
 
 ;;;###package transient

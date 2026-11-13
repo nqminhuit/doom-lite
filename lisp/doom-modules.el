@@ -57,11 +57,11 @@ uses a straight or package.el command directly).")
     (doom-module--put '(:user . nil)
                       :path doom-user-dir
                       :depth '(-105 . 105))
-    ;; DEPRECATED: Includes use-package, deprecated APIs/vars, smartparens --
+    ;; DEPRECATED: Includes use-package, deprecated APIs/vars --
     ;;   everything that makes v2 distinct from v3. The module is here to stay,
     ;;   but it won't be hardcoded after v3.
     (doom-module--put '(:doom . compat)
-                      :flags '(+keybinds +better-jumper +smartparens)
+                      :flags '(+keybinds +better-jumper)
                       :depth -115)
     ;; Load $DOOMDIR/init.el, where the user's `doom!' lives, which will inform
     ;; us of all desired modules.

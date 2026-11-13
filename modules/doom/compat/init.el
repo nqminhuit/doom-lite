@@ -125,7 +125,6 @@ This is a variadic `cl-pushnew'."
 
 (load! "+use-package")
 (if (modulep! +keybinds)    (load! "+keybinds"))  ; `general' & `map!'
-(if (modulep! +smartparens) (load! "+smartparens"))
 (if (modulep! +better-jumper) (load! "+better-jumper"))
 
 ;;; init.el ends here

@@ -35,8 +35,6 @@ section below.
   Don't install or configure [[pkg:better-jumper]].
 - -general ::
   Don't install [[pkg:general]] and don't provide the [[fns:map!]] macro.
-- -smartparens ::
-  Don't install or configure [[pkg:smartparens]].
 - -use-package ::
   Don't install or configure [[pkg:use-package]], or define [[fns:use-package!]] or
   [[fns:use-package-hook!]].
@@ -44,7 +42,6 @@ section below.
 ** Packages
 - [[package:better-jumper]] unless [[module:-better-jumper]]
 - [[package:general]] unless [[module:-general]]
-- [[package:smartparens]] unless [[module:-smartparens]]
 - [[package:use-package]] unless [[module:-use-package]]
 
 ** Hacks
