@@ -110,7 +110,6 @@
            :desc "Open project dired" "o" #'project-dired)
   "<SPC>" #'m/find-file
   :desc "Consult from my useful commands" "C-r" #'m/catcmd
-  "pC" nil
   :desc "Select only text in current line" "V" #'m/select-text-line)
 
  ;; -----------------------------------------------------------------

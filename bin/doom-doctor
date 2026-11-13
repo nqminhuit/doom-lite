@@ -258,14 +258,6 @@ in."
           (unless (ignore-errors (executable-find doom-fd-executable))
             (warn! "Couldn't find the `fd' binary; project file searches will be slightly slower"))
 
-          ;; REVIEW: When projectile is replaced with project...
-          ;; (require 'project)
-          ;; (when (project-current nil doom-emacs-dir)
-          ;;   (let ((file (or (seq-find #'file-exists-p project-vc-extra-root-markers)
-          ;;                   (seq-find #'file-directory-p (mapcar #'cdr project-vc-backend-markers-alist)))))
-          ;;     ;; ...
-          ;;     ))
-
           ;; There should only be one
           (when (and (file-equal-p doom-user-dir "~/.config/doom")
                      (file-directory-p "~/.doom.d"))

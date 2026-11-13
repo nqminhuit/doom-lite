@@ -27,8 +27,6 @@
             (temporary-file-directory (file-truename (make-temp-file "prt-tmp" t)))
             (project-list-file (expand-file-name "projects" temporary-file-directory))
             (default-directory prt--base))
-       (when (boundp 'projectile-project-root-cache)
-         (clrhash projectile-project-root-cache))
        (unwind-protect (progn ,@body)
          (delete-directory prt--base t)
          (delete-directory temporary-file-directory t)))))
