@@ -9,6 +9,10 @@
       "agent": "conductor",
       "start": "You are the conductor of fleet set doom-lite. Ask the user what this set is for and which tickets belong to it, agree a plan with them, and start no worker before they approve it.",
       "stop": "Bring the board up to date and write the Conductor handoff section, then stop."
+    },
+    {
+      "name": "FIX1",
+      "start": "Read docs/handoff/FIX1.md first (Conductor brief), then fix both bugs in your own worktree and report STATUS lines to doom-lite-conductor."
     }
   ]
 }
