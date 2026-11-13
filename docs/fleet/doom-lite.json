@@ -9,6 +9,10 @@
       "agent": "conductor",
       "start": "You are the conductor of fleet set doom-lite. Ask the user what this set is for and which tickets belong to it, agree a plan with them, and start no worker before they approve it.",
       "stop": "Bring the board up to date and write the Conductor handoff section, then stop."
+    },
+    {
+      "name": "CUT1",
+      "start": "Read docs/handoff/CUT1.md first (Conductor brief), then plan and implement the linux-config PR from doom-lite-plan.md § Cutover in your own linux-config worktree, and report STATUS lines to doom-lite-conductor."
     }
   ]
 }
