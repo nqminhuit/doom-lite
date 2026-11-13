@@ -11,6 +11,7 @@ Set `doom-lite`, conductor `doom-lite-conductor`. Executes `doom-lite-plan.md`. 
 - From P2 on (user, 2026-11-13): the conductor reviews each phase PR (`gh pr diff`, re-run `tests/run.sh`, check the phase's greps) and merges it when it passes; no user interactive pass before merge. The conductor lists in its report what only an interactive check would catch.
 - `doom-lite` stays public with `config/` in it.
 - P1 ports linux-config `tests/elisp/minh-tests.el` to `tests/unit/minh-tests.el`, pointed at `config/`.
+- No shellcheck (user, 2026-11-13): P10 removes it from the plan.
 - transient stays built-in (Emacs 0.13.3; user confirmed 2026-11-13), not pinned in `.local`.
 - P11 uses the fallback backend (clone at pin, load-path, autoloads, no package.el); ghostel module is download-only.
 
@@ -19,7 +20,7 @@ Set `doom-lite`, conductor `doom-lite-conductor`. Executes `doom-lite-plan.md`. 
 - Sessions: P10 (implementing). P1–P9 removed. After a phase merges, remove its session with `fleet remove --yes` (user approved this for every phase, 2026-11-13). Worktrees need no approval either: once the next phase reports the old worktree free, remove it and its local and remote branch.
 - Waiting on user: nothing. The user may sync the main checkout to try the fork there (`bin/lite doom sync`; the conductor already copied all 9 grammars into its `.local/etc/tree-sitter`); its `.local` is gitignored and does not affect `master`.
 - Next: when P2's PR is merged, start P3 with a brief in `docs/handoff/P3.md` (same shape as `P2.md`), and so on per the board. P11 gets its own plan pass first.
-- Worker tips (from handoffs): copy `.local` from the previous worktree, then `bin/lite doom sync` (use `--force` if it dies on a prompt); copy tree-sitter grammars after a fresh sync; `bin/` needs `git add -f`; shellcheck via podman.
+- Worker tips (from handoffs): copy `.local` from the previous worktree, then `bin/lite doom sync` (use `--force` if it dies on a prompt); copy tree-sitter grammars after a fresh sync; `bin/` needs `git add -f`.
 
 ## Board
 
@@ -36,5 +37,5 @@ Set `doom-lite`, conductor `doom-lite-conductor`. Executes `doom-lite-plan.md`. 
 | P7 | merged (`bcd3bfc`) by the conductor after review; session, worktree and branches removed | [#8](https://github.com/nqminhuit/doom-lite/pull/8) | – | Accepted changes: no `( \| )` space balancing or multiline-brace collapse on backspace; per-language pair rules gone. Unchecked: pairing in a real `M-:`/`SPC ;`/`:` minibuffer. One commit with a wrong co-author trailer, merged as-is (as for P4) |
 | P8 | merged (`a4fd32e`) by the conductor after review; session, worktree and branches removed | [#9](https://github.com/nqminhuit/doom-lite/pull/9) | – | Binding snapshot identical before/after (3712 lines). Dropped unused `kbd!`, `define-leader-key!`, `map! :mode`. Unchecked: SPC in a live ghostel buffer, which-key popup look |
 | P9 | merged (`bab7a71`) by the conductor after review; session, worktree and branches removed | [#10](https://github.com/nqminhuit/doom-lite/pull/10) | – | 19 packages dropped (63 left); yaml-mode and go-gen-test kept. Changes: `gc` is a built-in evil operator (no `c` text object); jumps use evil's jump list; `SPC g t` is `vc-region-history`; `.jsonc`, `.md`, `README.md`, `go.mod`, `go.work` open in ts modes. Accepted losses: go/json localleader commands, markdown-mode editing and preview. Live install lacks markdown, markdown-inline, gomod and gowork grammars (Cutover note). Unchecked: `gcc`/visual `gc` in a live frame, markdown-ts-mode look |
-| P10 | implementing, 4 stacea calls: `bin/lite` sync guard; doom-docs + `SPC h d`; sandbox/store/plist/cli/bin scripts/profiles/compat aliases; README cleanup, `demos.org` deleted (worktree `/opt/minh/doom-lite-wt/P10`, branch `p10-core-trims`) | – | – | Dropped keys: help `h H n rd E dx dM`, `:help!` bang; `SPC h d m` opens the module README (or dired) |
+| P10 | implementing, task 2/4 (task 1 `bin/lite` guard `8d820bb` done); tasks: `bin/lite` sync guard; doom-docs + `SPC h d`; sandbox/store/plist/cli/bin scripts/profiles/compat aliases; README cleanup, `demos.org` deleted (worktree `/opt/minh/doom-lite-wt/P10`, branch `p10-core-trims`) | – | – | Dropped keys: help `h H n rd E dx dM`, `:help!` bang; `SPC h d m` opens the module README (or dired) |
 | P11 | waiting on P10 | – | P10 merged; S1 findings; own plan pass | – |
