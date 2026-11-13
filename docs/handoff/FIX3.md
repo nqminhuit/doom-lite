@@ -1,14 +1,31 @@
 # FIX3
 
-## Conductor brief
-Conductor: `doom-lite-conductor`, set `doom-lite`; board `docs/handoff/doom-lite.md`. Report `STATUS FIX3: <state> | next | blocked | needs user` to the conductor.
+**Task**: FIX3: fixes from the user's recorded test session. **Status:** merged (PR [#17](https://github.com/nqminhuit/doom-lite/pull/17), merge `623f0f0`, 2026-11-13). **Owner:** FIX3 worker; conductor `doom-lite-conductor`. **Board:** `docs/handoff/doom-lite.md`.
 
-Why now: the user recorded a test session of the fork (main checkout, `master` after PR #16). A frame review found these; the user wants all of them handled in one PR:
-1. **`SPC SPC` (`m/find-file`, `config/modules/minh/utils/autoload.el` ~179) fails in projects under `~`**: `fd exited with 1: Search path '~/projects/gis/' is not a directory`. `project-root` returns `~`-abbreviated roots (since P5); expand before passing to `fd`. Grep `config/` and `modules/` for other `project-root` results handed to external programs unexpanded.
-2. **jdtls dies on `~/projects/gis/src/main/java/org/nqm/Gis.java`** (git repo): `[eglot] -1: Server died … exited abnormally with code 1`, twice. Investigate first: reproduce through `bin/lite daemon`, read the `*EGLOT (gis/…) stderr*` and events buffers, and run the contact's jdtls command by hand. Check whether FIX2 (`jdtls-command-contact`, `+java--project`) or the fork's `user-emacs-directory` (`-data` under `lsp-cache`) is involved. If the cause is outside the fork and config (jdtls install, Java version, lombok jar), report it to the conductor before changing anything.
-3. **Opening a `.sh` file errors when shellcheck isn't installed**: `(file-missing "Searching for program" … "shellcheck")` from `sh-shellcheck-flymake`. Don't add that backend (or remove it) when `shellcheck` isn't on `PATH`.
-4. Check each against upstream Doom (read-only: `~/.config/emacs` source, never run or write it) and fix only if it is a fork regression: `SPC f C-g` prints `SPC f C-g is undefined` instead of quitting quietly (P8 keymaps?); which-key shows a raw `m/find-file` for `SPC :` and a literal `+<localleader>` for `m`; "Renamed tab to 'main'" printed at every startup (P6); an empty `[]` after the mode name in every file buffer's mode line.
+## Done
+- `79166ef` (fork): shellcheck flymake backend is removed on `sh-base-mode-hook` when `sh-shellcheck-program` isn't on PATH (`modules/checkers/syntax/config.el`). `+workspace--rename-tab` silences Emacs 31's "Renamed tab to" message, which `tab-bar-rename-tab` prints while tab-bar-mode is off. That message was a P6 regression; all 4 callers are fixed.
+- `99b28d8` (config): `m--project-file-candidates` expands the `~`-abbreviated project root before `fd` and `mm--get-file-names`.
+- `53e7e9a` (config): `jdtls-command-contact` adds `-javaagent` only when `+java--lombok-jar` exists. Otherwise it warns once (`+java--lombok-warned`).
+- Tests: `tests/unit/syntax-tests.el`, plus additions to workspaces-, minh- and java-tests. `tests/run.sh` and `tests/smoke.sh` pass.
 
-Not bugs (leave): `SPC p a` refusing `/tmp` (excluded by design); `bin/lite client -c` without a running daemon; no live preview in `SPC /` and `SPC b b` (Doom default is `C-SPC`).
+## Gaps
+- The board still shows FIX3 as "implementing" with no PR.
+- Worktree `/opt/minh/doom-lite-wt/FIX3`, the local branch and remote branch `fix3-recorded-test-issues` still exist.
 
-Work only in `/opt/minh/doom-lite-wt/FIX3` (branch off `origin/master`). Copy `.local` from `/opt/minh/doom-lite` (don't modify it) and run `yes y | bin/lite doom sync`. Never touch `~/.config/emacs`, `~/.config/doom` or the live daemon. Add unit or smoke tests for each fix. Force-push is denied. One PR to `master`; when ready, report it to the conductor, who reviews and merges it.
+## Context for continuing
+- jdtls root cause: `lombok-version` 1.18.46 jar was missing from `~/.m2`, and the JVM exited 1. The user installed the jar. Verified in an isolated daemon (`--daemon=fix3`, not `doom-lite`) on a scratch copy of gis: jdtls stays up and `gd` opens `GisLog.java:10`.
+- Item 4 non-regressions, left alone:
+  - which-key "SPC : m/find-file" is `SPC SPC` with no `:desc` (same as linux-config).
+  - `+<localleader>` is the same upstream.
+  - `[]` is the user's prot-modeline flymake segment.
+  - `SPC f C-g` handling matches upstream (concluded from the source; upstream wasn't run).
+
+## Next steps
+1. Conductor: set FIX3 to merged on the board. Remove the worktree (`git worktree remove /opt/minh/doom-lite-wt/FIX3`), then delete the local and remote `fix3-recorded-test-issues` branches.
+2. Optional, config: add `:desc` to `"<SPC>" #'m/find-file` (`config/modules/minh/keybindings/config.el:111`) if the user wants a label.
+3. Cutover remains deferred until the user asks.
+
+## Watch out
+- In a frameless daemon, gis's `.dir-locals.el` (unsafe `compile-command`, `projectile-*`) blocks on the safety prompt. Trap prompts as `tests/smoke.sh` does before visiting gis files.
+- `pkill -f "daemon=fix3"` kills your own shell, because the pattern appears in its command line. Use `pgrep -f "^emacs --init-directory …"`.
+- jdtls init options write metadata files at the project root, so test on a copy, not `~/projects/gis`.
