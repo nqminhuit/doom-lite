@@ -3,7 +3,6 @@
 
 (package! evil :pin "6a3e1ddd04ac504a016590940d0af2a3361b9efd")
 (package! evil-args :pin "a8151556f63c9d45d0c44c8a7ef9e5a542f3cdc7")
-(package! evil-easymotion :pin "629c894af63336028a61cc93d6465d10837eb82b")
 (package! evil-embrace :pin "3081d37811b6a3dfaaf01d578c7ab7a746c6064d")
 (package! evil-escape
   :recipe (:host github :repo "hlissner/evil-escape")

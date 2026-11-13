@@ -16,13 +16,6 @@
 ;;
 ;;; Reasonable defaults
 
-;;;###package avy
-(setq avy-all-windows nil
-      avy-all-windows-alt t
-      avy-background t
-      ;; the unpredictability of this (when enabled) makes it a poor default
-      avy-single-candidate-jump nil)
-
 
 (after! woman
   ;; The woman-manpath default value does not necessarily match man. If we have
