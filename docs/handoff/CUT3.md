@@ -1,12 +1,29 @@
 # CUT3
 
-## Conductor brief
-Conductor: `doom-lite-conductor`, set `doom-lite`; board `docs/handoff/doom-lite.md`. Report `STATUS CUT3: <state> | next | blocked | needs user` to the conductor after each step.
+- **Task**: CUT3, the live cutover (`doom-lite-plan.md` § Cutover, steps 2–8). Status: done 2026-11-13. Owner: `doom-lite-conductor`, set `doom-lite`, board `docs/handoff/doom-lite.md`. No tracker.
 
-Goal: run the live cutover, `doom-lite-plan.md` § Cutover → Steps 2–8 (step 1 is done: linux-config #160 merged as `2fabc329`, fork #20 merged as `25bb8877`). No code changes and no PR.
+## Done
+- Steps 2–8 were run with the user's OK before each step; no code changes and no PR.
+- Upstream Doom lives at `~/.config/doom-emacs`. The fork is cloned to `~/.config/doom-lite` at `46ce6ed`.
+- `~/.config/emacs` and `~/.config/doom` are symlinks to the doom-lite pair. `custom.el` was moved into linux-config's `doom-emacs/` and copied to `doom-lite/`, where it is gitignored.
+- Smoke passed, and the user checked the interactive list and both directions of the rollback drill.
+- The `lazarus doom` re-run wrote both `.local/.lazarus-doom-installed` markers.
+- The user regenerated both env files from their own terminal; the `eterm` daemon runs doom-lite with a clean environment.
+- The untracked `config/custom.el` in this workspace was deleted.
 
-Decided:
-- The user is present in your pane. Before each step, show its exact commands and wait for the user's OK; run its check afterwards and stop on any failure. Rollback is `./lazarus.sh doom-use doom` (§ Rollback).
-- Step 0: make sure `/opt/minh/linux-config` is on `master`, has no local changes and is pulled to include `2fabc329`, so `configs/dotfiles/emacs/doom-lite/` exists. If it isn't, ask the user to run `git checkout -- configs/dotfiles/emacs/doom-emacs/config.el && git pull` there.
-- Before step 2, save `doom doctor` output as the baseline for steps 3–4.
-- `tests/smoke.sh` never touches the `eterm` daemon; `restartEmacs` is the user's call.
+## Gaps
+- Plan § Cutover does not yet carry what the run found; CUT4 adds it (see `docs/handoff/CUT4.md`).
+
+## Context for continuing
+- The `doom doctor` baseline had 2 warnings: a stale env file and no zig. After cutover there are 0, with 35 modules and 66 packages.
+- The rollback is `lazarus doom-use doom`, then `restartEmacs`.
+
+## Next steps
+1. CUT4: a docs-only PR in worktree `/opt/minh/doom-lite-wt/CUT4` off `master`, per `docs/handoff/CUT4.md`.
+2. Optional: the user re-checks eglot in a Go project, since gopls is now v0.24.0 on go1.27.4.
+3. Remove the CUT3 session once the user OKs it.
+
+## Watch out
+- Running `doom version` while `~/.config/emacs` is absent creates `~/.emacs.d`, which shadows Doom.
+- The first `lazarus doom` run is not a no-op: it runs `doom install --force`, `sudo apt-get` and `go install @latest`.
+- Never run `doom sync --env` from a Claude Code shell: the env file captures `CLAUDE_*` vars, including the messaging token.

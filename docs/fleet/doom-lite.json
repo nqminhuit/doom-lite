@@ -11,8 +11,8 @@
       "stop": "Bring the board up to date and write the Conductor handoff section, then stop."
     },
     {
-      "name": "CUT3",
-      "start": "Read docs/handoff/CUT3.md first (Conductor brief), then run the live cutover steps from doom-lite-plan.md § Cutover one at a time, asking the user before each, and report STATUS lines to doom-lite-conductor."
+      "name": "CUT4",
+      "start": "Read docs/handoff/CUT4.md first (Conductor brief), then make the docs-only change in your own worktree and report STATUS lines to doom-lite-conductor."
     }
   ]
 }
