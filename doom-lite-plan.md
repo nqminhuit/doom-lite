@@ -15,7 +15,7 @@ Upstream is mid-migration. Projectile lives in `:doom compat +projectile`, at `m
 
 Everything lives in one repo, and each phase lists its **Fork** and **Config** changes separately:
 - **fork** = `/opt/minh/doom-lite`, a checkout of `nqminhuit/doom-lite`, separate from the live `~/.config/emacs` (see Workspace).
-- **config** = `config/` inside the fork: a copy of linux-config's `configs/dotfiles/emacs/doom-emacs/` taken from `master` at `3ced698a` (SETUP). Paths in a phase's **Config** section (`init.el`, `config.el`, `minh/...`) are relative to `config/`. The live config in `/opt/minh/linux-config` is never edited during the fork work; `config/` goes back to it at cutover.
+- **config** = `config/` inside the fork: a copy of linux-config's `configs/dotfiles/emacs/doom-emacs/` taken from `master` at `3ced698a` (SETUP). Paths in a phase's **Config** section (`init.el`, `config.el`, `minh/...`) are relative to `config/`. The live config in `/opt/minh/linux-config` is never edited during the fork work; At cutover `config/` moves to linux-config as `configs/dotfiles/emacs/doom-lite/` (see Cutover).
 
 This plan lives at the root of the fork repo (`doom-lite-plan.md`).
 
@@ -82,12 +82,59 @@ Rules:
 Baseline (SETUP, saved next to this plan as `doom-lite-baseline.md`): init time, package count, `doom doctor` output, and the outputs of the scripted smoke checks (see Verification), with the exact commands so P1's `tests/smoke.sh` can reproduce them.
 
 ## Cutover (after the last phase, user's call)
-- Point `~/.config/emacs` at the fork (swap dirs or re-clone).
-- The first `doom sync` on the fork replaces the live `.local/straight/` (and `.local/elpa/`) automatically (P11). The ghostel module is downloaded into `doom-data-dir` (`.local/etc/ghostel/`) on first use.
-- The live install needs the `markdown`, `markdown-inline`, `gomod` and `gowork` tree-sitter grammars (none are in the live `.local/etc/tree-sitter`): install them with `treesit-install-language-grammar` or `markdown-ts-mode-install-parsers` before first opening a `.md` file, or copy them from the fork's `.local/etc/tree-sitter`, which has all four. `go.mod`/`go.work` now map straight to `go-mod-ts-mode`/`go-work-ts-mode`, which prompt to install a missing grammar.
-- Delete `bin/lite` and switch `tests/smoke.sh` to plain `bin/doom`, `emacs` and a test socket; the wrapper's refusals would block the fork once it is the live install.
-- Copy `config/` back to linux-config's `configs/dotfiles/emacs/doom-emacs/` in one linux-config PR to `master`, so `~/.config/doom` picks it up. First diff it against linux-config `master`: any config change made live after `3ced698a` must be carried over, not overwritten.
-- In the same linux-config PR, update `lazarus.sh` `_install_doom` (line 429 clones `doomemacs/doomemacs`; point it at the fork repo and check the `doom install`/`doom sync` calls still exist), its bats tests, and the Doom paragraph in `CLAUDE.md`.
+Design (user-approved 2026-11-13): upstream Doom and doom-lite stay installed side by side, and two symlinks pick the active one. Nothing is reverted or ported to switch; a switch flips both links.
+
+| | Upstream Doom | doom-lite |
+|---|---|---|
+| Install | `~/.config/doom-emacs` (today's `~/.config/emacs`, renamed, its `.local` kept) | `~/.config/doom-lite` (a clone of `nqminhuit/doom-lite`, own `.local`) |
+| Config (linux-config) | `configs/dotfiles/emacs/doom-emacs/` (frozen) | `configs/dotfiles/emacs/doom-lite/` (the fork's `config/`, added at cutover) |
+| Active links | `~/.config/emacs` → install, `~/.config/doom` → config | same two links |
+
+Facts this relies on (verified 2026-11-13):
+- Each install keeps its own `.local`, so switching never re-syncs or rebuilds packages.
+- `~/.local/share/doom/profiles.el` is only read with `--profile`, which is unused; it plays no part in switching.
+- Doom's scripts resolve the `~/.config/emacs` symlink, so `~/.config/emacs/bin/doom` works on whichever install is active.
+- Config edits made in one config don't carry to the other. After cutover `doom-emacs/` is frozen; edits go to `doom-lite/` only, and anything wanted in upstream too has to be copied by hand.
+- `~/.config/doom` is a real directory today (per-file links into `doom-emacs/`, a real `custom.el`, and dangling `cli.el` and `snippets` links), so it is converted once to a symlink (step 3).
+- The daemon runs on the socket `eterm` (`socketName` in `functions/commons.sh`, started by `restartEmacs` in `functions/mutils.sh`). The smoke test uses its own socket and never touches `eterm`.
+
+### Switch command
+`./lazarus.sh doom-use lite|doom` in linux-config:
+- `lite` targets `~/.config/doom-lite` + `$DOTFILES_DIR/emacs/doom-lite`; `doom` targets `~/.config/doom-emacs` + `$DOTFILES_DIR/emacs/doom-emacs`.
+- Refuses, with a message and a non-zero exit and before changing anything, when either target is missing, when the install has no `bin/doom`, or when `~/.config/emacs` or `~/.config/doom` exists and is not a symlink (`ln -sfn` onto a real dir would nest the link inside it).
+- Stops a running daemon on `$socketName` (`emacsclient -s "$socketName" -e '(kill-emacs)'`, only if it answers) so the next start loads the new pair; it does not restart it.
+- Flips both links with `ln -sfn`, always as symlinks even when `IS_PERSONAL` is false (`cp_link` copies there, which would break switching), then prints the active pair (`readlink` of both).
+- bats tests in `tests/lazarus.bats` with a fake `HOME` and a stub `emacsclient` on `PATH`: each direction flips both links; each refusal leaves both links untouched; the daemon stub is called only when it reports live; unknown argument exits non-zero.
+
+### Rollback
+`./lazarus.sh doom-use doom`, then start Emacs. That is the whole rollback: no revert, no re-sync, no porting. Back to doom-lite with `./lazarus.sh doom-use lite`. Config edits made in `doom-lite/` while it was active are not in `doom-emacs/` (and the reverse).
+
+### Changes (two PRs, linux-config first)
+**linux-config PR** (to `master`):
+- Add `configs/dotfiles/emacs/doom-lite/` from the fork's `config/` at the latest `master`. First diff the live `doom-emacs/` against `3ced698a` **in the working tree, not only `master`** (no commits touch it since `3ced698a`, but `config.el` has an uncommitted change today) and carry every live edit into `doom-lite/`; nothing in `doom-emacs/` is overwritten.
+- `custom.el`: gitignore `custom.el` in both config dirs (Doom writes it to `$DOOMDIR`, which is now a dir inside linux-config); step 3 moves today's `~/.config/doom/custom.el` into `doom-emacs/` and copies it into `doom-lite/`.
+- Hardcoded paths in the config (`config.el` eshell aliases, `minh/java/config.el`, `minh/utils/autoload.el`) point at linux-config files outside `doom-emacs/`, so they stay valid unchanged. `lazarus.sh:63` reads `lombok-version` from `doom-emacs/modules/...`; point it at `doom-lite/`.
+- `doom-use` subcommand and its bats tests (above); add it to the help text.
+- `_install_doom`: clones upstream into `~/.config/doom-emacs` and the fork into `~/.config/doom-lite` (each only if missing), then runs `doom install` (per-install marker, as today) and `doom sync --env --force` on each with `EMACSDIR` and `DOOMDIR` set explicitly to its own pair. Starting states of `~/.config/emacs`: a real Doom checkout → renamed to `~/.config/doom-emacs` (instead of today's `.bak-*` move); a symlink → left as is; absent → linked to doom-lite. `~/.config/doom`: a real dir → handled as in step 3; a symlink → left as is; absent → linked to match `~/.config/emacs`. A re-run never flips an existing pair. The per-file `cp_link` lines go away.
+- Add bats tests for `_install_doom`'s three starting states (none exist today) with stub `git` and `doom`.
+- Port the fork's `tests/unit/minh-tests.el` (P1) next to `tests/elisp/minh-tests.el`, loading from `doom-lite/`.
+- Doom backups (`__doom_backup` in `functions/mutils.sh`) `cd` into `~/.config/emacs`, so they back up whichever install is active; leave that as is and say so in a comment.
+- Update the Doom paragraph in `CLAUDE.md`: the two installs, the two configs, the links, `doom-use`, and that edits go to `doom-lite/`.
+
+**Fork PR** (to `master`, after the linux-config PR is merged):
+- Delete `bin/lite` and its refusal test. Its live-`EMACSDIR` and linux-config-`DOOMDIR` refusals would now block the active install, which is exactly what has to be tested.
+- `tests/smoke.sh` keeps the safeguards that still matter: it derives `EMACSDIR` from its own location, sets `DOOMDIR` explicitly (default `/opt/minh/linux-config/configs/dotfiles/emacs/doom-lite`, overridable, so it never picks up the upstream config when upstream is active), runs `emacs --init-directory "$EMACSDIR" --daemon=doom-smoke` and `emacsclient -s doom-smoke`, refuses if `doom-smoke` is already live or the `.local` is unsynced, and never touches `eterm`.
+- Delete `config/` and `tests/unit/minh-tests.el`; linux-config's `doom-lite/` is the only copy from now on. Update Workspace and README to match (`bin/doom` with explicit `EMACSDIR`/`DOOMDIR` for worktree work).
+
+### Steps (user present; a check after each)
+1. Merge the linux-config PR, then the fork PR. Check: linux-config bats and `tests/run.sh` green; fork `tests/run.sh` green.
+2. Stop the daemon (`emacsclient -s eterm -e '(kill-emacs)'`) and `mv ~/.config/emacs ~/.config/doom-emacs`. Check: `~/.config/doom-emacs/bin/doom version` runs.
+3. Convert `~/.config/doom`: move `custom.el` into linux-config's `doom-emacs/` and copy it to `doom-lite/`, then remove the dir (only links and `custom.el` are in it; check first). Run `./lazarus.sh doom-use doom`. Check: upstream starts unchanged (`restartEmacs`, then a client frame; `doom doctor` matches the pre-cutover output). This is not verified ahead of time: if init fails on old paths, run `~/.config/emacs/bin/doom sync` (no `-u`) once and retry.
+4. `git clone git@github.com:nqminhuit/doom-lite.git ~/.config/doom-lite`, `./lazarus.sh doom-use lite`, `~/.config/emacs/bin/doom sync --env`. The first sync uses the new backend (P11: 41 packages from 38 clones, about 45 s). Check: sync succeeds, `doom doctor` shows nothing new against the baseline.
+5. Tree-sitter grammars: the first sync installs none, and upstream's `.local/etc/tree-sitter` lacks `markdown`, `markdown-inline`, `gomod` and `gowork`. Copy all nine from the fork workspace, which has them: `mkdir -p ~/.config/doom-lite/.local/etc/tree-sitter && cp -p /opt/minh/doom-lite/.local/etc/tree-sitter/*.so ~/.config/doom-lite/.local/etc/tree-sitter/`. `go.mod`/`go.work` map to `go-mod-ts-mode`/`go-work-ts-mode`, which prompt to install a missing grammar. The ghostel module downloads into `.local/etc/ghostel/` on first use. Check: `ls` shows nine `.so` files.
+6. Run `~/.config/doom-lite/tests/smoke.sh`. Check: smoke passed, then `restartEmacs` and the user's interactive list (Verification).
+7. Rollback drill: `./lazarus.sh doom-use doom`, `restartEmacs`. Check: upstream starts and works. Then `./lazarus.sh doom-use lite`, `restartEmacs`. Check: doom-lite is back.
+8. `./lazarus.sh doom`. Check: a no-op re-run (both clones reused, links unchanged, both syncs succeed).
 
 ## P0 — Fork repo (DONE)
 - `/opt/minh/doom-lite` has `origin` = `git@github.com:nqminhuit/doom-lite.git` and `upstream` = `https://github.com/doomemacs/doomemacs` (reference only, never merged). The live `~/.config/emacs` remotes are unchanged.
@@ -127,7 +174,7 @@ Then:
 
 - **Wrapper.** Add `bin/lite` as described in Workspace, as the first commit of the phase, and use it for everything after. Add a bats or plain-bash test for its refusals (live `EMACSDIR`, live `DOOMDIR`, missing `init.el`) that runs with a fake `HOME` and never starts Emacs.
 - **Test scaffolding.** Add `tests/run.sh` (runs every `tests/unit/*-tests.el` in batch and fails on any failure), `tests/smoke.sh` (the scripted daemon checks from Verification) and one first unit test, for the undefined-autodef check above, so the runner has something to run.
-- **Config ERT suite.** Port linux-config's `tests/elisp/minh-tests.el` to `tests/unit/minh-tests.el`, loading `minh/utils/autoload.el` and `minh/gis/autoload.el` from `config/modules/minh/` instead of the live tree, so `tests/run.sh` covers the config. At cutover it goes back to linux-config with `config/`.
+- **Config ERT suite.** Port linux-config's `tests/elisp/minh-tests.el` to `tests/unit/minh-tests.el`, loading `minh/utils/autoload.el` and `minh/gis/autoload.el` from `config/modules/minh/` instead of the live tree, so `tests/run.sh` covers the config. At cutover it moves to linux-config with `config/` (see Cutover).
 
 Apart from the removed `doom upgrade`, this phase changes no behavior.
 
@@ -433,7 +480,7 @@ Dependencies seen in the tree that are not packages here: `emacs`, `cl-lib`, `na
 Decision 2: the first sync on the new backend, seeing `.local/straight/`, prints that it is replacing the straight tree, deletes `.local/straight/` and `.local/elpa/`, and clones everything fresh (about 38 shallow clones; a few minutes once). No attempt to reuse straight's repos: the fresh path is the one verified, and nothing in the old tree is irreplaceable. Cases:
 - **Worktrees** (copies of another worktree's `.local`): run `bin/lite doom sync`; the tree is rebuilt in place.
 - **Main checkout** `/opt/minh/doom-lite`: the downloaded ghostel module sits inside `.local/straight/`, so it is deleted with it; the first ghostel terminal re-downloads it into `ghostel-module-directory` without a prompt.
-- **Live install at cutover**: the same first sync replaces the live `.local/straight/`. Cutover's "delete stale build dirs then `doom sync --rebuild`" step is no longer needed (call D updates Cutover).
+- **Live install at cutover**: doom-lite gets a fresh install with its own `.local` (see Cutover), so its first sync starts clean; upstream's `.local` is kept as is.
 
 ### Steps (stacea calls, one branch `p11-backend` off `master`, one PR)
 Every call ends with `tests/run.sh`, `bin/lite doom sync`, `bin/lite doom doctor` and `tests/smoke.sh` green.
