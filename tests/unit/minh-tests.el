@@ -189,4 +189,27 @@
               (should (eq (window-buffer code) magit)))
           (kill-buffer magit))))))
 
+;;; m--project-file-candidates
+
+(ert-deftest minh-project-files/expands-abbreviated-root-for-fd ()
+  (let (args)
+    (cl-letf (((symbol-function 'm--call)
+               (lambda (&rest a) (setq args a) "/home/u/p/src/a.el\n")))
+      (let ((res (m--project-file-candidates "~/p")))
+        (should (equal (car (last args)) (expand-file-name "~/p/")))
+        (should-not (string-prefix-p "~" (car (last args))))
+        (should (equal (mapcar #'cdr res) '("/home/u/p/src/a.el")))))))
+
+(ert-deftest minh-project-files/finds-files-under-tilde-root ()
+  (skip-unless (executable-find "fd"))
+  (let* ((home (file-name-as-directory (make-temp-file "minh-home" t)))
+         (process-environment (cons (concat "HOME=" home) process-environment)))
+    (unwind-protect
+        (progn
+          (make-directory (expand-file-name "p" home))
+          (write-region "" nil (expand-file-name "p/a.el" home))
+          (let ((res (m--project-file-candidates "~/p/")))
+            (should (equal (mapcar #'cdr res) (list (expand-file-name "p/a.el" home))))))
+      (delete-directory home t))))
+
 ;;; minh-tests.el ends here
