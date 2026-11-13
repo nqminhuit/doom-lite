@@ -18,8 +18,8 @@ Set `doom-lite`, conductor `doom-lite-conductor`. Executes `doom-lite-plan.md`. 
 ## Conductor handoff
 - Restart: `lazarus fleet up doom-lite` from `/opt/minh/doom-lite`; sessions resume their conversations. The main checkout stays on `master`; commit the board there only, then push.
 - Sessions: none. All phases P1–P11 (plus SETUP, S1, P10b) are merged; every worker session and worktree is removed.
-- Waiting on user: the Cutover decision. The main checkout `/opt/minh/doom-lite` is the user's place to try the fork; its `.local` (straight-era until re-synced, 9 tree-sitter grammars in `.local/etc/tree-sitter`) is gitignored.
-- Next: Cutover (plan section), the user's call. Optional before it: in the main checkout run `bin/lite doom --force sync` (replaces `.local/straight`), open ghostel (module re-downloads into `.local/etc/ghostel/`), check `M-1..9`.
+- Waiting on user: the Cutover decision. The main checkout `/opt/minh/doom-lite` is the user's place to try the fork; its `.local` is on the new backend (user synced 2026-11-13: `.local/straight` gone, 41 builds, ghostel module in `.local/etc/ghostel/`, ghostel works) and gitignored.
+- Next: Cutover (plan section), the user's call.
 - Worker tips (from handoffs): copy `.local` from the previous worktree, then `bin/lite doom sync` (use `--force` if it dies on a prompt); copy tree-sitter grammars after a fresh sync; `bin/` needs `git add -f`.
 
 ## Board
