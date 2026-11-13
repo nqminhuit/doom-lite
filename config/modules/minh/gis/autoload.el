@@ -250,8 +250,8 @@ Synchronous by necessity -- the caller prompts with the result."
 ;;; The status buffer
 ;;
 ;; One buffer per root, not the single "gis-mode" buffer there used to be:
-;; that one reported on whichever root happened to create it.  Matched on `gis--root' rather than on the
-;; buffer name, which two roots can share.
+;; that one reported on whichever root happened to create it.  Matched on
+;; `gis--root' rather than on the buffer name, which two roots can share.
 
 (defun gis--status-buffer (root &optional create)
   "The status buffer reporting on ROOT, made when CREATE and there is none."
