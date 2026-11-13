@@ -365,7 +365,7 @@ Phase-specific checks:
   - `grep -rn projectile lisp modules` returns only intentional hits.
   - The eglot root (`(project-root (eglot--project (eglot-current-server)))`) matches the git root in a nested Java/Go repo.
   - A `.project` dir is detected. `SPC p a` registers a directory.
-- **P6:** Project switch creates a named tab, `SPC 1..9` switches tabs, `SPC b b` is project-scoped, and no tab bar is drawn.
+- **P6:** Project switch creates a named tab, `M-1..9` and `SPC TAB 1..9` switch tabs, `SPC b b` is project-scoped, and no tab bar is drawn.
 - **P8:** `SPC` leader works in magit, dired and ghostel buffers and types a space in insert state. which-key shows labels. `(featurep 'general)` is nil.
 - **P9:** every dropped package is absent from the build dir, and `(featurep ...)` is nil for each after the smoke pass. A `.md` file opens in `markdown-ts-mode`. `gcc` and visual `gc` comment and uncomment.
 - **P11:** On a fresh `.local`, `doom sync` clones every package at its pinned rev (`git rev-parse HEAD` equals the pin) and fetches nothing unpinned. `(locate-library "transient")` points into the Emacs install (built in since P4), and so do the other `:built-in t` packages. `vertico-directory-enter` and `corfu-popupinfo-mode` are bound. ghostel's module loads from `ghostel-module-directory`.
