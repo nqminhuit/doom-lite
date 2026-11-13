@@ -16,7 +16,7 @@ Set `doom-lite`, conductor `doom-lite-conductor`. Executes `doom-lite-plan.md`. 
 
 ## Conductor handoff
 - Restart: `lazarus fleet up doom-lite` from `/opt/minh/doom-lite`; sessions resume their conversations. The main checkout stays on `master`; commit the board there only, then push.
-- Sessions: P7 (implementing). P1–P6 removed. After a phase merges, remove its session with `fleet remove --yes` (user approved this for every phase, 2026-11-13). Worktrees need no approval either: once the next phase reports the old worktree free, remove it and its local and remote branch.
+- Sessions: P8 (implementing). P1–P7 removed. After a phase merges, remove its session with `fleet remove --yes` (user approved this for every phase, 2026-11-13). Worktrees need no approval either: once the next phase reports the old worktree free, remove it and its local and remote branch.
 - Waiting on user: nothing.
 - Next: when P2's PR is merged, start P3 with a brief in `docs/handoff/P3.md` (same shape as `P2.md`), and so on per the board. P11 gets its own plan pass first.
 - Worker tips (from handoffs): copy `.local` from the previous worktree, then `bin/lite doom sync` (use `--force` if it dies on a prompt); copy tree-sitter grammars after a fresh sync; `bin/` needs `git add -f`; shellcheck via podman.
@@ -33,8 +33,8 @@ Set `doom-lite`, conductor `doom-lite-conductor`. Executes `doom-lite-plan.md`. 
 | P4 | merged (`6eb80c8`) by the conductor after review; session, worktree and branches removed | [#5](https://github.com/nqminhuit/doom-lite/pull/5) | – | Deliberate losses: `SPC s o/O/k/K/t/T`, `:lookup`/`:dash`, help `O`, `K` online fallback. History: 3 commits with a wrong co-author trailer and one test-before-code commit, merged as-is (user). Leftover docs: lookup README mentions `set-docsets!`, lsp README `+booster` (P10) |
 | P5 | merged (`75f3058`) by the conductor after review; session, worktree and branches removed | [#6](https://github.com/nqminhuit/doom-lite/pull/6) | – | Accepted changes: `SPC p` keys `C R T g r e i` dropped; `SPC p D` prompts for a dir; projects remembered only by project commands, not by visiting files; java/js root markers gone. Baseline package count is stale (85 now) |
 | P6 | merged (`70822b0`) by the conductor after review; session, worktree and branches removed | [#7](https://github.com/nqminhuit/doom-lite/pull/7) | – | Accepted changes: no buffer isolation per tab, `SPC b b` project-scoped, persistence commands gone (user), `SPC TAB R` restores the desktop session, killing a workspace keeps its buffers. Unchecked: `M-1..9` in a live ghostel terminal; fork has no ghostel native module (download needed, see P11) |
-| P7 | implementing, fork stacea call; `.local` rebuilt (worktree `/opt/minh/doom-lite-wt/P7`, branch `p7-smartparens-to-electric-pair`) | – | – | review fork part, then config call |
-| P8 | waiting on P7 | – | P7 merged | – |
+| P7 | merged (`bcd3bfc`) by the conductor after review; session removed (worktree kept until P8 frees it) | [#8](https://github.com/nqminhuit/doom-lite/pull/8) | – | Accepted changes: no `( \| )` space balancing or multiline-brace collapse on backspace; per-language pair rules gone. Unchecked: pairing in a real `M-:`/`SPC ;`/`:` minibuffer. One commit with a wrong co-author trailer, merged as-is (as for P4) |
+| P8 | started (worktree `/opt/minh/doom-lite-wt/P8`) | – | – | general.el → built-in keymaps; old-behavior `map!` tests first |
 | P9 | waiting on P8 | – | P8 merged | – |
 | P10 | waiting on P9 | – | P9 merged | – |
 | P11 | waiting on P10 | – | P10 merged; S1 findings; own plan pass | – |
