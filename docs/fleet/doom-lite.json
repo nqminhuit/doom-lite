@@ -13,6 +13,14 @@
     {
       "name": "P10",
       "start": "Read docs/handoff/P10.md first (Conductor brief), then doom-lite-plan.md and docs/handoff/P9.md, then do phase P10 in your own worktree and report STATUS lines to doom-lite-conductor."
+    },
+    {
+      "name": "P11",
+      "start": "Read docs/handoff/P11.md first (Conductor brief), then doom-lite-plan.md and docs/handoff/S1.md and P10.md. This start is plan-only: write the detailed P11 plan as a PR, report it to doom-lite-conductor, and stop."
+    },
+    {
+      "name": "P10b",
+      "start": "Read docs/handoff/P10b.md first (Conductor brief), then docs/handoff/P10.md, then do the P10b cleanup in your own worktree and report STATUS lines to doom-lite-conductor."
     }
   ]
 }
