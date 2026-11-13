@@ -116,18 +116,22 @@
       (goto-char catch-pos))))
 (put 'm/java-trycatch 'no-self-insert t)
 
+(defun m/abbrev-in-code-p ()
+  "Non-nil when point is outside strings and comments."
+  (not (nth 8 (syntax-ppss))))
+
 (define-abbrev-table 'java-ts-mode-abbrev-table
   `(
     ("aast" "" m/java-aast)
     ("mast" "" m/java-ast)
     ("clogdebug" "" m/java-clogdebug)
     ("clogmsg" "" m/java-clogmsg)
-    ("mctor" "" m/java-ctor :enable-function ,(lambda () (not (sp-point-in-string-or-comment))))
+    ("mctor" "" m/java-ctor :enable-function ,#'m/abbrev-in-code-p)
     ("mif" "" m/java-if)
     ("melse" "" m/java-else)
     ("gwt" "" m/java-gwt)
     ("instnow" ,m/java-instnow)
-    ("opnul" "" m/java-opnul :enable-function ,(lambda () (not (sp-point-in-string-or-comment))))
+    ("opnul" "" m/java-opnul :enable-function ,#'m/abbrev-in-code-p)
     ("trycatch" "" m/java-trycatch)))
 
 ;;; js-ts-mode / typescript-ts-mode
