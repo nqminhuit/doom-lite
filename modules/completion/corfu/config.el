@@ -156,7 +156,7 @@ See `+corfu-want-minibuffer-completion'."
   (add-hook! 'prog-mode-hook
     (defun +corfu-add-cape-file-h ()
       (add-hook 'completion-at-point-functions #'cape-file -10 t)))
-  (add-hook! '(org-mode-hook markdown-mode-hook)
+  (add-hook! '(org-mode-hook markdown-ts-mode-hook)
     (defun +corfu-add-cape-elisp-block-h ()
       (add-hook 'completion-at-point-functions #'cape-elisp-block 0 t)))
   ;; Make these capfs composable.
