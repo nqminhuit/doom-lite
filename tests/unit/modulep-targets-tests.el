@@ -9,6 +9,8 @@
 (defconst modulep-test--root
   (expand-file-name "../../" (file-name-directory (or load-file-name buffer-file-name))))
 
+(load (expand-file-name "tests/config-dir.el" modulep-test--root) nil t)
+
 (defconst modulep-test--form-re
   "(\\(?:modulep!\\|doom-module-active-p\\) +\\(:[a-z]+\\) +'?\\([a-z][a-z0-9-]*\\)"
   "Matches the `:CATEGORY MODULE' of a literal modulep! form.")
@@ -41,11 +43,9 @@
     (dolist (entry (modulep-test--targets))
       (let* ((cat (car (car entry)))
              (mod (cdr (car entry)))
-             (dir (expand-file-name
-                   (if (equal cat "minh")
-                       (format "config/modules/minh/%s/" mod)
-                     (format "modules/%s/%s/" cat mod))
-                   modulep-test--root)))
+             (dir (if (equal cat "minh")
+                      (expand-file-name (format "modules/minh/%s/" mod) (tcd-config-dir))
+                    (expand-file-name (format "modules/%s/%s/" cat mod) modulep-test--root))))
         ;; `:user' is the special DOOMDIR module and has no directory.
         (unless (or (equal cat "user") (file-directory-p dir))
           (push (format ":%s %s (in %s)" cat mod

@@ -7,7 +7,8 @@
 (defconst st--root
   (expand-file-name "../../" (file-name-directory (or load-file-name buffer-file-name))))
 
-(load (expand-file-name "config/modules/minh/dashboard/config.el" st--root) nil t)
+(load (expand-file-name "tests/config-dir.el" st--root) nil t)
+(load (expand-file-name "modules/minh/dashboard/config.el" (tcd-config-dir)) nil t)
 
 (defmacro st--with-buffer (&rest body)
   "Run BODY, then kill the startup buffer."

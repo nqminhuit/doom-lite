@@ -5,6 +5,8 @@
 (defconst no-spellcheck-test--root
   (expand-file-name "../../" (file-name-directory (or load-file-name buffer-file-name))))
 
+(load (expand-file-name "tests/config-dir.el" no-spellcheck-test--root) nil t)
+
 (defun no-spellcheck-test--setting-form ()
   "The top-level `setq' of `text-mode-ispell-word-completion' in core."
   (with-temp-buffer
@@ -34,7 +36,7 @@
 
 (ert-deftest no-spellcheck/no-leftovers ()
   (let (hits)
-    (dolist (d '("config" "modules" "lisp"))
+    (dolist (d (list (tcd-config-dir) "modules" "lisp"))
       (dolist (f (directory-files-recursively
                   (expand-file-name d no-spellcheck-test--root) "\\.el\\'"))
         (with-temp-buffer

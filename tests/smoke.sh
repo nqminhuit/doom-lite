@@ -1,14 +1,26 @@
 #!/usr/bin/env bash
-# Daemon smoke test via bin/lite; exits non-zero on any failed check.
+# Daemon smoke test on the private socket doom-smoke; never touches the `eterm` daemon. Exits non-zero on any failed check.
 set -uo pipefail
 
+SOCK=doom-smoke
 ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-LITE=$ROOT/bin/lite
-ec() { timeout 120 "$LITE" client --eval "$1"; }
+export EMACSDIR="$ROOT/"
+# Never inherit DOOMDIR: with upstream Doom active it would point at the wrong config.
+DOOMDIR=${DOOM_LITE_CONFIG:-/opt/minh/linux-config/configs/dotfiles/emacs/doom-lite}
+export DOOMDIR="${DOOMDIR%/}/"
+unset DOOMLOCALDIR DOOMPROFILE
+echo "## DOOMDIR=$DOOMDIR"
 
-if "$LITE" client --eval t >/dev/null 2>&1; then echo "daemon doom-lite already live" >&2; exit 1; fi
+[[ -f $DOOMDIR/init.el ]] || { echo "no init.el in DOOMDIR $DOOMDIR (set DOOM_LITE_CONFIG)" >&2; exit 1; }
+compgen -G "$ROOT/.local/etc/@/init.*.el" >/dev/null || {
+  echo "not synced; run: EMACSDIR=$EMACSDIR DOOMDIR=$DOOMDIR bin/doom sync" >&2
+  exit 1
+}
+if emacsclient -s "$SOCK" --eval t >/dev/null 2>&1; then echo "daemon $SOCK already live" >&2; exit 1; fi
+
+ec() { timeout 120 emacsclient -s "$SOCK" --eval "$1"; }
 TMP=$(mktemp -d)
-trap '"$LITE" stop >/dev/null 2>&1; rm -rf "$TMP"' EXIT
+trap 'emacsclient -s "$SOCK" --eval "(kill-emacs)" >/dev/null 2>&1; rm -rf "$TMP"' EXIT
 mkdir -p "$TMP/proj" && git -C "$TMP/proj" init -q
 printf 'hello\n' > "$TMP/proj/notes.txt"
 printf 'class Foo {}\n' > "$TMP/proj/Foo.java"
@@ -27,7 +39,7 @@ LINES_EL='(with-current-buffer "*Messages*" (let (r) (dolist (l (split-string (b
 WARN_EL='(if (get-buffer "*Warnings*") (with-current-buffer "*Warnings*" (buffer-substring-no-properties (point-min) (point-max))) "none")'
 
 start=$(date +%s.%N)
-"$LITE" daemon 2>"$TMP/daemon.err"
+emacs --init-directory "$EMACSDIR" --daemon="$SOCK" 2>"$TMP/daemon.err"
 rc=$?
 echo "## daemon exit=$rc wall=$(echo "$(date +%s.%N) - $start" | bc)s"
 echo "## daemon stderr (errors/warnings only)"; grep -iE "error|warn" "$TMP/daemon.err" || echo "(none)"

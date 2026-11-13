@@ -6,6 +6,8 @@
 (defconst core-trims-test--root
   (expand-file-name "../../" (file-name-directory (or load-file-name buffer-file-name))))
 
+(load (expand-file-name "tests/config-dir.el" core-trims-test--root) nil t)
+
 (defconst core-trims-test--deleted
   '("lisp/lib/sandbox.el" "lisp/lib/store.el" "lisp/lib/plist.el"
     "modules/doom/cli" "bin/org-capture" "bin/doom.ps1" "bin/doom.sh" "profiles"))
@@ -27,7 +29,7 @@
   "Files that legitimately use a removed name as a local variable.")
 
 (defun core-trims-test--files ()
-  (cl-loop for d in '("lisp" "modules" "config" "bin")
+  (cl-loop for d in (list "lisp" "modules" (tcd-config-dir) "bin")
            append (directory-files-recursively
                    (expand-file-name d core-trims-test--root)
                    (if (equal d "bin") "\\`[^.]" "\\.el\\'"))))

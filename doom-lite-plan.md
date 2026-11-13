@@ -43,41 +43,34 @@ The fork has no tests today. Tests are ERT (built in), live in `tests/`, and run
 - Not covered by tests: how things look (popup placement, startup buffer, which-key labels, terminals). Those stay in the user's optional interactive check.
 
 ## Workspace (isolation from the live Emacs)
-The live install (`~/.config/emacs`, its `.local`, and `~/.config/doom` → `/opt/minh/linux-config/configs/dotfiles/emacs/doom-emacs`) is never edited or synced during the fork work, so the daily Emacs keeps working.
+The live install (`~/.config/emacs` and `~/.config/doom`, symlinks chosen by `lazarus.sh doom-use`) is never edited or synced during fork work, so the daily Emacs keeps working.
 
 | | Live (untouched) | Fork workspace |
 |---|---|---|
-| Doom core | `~/.config/emacs` | `/opt/minh/doom-lite` (separate clone, own remotes and submodule state), one worktree per worker under `/opt/minh/doom-lite-wt/<KEY>` |
-| Doom config | `/opt/minh/linux-config/.../doom-emacs` | `config/` in the same checkout or worktree |
+| Doom core | `~/.config/emacs` | `/opt/minh/doom-lite` (separate clone, own remotes), one worktree per worker under `/opt/minh/doom-lite-wt/<KEY>` |
+| Doom config | `~/.config/doom` | `/opt/minh/linux-config/configs/dotfiles/emacs/doom-lite/` (the config lives in linux-config, not in the fork) |
 | Packages/caches | `~/.config/emacs/.local` | `.local` in the same checkout or worktree |
 
-Setup is done (see P0 and SETUP). To recreate the workspace on another machine, or a worker's worktree:
+To recreate the workspace on another machine, or a worker's worktree:
 ```sh
-git clone --recurse-submodules git@github.com:nqminhuit/doom-lite.git /opt/minh/doom-lite
+git clone git@github.com:nqminhuit/doom-lite.git /opt/minh/doom-lite
 git -C /opt/minh/doom-lite worktree add -b <branch> /opt/minh/doom-lite-wt/<KEY> master
-git -C /opt/minh/doom-lite-wt/<KEY> submodule update --init   # only while sources/doom+ exists (before P1)
 ```
 
-Every command against the fork goes through the wrapper `bin/lite` (added in P1), which is the only supported way to run the fork until cutover:
+Every command against the fork pins both directories explicitly (there is no wrapper):
 ```sh
-bin/lite doom sync        # any doom subcommand
-bin/lite emacs            # GUI test session
-bin/lite daemon           # daemon on the socket `doom-lite`; never the default socket
-bin/lite client -c        # emacsclient -s doom-lite ...
-bin/lite stop             # kill the doom-lite daemon
+export EMACSDIR=$PWD/ DOOMDIR=/opt/minh/linux-config/configs/dotfiles/emacs/doom-lite/
+bin/doom sync                       # any doom subcommand
+emacs --init-directory "$EMACSDIR"  # GUI test session
 ```
-What the wrapper does:
-- Sets `EMACSDIR` to the checkout or worktree it lives in and `DOOMDIR` to `$DOOM_LITE_CONFIG`, defaulting to `config/` in that same checkout. Values already in the environment are overwritten, not trusted.
-- Refuses to run, with a message and a non-zero exit, when after resolving symlinks `EMACSDIR` is `~/.config/emacs`, or `DOOMDIR` is `~/.config/doom`, lies under `/opt/minh/linux-config/`, or has no `init.el`.
-- Passes `--init-directory "$EMACSDIR"` to every `emacs` call and `-s doom-lite` to every `emacsclient` call; `daemon` refuses to start if that socket is already live.
-- `emacs`, `daemon` and `client` refuse to run, pointing at `bin/lite doom sync`, until the checkout's `.local` has a generated profile init (`.local/etc/@/init.*.el`); `doom` and `stop` always run.
-- Is plain bash, passes shellcheck, and has no other logic.
 
 Rules:
-- Never call `bin/doom`, `emacs` or `emacsclient` directly for fork work; use `bin/lite`. The exceptions are SETUP and P1 before the wrapper exists, where both variables are exported by hand (`EMACSDIR` = the worktree, `DOOMDIR` = its `config/`, never a live dir) and every bare `emacs` call gets `--init-directory "$EMACSDIR"`. Never run `doom upgrade` at all (it pulls upstream; P1 deletes it).
+- `EMACSDIR` is the checkout or worktree, `DOOMDIR` is the doom-lite config (`$DOOM_LITE_CONFIG` for the tests); never inherit either from the environment, and never point them at `~/.config/*`. Every bare `emacs` call gets `--init-directory "$EMACSDIR"`. Never run `doom upgrade` at all (it pulls upstream; P1 deleted it).
+- Never touch the `eterm` daemon. `tests/smoke.sh` runs its own daemon on the socket `doom-smoke`, refuses to run when that socket is live or `.local` is not synced, and never uses the default socket.
 - The first sync clones 41 packages from 38 shallow clones into the workspace `.local` (about 45 s in P11 call C).
-- The first sync does not install tree-sitter grammars. Without them, opening a Go or Java file asks "Missing tree-sitter grammars ... Install now?", which in a daemon blocks every client. After the first sync, copy them read-only from the live install: `mkdir -p .local/etc/tree-sitter && cp -p ~/.config/emacs/.local/etc/tree-sitter/*.so .local/etc/tree-sitter/`. `tests/smoke.sh` turns any prompt into an error so a check fails instead of hanging.
-- Known leak: five places in `config/` hardcode `/opt/minh/linux-config` (`config.el:58` eshell aliases, `minh/java/config.el:40`, `minh/utils/autoload.el:3,79,84`), so the test session reads those files (read-only) from the live tree. Harmless as long as phases don't change them; don't rewrite the paths.
+- A `.local` copied from another checkout keeps that checkout's paths in `.local/etc/@`, and a plain re-sync re-dumps them; remove `.local/etc/@` first, then sync.
+- The first sync does not install tree-sitter grammars. Without them, opening a Go or Java file asks "Missing tree-sitter grammars ... Install now?", which in a daemon blocks every client. After the first sync, copy them from the fork workspace: `mkdir -p .local/etc/tree-sitter && cp -p /opt/minh/doom-lite/.local/etc/tree-sitter/*.so .local/etc/tree-sitter/`. `tests/smoke.sh` turns any prompt into an error so a check fails instead of hanging.
+- The config hardcodes `/opt/minh/linux-config` paths (eshell aliases, `minh/java/config.el`, `minh/utils/autoload.el`); that is where the config lives now, so they stay valid.
 
 Baseline (SETUP, saved next to this plan as `doom-lite-baseline.md`): init time, package count, `doom doctor` output, and the outputs of the scripted smoke checks (see Verification), with the exact commands so P1's `tests/smoke.sh` can reproduce them.
 
@@ -520,22 +513,22 @@ Every call ends with `tests/run.sh`, `bin/lite doom sync`, `bin/lite doom doctor
 3. **The listed surface is dropped:** `doom sync -u/-U/--aot/-j/--gc`, `unpin!`, `package!` `:env`/`:freeze`/`:type`, the bump commands, `doom gc` regrafting and ELPA purge, and the package.el archive setup in `doom-emacs.el`.
 
 ## Verification (every phase)
-All commands run through `bin/lite` (see Workspace). stacea cannot press keys, so everything it runs is scripted; the interactive list is the user's optional check after merge.
+All commands run with `EMACSDIR` and `DOOMDIR` pinned explicitly (see Workspace). stacea cannot press keys, so everything it runs is scripted; the interactive list is the user's optional check after merge.
 
 Scripted (stacea runs these):
 - `tests/run.sh` passes, including the unit tests the phase adds.
-- `bin/lite doom sync` succeeds.
-- `bin/lite doom doctor` shows nothing new against the baseline.
-- `tests/smoke.sh` passes. It starts `bin/lite daemon`; then, through `bin/lite client --eval`, checks:
+- `EMACSDIR=$PWD/ DOOMDIR=<config> bin/doom sync` succeeds.
+- `EMACSDIR=$PWD/ DOOMDIR=<config> bin/doom doctor` shows nothing new against the baseline.
+- `tests/smoke.sh` passes. It starts `emacs --init-directory "$EMACSDIR" --daemon=doom-smoke`; then, through `emacsclient -s doom-smoke --eval`, checks:
   - `*Messages*` and `*Warnings*` hold no errors or warnings
   - `(key-binding (kbd "SPC SPC"))`, `SPC p p`, `SPC b b`, `SPC /` and `SPC g g` each resolve to a command, checked in a file buffer in normal state
   - opening one Java and one Go file loads their modes without error
   - init time and package count, compared with the baseline
-  - stop the daemon afterwards with `bin/lite stop`, also when a check fails
-- Config phases: the config's ERT suite (`tests/unit/minh-tests.el`, ported in P1) passes as part of `tests/run.sh`.
+  - stop the daemon afterwards (`emacsclient -s doom-smoke --eval '(kill-emacs)'`), also when a check fails
+- Config phases: the config's ERT suite (`tests/elisp/doom-lite-tests.el` in linux-config) passes there; the fork's unit tests that read the config use `$DOOM_LITE_CONFIG`.
 - Grep for the symbols the phase removed (`grep -rn "<prefix>" lisp modules` and the config) returns only intentional hits.
 
-Interactive (the user's optional check after merge; the conductor reviews and merges): `SPC SPC`, `SPC p p`, `SPC b b`, `SPC /`, magit status, eglot in one Java and one Go project, a ghostel terminal, and a `bin/lite client -c` frame.
+Interactive (the user's optional check after merge; the conductor reviews and merges): `SPC SPC`, `SPC p p`, `SPC b b`, `SPC /`, magit status, eglot in one Java and one Go project, a ghostel terminal, and an `emacsclient -c` frame.
 
 Phase-specific checks:
 - **P1:** the undefined-autodef loop prints nothing unexpected. `bin/doom upgrade` is gone.
