@@ -14,8 +14,5 @@
 (when (modulep! +keybinds)
   (package! general :pin "a48768f85a655fe77b5f45c2880b420da1b1b9c3"))
 
-(when (modulep! +projectile)
-  (package! projectile :pin "9d6b20b81cce3a827fb01c98cd1359b3ae6a697e"))
-
 (when (modulep! +smartparens)
   (package! smartparens :pin "82d2cf084a19b0c2c3812e0550721f8a61996056"))
