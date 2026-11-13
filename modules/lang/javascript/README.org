@@ -7,29 +7,27 @@
 This module adds [[https://www.javascript.com/][JavaScript]] and [[https://www.typescriptlang.org/][TypeScript]] support to Doom Emacs.
 
 - JSX/TSX support through the built-in =js-ts-mode=, =typescript-ts-mode= and =tsx-ts-mode=
-- LSP integration through [[module::tools lsp]] (code completion, jump-to-definitions and references)
-- Syntax checking (with [[module::checkers syntax]])
+- LSP integration through =:tools lsp= (code completion, jump-to-definitions and references)
+- Syntax checking (with =:checkers syntax=)
 - Node stack traces are parsed in compilation buffers
-- A REPL (~+javascript/open-repl~, with [[pkg:nodejs-repl]])
+- A REPL (~+javascript/open-repl~, with =nodejs-repl=)
 
 ** Maintainers
-- [[github:elken]]
-- [[github:hlissner]]
-- [[github:iyefrat]]
-
-[[doom-contrib-maintainer:][Become a maintainer?]]
+- [[https://github.com/elken][elken]]
+- [[https://github.com/hlissner][hlissner]]
+- [[https://github.com/iyefrat][iyefrat]]
 
 ** Module flags
 /This module has no flags./
 
 ** Packages
-- [[package:nodejs-repl]]
+- =nodejs-repl=
 
 ** Hacks
 /No hacks documented for this module./
 
 * Installation
-[[id:01cffea4-3329-45e2-a892-95a384ab2338][Enable this module in your ~doom!~ block.]]
+Enable this module in your ~doom!~ block.
 
 This module requires [[https://nodejs.org/en/][NodeJS]] and one of [[https://www.npmjs.com/][NPM]] or [[https://yarnpkg.com/][Yarn]] in your =$PATH=.
 
@@ -38,7 +36,7 @@ This module requires [[https://nodejs.org/en/][NodeJS]] and one of [[https://www
 - openSUSE: ~$ zypper install nodejs npm~
 
 * Troubleshooting
-/There are no known problems with this module./ [[doom-report:][Report one?]]
+/There are no known problems with this module./
 
 * Frequently asked questions
-/This module has no FAQs yet./ [[doom-contrib-faq:][Ask one?]]
+/This module has no FAQs yet./

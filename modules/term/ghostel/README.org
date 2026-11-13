@@ -8,28 +8,26 @@ This module provides support for [[https://github.com/dakra/ghostel][ghostel]], 
 =libghostty-vt=.
 
 #+begin_quote tip
-[[package:][ghostel]] is a modern alternative to vterm, with support for synchronized output,
+=ghostel= is a modern alternative to vterm, with support for synchronized output,
 the Kitty keyboard and graphics protocols, OSC 8 hyperlinks, and true color.
 Like vterm, it requires extra steps to set up.
 #+end_quote
 
 ** Maintainers
-- [[github:hlissner]]
-
-[[doom-contrib-maintainer:][Become a maintainer?]]
+- [[https://github.com/hlissner][hlissner]]
 
 ** Module flags
 /This module has no flags./
 
 ** Packages
-- [[package:ghostel]]
-- [[package:evil-ghostel]]
+- =ghostel=
+- =evil-ghostel=
 
 ** Hacks
 - =DIRENV_*= variables are stripped from the environment of new ghostel shells so direnv can run again in them.
 
 * Installation
-[[id:01cffea4-3329-45e2-a892-95a384ab2338][Enable this module in your ~doom!~ block.]]
+Enable this module in your ~doom!~ block.
 
 This module requires:
 - Emacs with dynamic module support (i.e. compiled with the =--with-modules=
@@ -52,7 +50,7 @@ ghostel=, it offers to download a pre-built binary for your platform
 automatically. Pre-built binaries are available for =aarch64-macos=, =x86_64-macos=,
 =x86_64-linux=, =aarch64-linux=, and =x86_64-freebsd=.
 
-Auto-install behavior is controlled by [[var:][ghostel-module-auto-install]] (default
+Auto-install behavior is controlled by ~ghostel-module-auto-install~ (default
 =ask=); set it to ~'download~, ~'compile~, or ~nil~ to change the prompt:
 #+begin_src emacs-lisp :eval no
 ;;; add to $DOOMDIR/config.el
@@ -62,16 +60,15 @@ Auto-install behavior is controlled by [[var:][ghostel-module-auto-install]] (de
 
 * TODO Usage
 #+begin_quote wip
-This module has no usage documentation yet. [[doom-contrib-module:][Write some?]]
+This module has no usage documentation yet.
 #+end_quote
 
 * TODO Configuration
 #+begin_quote wip
-This module has no configuration documentation yet. [[doom-contrib-module:][Write some?]]
+This module has no configuration documentation yet.
 #+end_quote
 
 * Troubleshooting
-[[doom-report:][Report an issue?]]
 
 ** Zig fails to compile the dynamic module
 Each version of the Ghostty module requires a different, and specific, version
@@ -80,4 +77,4 @@ instructions]], along with links to static binaries if your OS package manager
 doesn't offer the version you need.
 
 * Frequently asked questions
-/This module has no FAQs yet./ [[doom-contrib-faq:][Ask one?]]
+/This module has no FAQs yet./

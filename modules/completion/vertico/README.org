@@ -17,33 +17,31 @@ It does this with several modular packages focused on enhancing the built-in
 - Orderless, which provides better filtering methods
 
 ** Maintainers
-- [[github:iyefrat]]
-
-[[doom-contrib-maintainer:][Become a maintainer?]]
+- [[https://github.com/iyefrat][iyefrat]]
 
 ** Module flags
 /This module has no flags./
 
 ** Packages
-- [[package:consult]]
-- [[package:consult-dir]]
-- [[package:embark]]
-- [[package:embark-consult]]
-- [[package:marginalia]]
-- [[package:orderless]]
-- [[package:vertico]]
+- =consult=
+- =consult-dir=
+- =embark=
+- =embark-consult=
+- =marginalia=
+- =orderless=
+- =vertico=
 
 ** Hacks
 /No hacks documented for this module./
 
 * Installation
-[[id:01cffea4-3329-45e2-a892-95a384ab2338][Enable this module in your ~doom!~ block.]]
+Enable this module in your ~doom!~ block.
 
 This module has only one requirement: [[https://github.com/BurntSushi/ripgrep][Ripgrep]] (built with [[https://www.pcre.org/][PCRE]] support; run ~$ doom doctor~ to determine if your build meets this requirement).
 
 * TODO Usage
 #+begin_quote wip
-/This module's usage documentation is incomplete./ [[doom-contrib-module:][Complete it?]]
+/This module's usage documentation is incomplete./
 #+end_quote
 
 The packages in this module modify and use the built-in ~completing-read~
@@ -56,49 +54,49 @@ Doom-specific additions:
 When in an active Vertico completion session, the following doom added
 keybindings are available:
 
-| Keybind                               | Description                                                  |
-|---------------------------------------+--------------------------------------------------------------|
-| [[kbd:C-k]]                         | (evil) Go to previous candidate                              |
-| [[kbd:C-j]]                         | (evil) Go to next candidate                                  |
-| [[kbd:C-M-k]]                       | (evil) Go to previous group                                  |
-| [[kbd:C-M-j]]                       | (evil) Go to next group                                      |
-| [[kbd:C-;]] or [[kbd:<leader> a]] | Open an ~embark-act~ menu to chose a useful action             |
-| [[kbd:C-c C-;]]                     | export the current candidate list to a buffer                |
-| [[kbd:C-c C-l]]                     | ~embark-collect~ the current candidate list (collect verbatim) |
-| [[kbd:C-c C-e]]                     | export to a writable buffer (~+vertico/embark-export-write~)   |
-| [[kbd:C-SPC]]                       | Preview the current candidate                                |
-| [[kbd:M-RET]]                       | Exit with the input as typed                                 |
+| Keybind               | Description                                                    |
+|-----------------------+----------------------------------------------------------------|
+| =C-k=                 | (evil) Go to previous candidate                                |
+| =C-j=                 | (evil) Go to next candidate                                    |
+| =C-M-k=               | (evil) Go to previous group                                    |
+| =C-M-j=               | (evil) Go to next group                                        |
+| =C-;= or =<leader> a= | Open an ~embark-act~ menu to chose a useful action             |
+| =C-c C-;=             | export the current candidate list to a buffer                  |
+| =C-c C-l=             | ~embark-collect~ the current candidate list (collect verbatim) |
+| =C-c C-e=             | export to a writable buffer (~+vertico/embark-export-write~)   |
+| =C-SPC=               | Preview the current candidate                                  |
+| =M-RET=               | Exit with the input as typed                                   |
 
 ~embark-act~ will prompt you with a =which-key= menu with useful commands on the
 selected candidate or candidate list, depending on the completion category. Note
-that you can press [[kbd:C-h]] instead of choosing a command to filter through the
+that you can press =C-h= instead of choosing a command to filter through the
 options with a Vertico buffer, that also has slightly more detailed descriptions
 due to Marginalia annotations.
 
 ** Jump-to navigation
 This module provides an interface to navigate within a project using =project.el=:
 
-| Keybind                              | Description                         |
-|--------------------------------------+-------------------------------------|
-| [[kbd:SPC p f]], [[kbd:SPC SPC]] | Jump to file in project             |
-| [[kbd:SPC f f]], [[kbd:SPC .]]   | Jump to file                        |
-| [[kbd:SPC s i]]                    | Jump to symbol in file              |
+| Keybind              | Description             |
+|----------------------+-------------------------|
+| =SPC p f=, =SPC SPC= | Jump to file in project |
+| =SPC f f=, =SPC .=   | Jump to file            |
+| =SPC s i=            | Jump to symbol in file  |
 
 ** Project search & replace
 This module provides interactive text search and replace using ripgrep.
 
-| Keybind                | Description              |
-|------------------------+--------------------------|
-| [[kbd:<leader> s p]] | Search project           |
-| [[kbd:<leader> s P]] | Search another project   |
-| [[kbd:<leader> s d]] | Search this directory    |
-| [[kbd:<leader> s D]] | Search another directory |
+| Keybind        | Description              |
+|----------------+--------------------------|
+| =<leader> s p= | Search project           |
+| =<leader> s P= | Search another project   |
+| =<leader> s d= | Search this directory    |
+| =<leader> s D= | Search another directory |
 
-Prefixing these keys with the universal argument ([[kbd:SPC u]] for evil users; [[kbd:C-u]] otherwise) changes the behavior of these commands, instructing the underlying search engine to include ignored files.
+Prefixing these keys with the universal argument (=SPC u= for evil users; =C-u= otherwise) changes the behavior of these commands, instructing the underlying search engine to include ignored files.
 
 This module also provides Ex Commands for evil users:
-| Ex command           | Description                                                    |
-|----------------------+----------------------------------------------------------------|
+| Ex command             | Description                                                      |
+|------------------------+------------------------------------------------------------------|
 | ~:pg[rep][!] [QUERY]~  | Search project (if ~!~, include hidden files)                    |
 | ~:pdg[rep][!] [QUERY]~ | Search from current directory (if ~!~, don't search recursively) |
 
@@ -109,46 +107,46 @@ commands.
 
 -----
 
-On top of the usual Vertico keybindings, search commands also offer support for exporting the current candidate list to an editable buffer with [[kbd:C-c C-e]]. It uses ~grep-edit-mode~ for grep searches, [[pkg:wdired]] for file searches, and =occur= for buffer searches.
+On top of the usual Vertico keybindings, search commands also offer support for exporting the current candidate list to an editable buffer with =C-c C-e=. It uses ~grep-edit-mode~ for grep searches, =wdired= for file searches, and =occur= for buffer searches.
 
 ** In-buffer searching
 This module provides some in buffer searching bindings:
 
-- [[kbd:SPC s s]] and [[kbd:SPC s b]] (~+default/search-buffer~ via ~consult-line~)
-- [[kbd:SPC s S]] (~+vertico/search-symbol-at-point~ via ~consult-line~)
+- =SPC s s= and =SPC s b= (~+default/search-buffer~ via ~consult-line~)
+- =SPC s S= (~+vertico/search-symbol-at-point~ via ~consult-line~)
 
-An ~occur-edit~ buffer can be opened from ~consult-line~ with [[kbd:C-c C-e]].
+An ~occur-edit~ buffer can be opened from ~consult-line~ with =C-c C-e=.
 
 ** Vertico integration for various completing commands
 *** General
-| Keybind                        | Description                 |
-|--------------------------------+-----------------------------|
-| [[kbd:M-x]], [[kbd:SPC :]] | Enhanced M-x                |
-| [[kbd:SPC ']]                | Resume last Vertico session |
+| Keybind        | Description                 |
+|----------------+-----------------------------|
+| =M-x=, =SPC := | Enhanced M-x                |
+| =SPC '=        | Resume last Vertico session |
 
 *** Jump to files, buffers or projects
-| Keybind                              | Description                           |
-|--------------------------------------+---------------------------------------|
-| [[kbd:SPC RET]]                    | Find bookmark                         |
-| [[kbd:SPC f f]], [[kbd:SPC .]]   | Find file                             |
-| [[kbd:SPC p f]], [[kbd:SPC SPC]] | Find file in project                  |
-| [[kbd:SPC f r]]                    | Find recently opened file             |
-| [[kbd:SPC p p]]                    | Open another project                  |
-| [[kbd:SPC b b]], [[kbd:SPC ,]]   | Switch to buffer (in the project, inside one) |
-| [[kbd:SPC b B]], [[kbd:SPC <]]   | Switch to buffer                      |
+| Keybind              | Description                                   |
+|----------------------+-----------------------------------------------|
+| =SPC RET=            | Find bookmark                                 |
+| =SPC f f=, =SPC .=   | Find file                                     |
+| =SPC p f=, =SPC SPC= | Find file in project                          |
+| =SPC f r=            | Find recently opened file                     |
+| =SPC p p=            | Open another project                          |
+| =SPC b b=, =SPC ,=   | Switch to buffer (in the project, inside one) |
+| =SPC b B=, =SPC <=   | Switch to buffer                              |
 
-[[kbd:SPC f f]] and [[kbd:SPC .]] support exporting to a [[kbd:wdired]] buffer using [[kbd:C-c C-e]].
+=SPC f f= and =SPC .= support exporting to a =wdired= buffer using =C-c C-e=.
 
 *** Search
-| Keybind           | Description                               |
-|-------------------+-------------------------------------------|
-| [[kbd:SPC s b]] | Search the current buffer                 |
-| [[kbd:SPC s d]] | Search this directory                     |
-| [[kbd:SPC s D]] | Search another directory                  |
-| [[kbd:SPC s i]] | Jump to symbol in current buffer          |
-| [[kbd:SPC s p]] | Search project                            |
-| [[kbd:SPC s P]] | Search another project                    |
-| [[kbd:SPC s s]] | Search the current buffer                 |
+| Keybind   | Description                      |
+|-----------+----------------------------------|
+| =SPC s b= | Search the current buffer        |
+| =SPC s d= | Search this directory            |
+| =SPC s D= | Search another directory         |
+| =SPC s i= | Jump to symbol in current buffer |
+| =SPC s p= | Search project                   |
+| =SPC s P= | Search another project           |
+| =SPC s s= | Search the current buffer        |
 
 *** File Path Completion
 Note that Emacs allows you to switch directories with shadow paths, for example
@@ -167,7 +165,7 @@ Consult async commands (e.g. ~consult-ripgrep~) will have a preceding separator
 character (usually ~#~) before the search input. This is known as the =perl=
 splitting style. Input typed after the separator will be fed to the async
 command until you type a second separator, afterwhich the candidate list will be
-filtered with Emacs instead (and can be filtered using [[pkg:orderless]], for example).
+filtered with Emacs instead (and can be filtered using =orderless=, for example).
 The specific separator character can be changed by editing it, and might be
 different if the initial input already contains =#=.
 
@@ -180,11 +178,11 @@ filtering should be done after a second =#=.
 For more information [[https://github.com/minad/consult#asynchronous-search][see here]].
 
 ** Marginalia
-| Keybind       | Description                     |
-|---------------+---------------------------------|
-| [[kbd:M-A]] | Cycle between annotation levels |
+| Keybind | Description                     |
+|---------+---------------------------------|
+| =M-A=   | Cycle between annotation levels |
 
-Marginalia annotations for symbols (e.g. [[kbd:SPC h f]] and [[kbd:SPC h v]]) come with extra
+Marginalia annotations for symbols (e.g. =SPC h f= and =SPC h v=) come with extra
 information the nature of the symbol. For the meaning of the annotations see
 ~marginalia--symbol-class~.
 
@@ -204,19 +202,19 @@ pressing space and entering another input. In essence, when trying to match
 
 Doom has some builtin [[https://github.com/oantolin/orderless#style-dispatchers][style dispatchers]] for more fine-grained filtering, which
 you can use to further specify each space separated input in the following ways:
-| Input        | Description                              |
-|--------------+------------------------------------------|
-| ~!foo~         | match without literal input =foo=          |
+| Input            | Description                                  |
+|------------------+----------------------------------------------|
+| ~!foo~           | match without literal input =foo=            |
 | ~%foo~ or ~foo%~ | perform ~char-fold-to-regexp~ on input =foo= |
-| ~`foo~ or ~foo`~ | match input =foo= as an initialism         |
-| ~=foo~ or ~foo=~ | match only with literal input =foo=        |
-| ~^foo~ or ~foo^~ | match input =foo= as a literal prefix      |
-| ~&foo~ or ~foo&~ | match input =foo= against the annotation   |
-| ~~foo~ or ~foo~~ | match input =foo= with fuzzy/flex matching |
+| ~`foo~ or ~foo`~ | match input =foo= as an initialism           |
+| ~=foo~ or ~foo=~ | match only with literal input =foo=          |
+| ~^foo~ or ~foo^~ | match input =foo= as a literal prefix        |
+| ~&foo~ or ~foo&~ | match input =foo= against the annotation     |
+| ~~foo~ or ~foo~~ | match input =foo= with fuzzy/flex matching   |
 
 * TODO Configuration
 #+begin_quote wip
-/This module's configuration documentation is incomplete./ [[doom-contrib-module:][Complete it?]]
+/This module's configuration documentation is incomplete./
 #+end_quote
 
 If you want to further configure this module, here are some good places to
@@ -234,7 +232,7 @@ override the module's modifications, do:
 (consult-customize ...)
 #+end_src
 
-If you are changing the preview key (set to [[kbd:C-SPC]]), remember to change the
+If you are changing the preview key (set to =C-SPC=), remember to change the
 binding on ~vertico-map~ as well, as the binding there gets previews to work to
 an extent on non-consult commands as well.
 
@@ -248,7 +246,7 @@ You can change the available commands in Embark for category ~$cat~ by editing
 defining them [[https://github.com/minad/marginalia/#adding-custom-annotators-or-classifiers][through marginalia]], and embark picks up on them.
 
 * Troubleshooting
-/There are no known problems with this module./ [[doom-report:][Report one?]]
+/There are no known problems with this module./
 
 * Frequently asked questions
-/This module has no FAQs yet./ [[doom-contrib-faq:][Ask one?]]
+/This module has no FAQs yet./

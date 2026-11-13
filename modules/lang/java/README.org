@@ -4,23 +4,23 @@
 #+since:    1.3
 
 * Description :unfold:
-This module adds [[https://www.java.com][Java]] support to Doom Emacs (=java-ts-mode=, with LSP through [[module::tools lsp]]), including ~android-mode~ and ~groovy-mode~.
+This module adds [[https://www.java.com][Java]] support to Doom Emacs (=java-ts-mode=, with LSP through =:tools lsp=), including ~android-mode~ and ~groovy-mode~.
 
 ** Maintainers
-/This module has no dedicated maintainers./ [[doom-contrib-maintainer:][Become a maintainer?]]
+/This module has no dedicated maintainers./
 
 ** Module flags
 /This module has no flags./
 
 ** Packages
-- [[package:android-mode]]
-- [[package:groovy-mode]]
+- =android-mode=
+- =groovy-mode=
 
 ** Hacks
 /No hacks documented for this module./
 
 * Installation
-[[id:01cffea4-3329-45e2-a892-95a384ab2338][Enable this module in your ~doom!~ block.]]
+Enable this module in your ~doom!~ block.
 
 This module requires the [[https://www.oracle.com/java/technologies/downloads/][Java SDK]]; ~doom doctor~ warns when =javac= is missing.
 
@@ -68,7 +68,7 @@ It is common to need support for multiple Java versions. You can use a generic
 tool like [[https://github.com/shyiko/jabba][jabba]] to install and manage multiple Java versions on any OS.
 
 * Troubleshooting
-/There are no known problems with this module./ [[doom-report:][Report one?]]
+/There are no known problems with this module./
 
 * Frequently asked questions
-/This module has no FAQs yet./ [[doom-contrib-faq:][Ask one?]]
+/This module has no FAQs yet./

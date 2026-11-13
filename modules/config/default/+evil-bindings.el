@@ -240,7 +240,6 @@
        (:when (modulep! :tools lsp)
         :desc "LSP Execute code action" "a" #'eglot-code-actions
         :desc "LSP Rename" "r" #'eglot-rename
-        :desc "LSP Find declaration"                 "j"   #'eglot-find-declaration
         :desc "Jump to symbol in current workspace" "j"   #'consult-eglot-symbols)
        :desc "Compile"                               "c"   #'compile
        :desc "Recompile"                             "C"   #'recompile

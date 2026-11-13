@@ -4,27 +4,25 @@
 #+since:    24.04.0
 
 * Description :unfold:
-This module provides code completion, powered by [[pkg:corfu]].
+This module provides code completion, powered by =corfu=.
 
 We also highly recomend reading [[https://github.com/minad/corfu][its README]] and [[https://github.com/minad/cape][cape's
 README]], as the backend is very configurable and provides many power-user
 utilities for fine-tuning. Only some of common behaviors are documented here.
 
 ** Maintainers
-- [[github:LuigiPiucco]]
-- [[github:LemonBreezes]]
-
-[[doom-contrib-maintainer:][Become a maintainer?]]
+- [[https://github.com/LuigiPiucco][LuigiPiucco]]
+- [[https://github.com/LemonBreezes][LemonBreezes]]
 
 ** Module flags
 /This module has no flags./
 
 ** Packages
-- [[package:corfu]]
-- [[package:cape]]
-- [[package:nerd-icons-corfu]]
+- =corfu=
+- =cape=
+- =nerd-icons-corfu=
 
-[[package:orderless]] is installed and configured by [[module::completion vertico]].
+=orderless= is installed and configured by =:completion vertico=.
 
 ** Hacks
 /No hacks documented for this module./
@@ -36,19 +34,19 @@ This module has no direct requirements, but some languages may have their own re
 
 * TODO Usage
 #+begin_quote wip
-/This module's usage documentation is incomplete./ [[doom-contrib-module:][Complete it?]]
+/This module's usage documentation is incomplete./
 #+end_quote
 
-By default, completion gets triggered after typing 2 consecutive characters, or by means of [[kbd:C-SPC]] at any moment. The following keybindings are generally available:
+By default, completion gets triggered after typing 2 consecutive characters, or by means of =C-SPC= at any moment. The following keybindings are generally available:
 
-| Keybind | Description                                |
-|---------+--------------------------------------------|
-| [[kbd:C-n]]     | Go to next candidate                       |
-| [[kbd:C-p]]     | Go to previous candidate                   |
-| [[kbd:C-S-s]]   | Export to minibuffer                       |
-| [[kbd:C-SPC]]   | (insert state) Complete                    |
+| Keybind | Description              |
+|---------+--------------------------|
+| =C-n=   | Go to next candidate     |
+| =C-p=   | Go to previous candidate |
+| =C-S-s= | Export to minibuffer     |
+| =C-SPC= | (insert state) Complete  |
 
-For users of evil, [[kbd:C-SPC]] is smart regarding your state. In normal-like states, enter insert then start corfu; in visual-like states, perform [[help:evil-change][evil-change]] (which leaves you in insert state) then start corfu.
+For users of evil, =C-SPC= is smart regarding your state. In normal-like states, enter insert then start corfu; in visual-like states, perform [[help:evil-change][evil-change]] (which leaves you in insert state) then start corfu.
 
 ** Commit preview on type
 When the completion popup is visible, by default the current candidate is
@@ -57,7 +55,7 @@ previewed into the buffer, and further input commits that candidate as previewed
 
 The feature is in line with other common editors, but if you prefer the preview
 to be only visual or for there to be no preview, configure
-[[var:corfu-preview-current]].
+~corfu-preview-current~.
 
 #+begin_src emacs-lisp
 ;; Non-inserting preview
@@ -66,41 +64,41 @@ to be only visual or for there to be no preview, configure
 (setq corfu-preview-current nil)
 #+end_src
 
-** Commit on [[kbd:RET]] with pass-through
-A lot of people like to use [[kbd:RET]] to commit, so here we bind it to Corfu's
+** Commit on =RET= with pass-through
+A lot of people like to use =RET= to commit, so here we bind it to Corfu's
 insertion function. Note that Corfu allows "no candidate" to be selected, and in
 that case, we have a custom binding to quit completion and pass-through. To make
 it less obtrusive by default, the popup starts in this unselected state. See
-[[var:corfu-preselect]] to alter the initial behavior; it can start with the first
+~corfu-preselect~ to alter the initial behavior; it can start with the first
 one selected, for instance. Then, you have to move one candidate backwards to
-pass-through The exact action of [[kbd:RET]] can be changed via
-[[var:+corfu-want-ret-to-confirm]].
+pass-through The exact action of =RET= can be changed via
+~+corfu-want-ret-to-confirm~.
 
 | Keybind | Description           |
 |---------+-----------------------|
-| [[kbd:RET]]     | Insert candidate DWIM |
+| =RET=   | Insert candidate DWIM |
 
-** Cycle with [[kbd:TAB]]
-[[kbd:TAB]]-based cycling alternatives are also bound according to the table below:
+** Cycle with =TAB=
+=TAB=-based cycling alternatives are also bound according to the table below:
 
 | Keybind | Description              |
 |---------+--------------------------|
-| [[kbd:TAB]]     | Go to next candidate     |
-| [[kbd:S-TAB]]   | Go to previous candidate |
+| =TAB=   | Go to next candidate     |
+| =S-TAB= | Go to previous candidate |
 
 ** Searching with multiple keywords
-Completion uses [[pkg:orderless]] (configured by [[module::completion vertico]]), so you can search with multiple space-separated keywords. Press [[kbd:M-SPC]] while completing to insert a separator (~+corfu/smart-sep-toggle-escape~; pressing it again escapes the separator with a backslash, and once more deletes it). Pressing just [[kbd:SPC]] acts as normal and quits completion.
+Completion uses =orderless= (configured by =:completion vertico=), so you can search with multiple space-separated keywords. Press =M-SPC= while completing to insert a separator (~+corfu/smart-sep-toggle-escape~; pressing it again escapes the separator with a backslash, and once more deletes it). Pressing just =SPC= acts as normal and quits completion.
 
 ** Exporting to the minibuffer
 The entries shown in the completion popup can be exported to a ~completing-read~
 minibuffer, giving access to all the manipulations that suite allows. Using
-Vertico for instance, one could use this to export with [[pkg:embark]] via
-[[kbd:C-c C-l]] and get a buffer with all candidates.
+Vertico for instance, one could use this to export with =embark= via
+=C-c C-l= and get a buffer with all candidates.
 
 * Configuration
 A few variables may be set to change behavior of this module:
 
-- [[var:completion-at-point-functions]] ::
+- ~completion-at-point-functions~ ::
   This is not a module/package variable, but a builtin Emacs one. Even so, it's
   very important to how Corfu works, so we document it here. It contains a list
   of functions that are called in turn to generate completion candidates. The
@@ -111,29 +109,29 @@ A few variables may be set to change behavior of this module:
   want to enable only that one. For this, the variable may be lexically bound to
   the correct value, or you may call the CAPF interactively if a single function
   is all you need.
-- [[var:corfu-auto-delay]] ::
+- ~corfu-auto-delay~ ::
   Number of seconds till completion occurs automatically. Defaults to 0.1.
-- [[var:corfu-auto-prefix]] ::
+- ~corfu-auto-prefix~ ::
   Number of characters till auto-completion starts to happen. Defaults to 2.
-- [[var:corfu-on-exact-match]] ::
+- ~corfu-on-exact-match~ ::
   Configures behavior for exact matches.
-- [[var:corfu-preselect]] ::
+- ~corfu-preselect~ ::
   Configures startup selection, choosing between the first candidate or the
   prompt.
-- [[var:corfu-preview-current]] ::
+- ~corfu-preview-current~ ::
   Configures current candidate preview.
-- [[var:+corfu-want-ret-to-confirm]] ::
-  Controls the behavior of [[kbd:RET]] when the popup is visible - whether it confirms
-  the selected candidate, and whether [[kbd:RET]] is passed through (ie. the normal
-  behavior of [[kbd:RET]] is performed). The default value of ~t~ enables confirmation
+- ~+corfu-want-ret-to-confirm~ ::
+  Controls the behavior of =RET= when the popup is visible - whether it confirms
+  the selected candidate, and whether =RET= is passed through (ie. the normal
+  behavior of =RET= is performed). The default value of ~t~ enables confirmation
   and disables pass-through. Other variations are ~nil~ for pass-through and no
   confirmation and ~both~ for confirmation followed by pass-through. Finally,
   the value of ~minibuffer~ will both confirm and pass-through (like ~both~)
   when in the minibuffer, and only confirm (like ~t~) otherwise.
-- [[var:+corfu-want-minibuffer-completion]] ::
+- ~+corfu-want-minibuffer-completion~ ::
   Whether to enable Corfu in the minibuffer. See its documentation for
   additional tweaks.
-- [[var:+corfu-inhibit-auto-functions]] ::
+- ~+corfu-inhibit-auto-functions~ ::
   A list of predicates; if any returns non-nil, as-you-type completion is not started.
 
 ** Turning off auto-completion
@@ -169,10 +167,9 @@ To add other CAPFs to keys, adapt the snippet below into your ~config.el~:
 It's okay to add to the mode directly because ~completion-at-point~ works
 regardless of Corfu (the latter is an enhanced UI for the former). Just note not
 all CAPFs are interactive to be called this way, in which case you can use
-[[pkg:cape]]'s adapter to enable this.
+=cape='s adapter to enable this.
 
 * Troubleshooting
-[[doom-report:][Report an issue?]]
 
 ** Troubleshooting ~cape-dabbrev~
 
@@ -232,4 +229,4 @@ If ever in a situation like this, use ~describe-key~ with ~C-h k~ and look at wh
 command is being called as well as what keymaps the command is defined in.
 
 * Frequently asked questions
-/This module has no FAQs yet./ [[doom-contrib-faq:][Ask one?]]
+/This module has no FAQs yet./

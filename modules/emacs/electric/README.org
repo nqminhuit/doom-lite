@@ -4,12 +4,10 @@
 #+since:    2.0.0
 
 * Description :unfold:
-This module augments the built-in [[pkg:electric]] package with keyword-based indentation (as opposed to character-based), makes RET continue commented lines (~+electric-continue-comments~), and enables ~electric-pair-mode~. ~set-electric!~ registers electric characters and words per major mode.
+This module augments the built-in =electric= package with keyword-based indentation (as opposed to character-based), makes RET continue commented lines (~+electric-continue-comments~), and enables ~electric-pair-mode~. ~set-electric!~ registers electric characters and words per major mode.
 
 ** Maintainers
-- [[github:hlissner]]
-
-[[doom-contrib-maintainer:][Become a maintainer?]]
+- [[https://github.com/hlissner][hlissner]]
 
 ** Module flags
 /This module has no flags./
@@ -19,26 +17,26 @@ This module augments the built-in [[pkg:electric]] package with keyword-based in
 
 ** TODO Hacks
 #+begin_quote wip
-This module's hacks haven't been documented yet. [[doom-contrib-module:][Document them?]]
+This module's hacks haven't been documented yet.
 #+end_quote
 
 * Installation
-[[id:01cffea4-3329-45e2-a892-95a384ab2338][Enable this module in your ~doom!~ block.]]
+Enable this module in your ~doom!~ block.
 
 /This module has no external requirements./
 
 * TODO Usage
 #+begin_quote wip
-This module has no usage documentation yet. [[doom-contrib-module:][Write some?]]
+This module has no usage documentation yet.
 #+end_quote
 
 * TODO Configuration
 #+begin_quote wip
-This module has no configuration documentation yet. [[doom-contrib-module:][Write some?]]
+This module has no configuration documentation yet.
 #+end_quote
 
 * Troubleshooting
-/There are no known problems with this module./ [[doom-report:][Report one?]]
+/There are no known problems with this module./
 
 * Frequently asked questions
-/This module has no FAQs yet./ [[doom-contrib-faq:][Ask one?]]
+/This module has no FAQs yet./

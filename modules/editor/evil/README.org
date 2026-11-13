@@ -7,35 +7,33 @@
 This holy module brings the Vim editing model to Emacs.
 
 ** Maintainers
-- [[github:hlissner]]
-
-[[doom-contrib-maintainer:][Become a maintainer?]]
+- [[https://github.com/hlissner][hlissner]]
 
 ** Module flags
 /This module has no flags./
 
 ** Packages
-- [[package:evil]]
-- [[package:evil-args]]
-- [[package:evil-collection]]
-- [[package:evil-embrace]]
-- [[package:evil-escape]]
-- [[package:evil-exchange]]
-- [[package:evil-indent-plus]]
-- [[package:evil-lion]]
-- [[package:evil-numbers]]
-- [[package:evil-quick-diff]]
-- [[package:evil-snipe]]
-- [[package:evil-surround]]
-- [[package:evil-textobj-anyblock]]
-- [[package:evil-traces]]
-- [[package:evil-visualstar]]
-- [[package:exato]]
+- =evil=
+- =evil-args=
+- =evil-collection=
+- =evil-embrace=
+- =evil-escape=
+- =evil-exchange=
+- =evil-indent-plus=
+- =evil-lion=
+- =evil-numbers=
+- =evil-quick-diff=
+- =evil-snipe=
+- =evil-surround=
+- =evil-textobj-anyblock=
+- =evil-traces=
+- =evil-visualstar=
+- =exato=
 
 ** Hacks
 - The o/O keys will respect and continue commented lines (can be disabled by
   setting ~+evil-want-o/O-to-continue-comments~ to ~nil~).
-- In visual mode, [[kbd:*]] and [[kbd:#]] will search for the current selection instead of the
+- In visual mode, =*= and =#= will search for the current selection instead of the
   word-at-point.
 - More of vim's filename modifiers are supported in ex commands (like ~:p~,
   ~:p:h~ or ~:t~) than vanilla evil-mode offers.
@@ -43,24 +41,24 @@ This holy module brings the Vim editing model to Emacs.
   project root (throws an error if not in a project).
 
 * Installation
-[[id:01cffea4-3329-45e2-a892-95a384ab2338][Enable this module in your ~doom!~ block.]]
+Enable this module in your ~doom!~ block.
 
 /This module has no external requirements./
 
 * TODO Usage
 #+begin_quote wip
-/This module's usage documentation is incomplete./ [[doom-contrib-module:][Complete it?]]
+/This module's usage documentation is incomplete./
 #+end_quote
 
 ** Ported vim plugins
 The following vim plugins have been ported to evil:
 
-| Vim Plugin            | Emacs Plugin                   | Keybind(s)                     |
-|-----------------------+--------------------------------+--------------------------------|
-| vim-lion              | evil-lion                      | omap [[kbd:gl]] / [[kbd:gL]]                   |
-| vim-seek or vim-sneak | evil-snipe                     | mmap [[kbd:s]] / [[kbd:S]], omap [[kbd:z]] / [[kbd:Z]] & [[kbd:x]] / [[kbd:X]] |
-| vim-surround          | evil-embrace and evil-surround | vmap [[kbd:S]], omap [[kbd:ys]]                |
-| vim-unimpaired        | (provided by Doom)             | see the =[= and =]= bindings in =config.el=    |
+| Vim Plugin            | Emacs Plugin                   | Keybind(s)                                  |
+|-----------------------+--------------------------------+---------------------------------------------|
+| vim-lion              | evil-lion                      | omap =gl= / =gL=                            |
+| vim-seek or vim-sneak | evil-snipe                     | mmap =s= / =S=, omap =z= / =Z= & =x= / =X=  |
+| vim-surround          | evil-embrace and evil-surround | vmap =S=, omap =ys=                         |
+| vim-unimpaired        | (provided by Doom)             | see the =[= and =]= bindings in =config.el= |
 
 This module has also ported vim-unimpaired keybinds to Emacs.
 
@@ -68,81 +66,80 @@ This module has also ported vim-unimpaired keybinds to Emacs.
 This module provides a couple extra text objects, along with the built-in ones.
 For posterity, here are the built-in ones:
 
-- [[kbd:w W]] words
-- [[kbd:s]] sentences
-- [[kbd:p]] paragraphs
-- [[kbd:b]] parenthesized blocks
-- [[kbd:b ( ) { } [ ] < >]] braces, parentheses and brackets
-- [[kbd:' " `]] quotes
-- [[kbd:t]] tags
-- [[kbd:o]] symbols
+- =w W= words
+- =s= sentences
+- =p= paragraphs
+- =b= parenthesized blocks
+- =b ( ) { } [ ] < >= braces, parentheses and brackets
+- =' " `= quotes
+- =t= tags
+- =o= symbols
 
 And these are text objects added by this module:
-- [[kbd:a]] C-style function arguments (provided by ~evil-args~)
-- [[kbd:B]] any block delimited by braces, parentheses or brackets (provided by
+- =a= C-style function arguments (provided by ~evil-args~)
+- =B= any block delimited by braces, parentheses or brackets (provided by
   ~evil-textobj-anyblock~)
-- [[kbd:f]] For functions (but relies on the major mode to have sane definitions for
+- =f= For functions (but relies on the major mode to have sane definitions for
   ~beginning-of-defun-function~ and ~end-of-defun-function~)
-- [[kbd:g]] The entire buffer
-- [[kbd:i j k]] by indentation ([[kbd:k]] includes one line above; [[kbd:j]] includes one line above and
+- =g= The entire buffer
+- =i j k= by indentation (=k= includes one line above; =j= includes one line above and
   below) (provided by ~evil-indent-plus~)
-- [[kbd:q]] For quotes (any kind)
-- [[kbd:u]] For URLs
-- [[kbd:x]] XML attributes (provided by ~exato~)
+- =q= For quotes (any kind)
+- =u= For URLs
+- =x= XML attributes (provided by ~exato~)
 
 ** Custom Ex Commands
-| Ex Command             | Description                                                                        |
-|------------------------+------------------------------------------------------------------------------------|
-| ~:a~                     | Open sibling file (e.g. .cpp -> .hpp, .scss -> .css, etc)                          |
-| ~:al[ign][!]/REGEXP~     | Align text to the first match of REGEXP. If BANG, align all matches on each line   |
-| ~:cap[ture]~             | Invoke ~org-capture~                                                                 |
-| ~:cd DIRECTORY~          | Change ~default-directory~ to =DIRECTORY=                                              |
-| ~:com[pile] CMD~         | Run a compile command (with vim-style filename modifiers)                          |
-| ~:cp[!] NEWPATH~         | Copy the current file to NEWPATH                                                   |
-| ~:er[rors]~              | List diagnostics                                                                   |
-| ~:h[elp] [QUERY]~        | Look up the documentation of an ex command, or ~apropos~ QUERY                       |
-| ~:kill~                  | Kill the current buffer                                                            |
-| ~:killa[ll][!]~          | Kill all buffers                                                                   |
-| ~:killb[uried]~          | Kill all buried buffers                                                            |
-| ~:killm[atch][!] REGEXP~ | Kill buffers whose name matches REGEXP                                             |
-| ~:killo[ther]~           | Kill all other buffers besides the selected one                                    |
-| ~:ldiff~                 | Ediff two regions (must be used twice)                                             |
-| ~:make~ / ~:mk~            | Run ~make~ (with vim-style filename modifiers)                                       |
-| ~:msg~                   | Open \*Messages\* buffer                                                           |
-| ~:mv[!] NEWPATH~         | Move the current file to NEWPATH                                                   |
-| ~:na[rrow]~              | Narrow the buffer to the selection                                                 |
-| ~:pad~                   | Open a scratch pad for running code quickly                                        |
-| ~:pdg[rep]~              | Search the current directory                                                       |
-| ~:pg[rep]~               | Search the project                                                                 |
-| ~:pwd~                   | Display the current ~default-directory~ in echo area                                 |
-| ~:ral[ign][!]/REGEXP~    | Right-Align text that matches REGEXP. If BANG, align all matches on each line      |
-| ~:retab~                 | Convert indentation to the default within the selection                            |
-| ~:rev[erse]~             | Reverse the selected lines                                                         |
-| ~:rm[!] [PATH]~          | Delete the current buffer's file and buffer                                        |
-| ~:sl[oad]~               | Load the last saved session                                                        |
-| ~:ss[ave]~               | Save the current session                                                           |
-| ~:tabc[lose]~            | ([[module::ui workspaces]]) Close the current workspace                           |
-| ~:tabclear~              | ([[module::ui workspaces]]) Kill all buffers in current workspace                 |
-| ~:tabf[irst]~            | ([[module::ui workspaces]]) Switch to the first workspace                         |
-| ~:tabl[ast]~             | ([[module::ui workspaces]]) Switch to the last workspace                          |
-| ~:tabn[ew]~ [NAME]       | ([[module::ui workspaces]]) Create a new workspace                                |
-| ~:tabnext~               | ([[module::ui workspaces]]) Switch to next workspace                              |
-| ~:tabprev~               | ([[module::ui workspaces]]) Switch to previous workspace                          |
-| ~:tabr[ename]~ NAME      | ([[module::ui workspaces]]) Rename the current workspace to NAME                  |
-| ~:tabs~                  | ([[module::ui workspaces]]) Display all workspaces in the echo area               |
+| Ex Command               | Description                                                                      |
+|--------------------------+----------------------------------------------------------------------------------|
+| ~:a~                     | Open sibling file (e.g. .cpp -> .hpp, .scss -> .css, etc)                        |
+| ~:al[ign][!]/REGEXP~     | Align text to the first match of REGEXP. If BANG, align all matches on each line |
+| ~:cap[ture]~             | Invoke ~org-capture~                                                             |
+| ~:cd DIRECTORY~          | Change ~default-directory~ to =DIRECTORY=                                        |
+| ~:com[pile] CMD~         | Run a compile command (with vim-style filename modifiers)                        |
+| ~:cp[!] NEWPATH~         | Copy the current file to NEWPATH                                                 |
+| ~:er[rors]~              | List diagnostics                                                                 |
+| ~:h[elp] [QUERY]~        | Look up the documentation of an ex command, or ~apropos~ QUERY                   |
+| ~:kill~                  | Kill the current buffer                                                          |
+| ~:killa[ll][!]~          | Kill all buffers                                                                 |
+| ~:killb[uried]~          | Kill all buried buffers                                                          |
+| ~:killm[atch][!] REGEXP~ | Kill buffers whose name matches REGEXP                                           |
+| ~:killo[ther]~           | Kill all other buffers besides the selected one                                  |
+| ~:ldiff~                 | Ediff two regions (must be used twice)                                           |
+| ~:make~ / ~:mk~          | Run ~make~ (with vim-style filename modifiers)                                   |
+| ~:msg~                   | Open \*Messages\* buffer                                                         |
+| ~:mv[!] NEWPATH~         | Move the current file to NEWPATH                                                 |
+| ~:na[rrow]~              | Narrow the buffer to the selection                                               |
+| ~:pad~                   | Open a scratch pad for running code quickly                                      |
+| ~:pdg[rep]~              | Search the current directory                                                     |
+| ~:pg[rep]~               | Search the project                                                               |
+| ~:pwd~                   | Display the current ~default-directory~ in echo area                             |
+| ~:ral[ign][!]/REGEXP~    | Right-Align text that matches REGEXP. If BANG, align all matches on each line    |
+| ~:retab~                 | Convert indentation to the default within the selection                          |
+| ~:rev[erse]~             | Reverse the selected lines                                                       |
+| ~:rm[!] [PATH]~          | Delete the current buffer's file and buffer                                      |
+| ~:sl[oad]~               | Load the last saved session                                                      |
+| ~:ss[ave]~               | Save the current session                                                         |
+| ~:tabc[lose]~            | (=:ui workspaces=) Close the current workspace                                   |
+| ~:tabclear~              | (=:ui workspaces=) Kill all buffers in current workspace                         |
+| ~:tabf[irst]~            | (=:ui workspaces=) Switch to the first workspace                                 |
+| ~:tabl[ast]~             | (=:ui workspaces=) Switch to the last workspace                                  |
+| ~:tabn[ew]~ [NAME]       | (=:ui workspaces=) Create a new workspace                                        |
+| ~:tabnext~               | (=:ui workspaces=) Switch to next workspace                                      |
+| ~:tabprev~               | (=:ui workspaces=) Switch to previous workspace                                  |
+| ~:tabr[ename]~ NAME      | (=:ui workspaces=) Rename the current workspace to NAME                          |
+| ~:tabs~                  | (=:ui workspaces=) Display all workspaces in the echo area                       |
 
 * TODO Configuration
 #+begin_quote wip
-This module has no configuration documentation yet. [[doom-contrib-module:][Write some?]]
+This module has no configuration documentation yet.
 #+end_quote
 
 * Troubleshooting
-[[doom-report:][Report an issue?]]
 
-** Can't access the universal argument key ([[kbd:C-u]])
+** Can't access the universal argument key (=C-u=)
 For maximum Vim emulation, this module commandeers the C-u key for scrolling (as
-it does in Vim). The same goes for [[kbd:C-u]] in insert mode (which deletes to BOL). In
-both cases the universal argument has been moved to [[kbd:<leader> u]].
+it does in Vim). The same goes for =C-u= in insert mode (which deletes to BOL). In
+both cases the universal argument has been moved to =<leader> u=.
 
 To undo this, use:
 #+begin_src emacs-lisp
@@ -151,22 +148,22 @@ To undo this, use:
         evil-want-C-u-delete nil)
 #+end_src
 
-** The [[kbd:s]]/[[kbd:S]] keys behave differently from Vim
-Doom replaces the [[kbd:s]] and [[kbd:S]] keys with the [[pkg:evil-snipe]] package (a port of
+** The =s=/=S= keys behave differently from Vim
+Doom replaces the =s= and =S= keys with the =evil-snipe= package (a port of
 vim-seek/vim-sneak for 2-character versions of f/F/t/T).
 
 To disable evil-snipe on s/S, you can either:
 1. Disable ~evil-snipe-mode~ by adding ~(remove-hook 'doom-first-input-hook
    #'evil-snipe-mode)~ to =$DOOMDIR/config.el=,
-2. Or disable [[pkg:evil-snipe]] completely with ~(package! evil-snipe :disable t)~
+2. Or disable =evil-snipe= completely with ~(package! evil-snipe :disable t)~
    added to =$DOOMDIR/packages.el=, but this will also disable incremental
    highlighting for the f/F/t/T motions keys.
-3. Or use [[kbd:cl]] and [[kbd:cc]], respectively; they do the same thing.
+3. Or use =cl= and =cc=, respectively; they do the same thing.
 
-** The [[kbd:Y]] key behaves differently from Vim (should yank the whole line)
-Doom changes the behavior of the [[kbd:Y]] key in normal mode to yank-to-EOL (equivalent
-to [[kbd:y$]]). This was to make it consistent with the [[kbd:C]] and [[kbd:D]] capital operators, and
-because it was redundant with [[kbd:yy]], which is easier to type than [[kbd:y$]].
+** The =Y= key behaves differently from Vim (should yank the whole line)
+Doom changes the behavior of the =Y= key in normal mode to yank-to-EOL (equivalent
+to =y$=). This was to make it consistent with the =C= and =D= capital operators, and
+because it was redundant with =yy=, which is easier to type than =y$=.
 
 If you prefer the old behavior, it can be reversed with:
 #+begin_src emacs-lisp
@@ -175,17 +172,16 @@ If you prefer the old behavior, it can be reversed with:
 #+end_src
 
 * Frequently asked questions
-[[doom-contrib-faq:][Ask a question?]]
 
 ** How do I remove evil?
 :PROPERTIES:
 :ID:       f3925da6-5f0b-4d11-aa08-7bb58bea1982
 :END:
-1. [[id:01cffea4-3329-45e2-a892-95a384ab2338][Disable this module]].
+1. Disable this module.
 2. Run ~$ doom sync~ to clean up lingering dependencies and regenerate your
    autoloads files.
 3. [OPTIONAL] Change ~doom-leader-alt-key~ and ~doom-localleader-alt-key~. These
-   are bound to [[kbd:C-c]] and [[kbd:C-c l]] by default.
+   are bound to =C-c= and =C-c l= by default.
 
 #+begin_quote warning
 Ignore ~doom-leader-key~ and ~doom-localleader-key~, they don't apply to non-evil
@@ -193,7 +189,7 @@ sessions.
 #+end_quote
 
 Evil-specific configuration and keybindings (defined with ~map!~) will be
-ignored without [[module::editor evil]] present (and omitted when byte-compiling).
+ignored without =:editor evil= present (and omitted when byte-compiling).
 
 ** Include underscores in evil word motions?
 A more in-depth answer and explanation for this can be found [[https://evil.readthedocs.io/en/latest/faq.html#underscore-is-not-a-word-character][in Evil's
@@ -222,7 +218,7 @@ In vim, operations that put or delete text (kill and yank in Emacs terminology)
 act on the unnamed register by default. The unnamed register unrelated the
 system clipboard. Evil uses the kill ring instead of the unnamed register. As
 the kill ring is synchronized with the system clipboard by default, operations
-like [[kbd:dd]] or [[kbd:cw]] place the killed text in the system clipboard, surprisingly so for
+like =dd= or =cw= place the killed text in the system clipboard, surprisingly so for
 users who are used to the vim behavior.
 
 The synchronization between the system clipboard and kill ring can be disabled,
@@ -231,5 +227,5 @@ making these operations behave closer to their vim counterparts:
 (setq select-enable-clipboard nil)
 #+end_src
 
-Like in vim, the clipboard can still be accessed by using the [[kbd:+]] register, e.g.
-[[kbd:"+dd]] or [[kbd:"+cw]].
+Like in vim, the clipboard can still be accessed by using the =+= register, e.g.
+="+dd= or ="+cw=.

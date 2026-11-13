@@ -17,9 +17,7 @@ versions of Emacs (at least 30.1 is recommended).
 #+end_quote
 
 ** Maintainers
-- [[github:hlissner]]
-
-[[doom-contrib-maintainer:][Become a maintainer?]]
+- [[https://github.com/hlissner][hlissner]]
 
 ** Module flags
 /This module has no flags./
@@ -35,27 +33,26 @@ versions of Emacs (at least 30.1 is recommended).
   ~project-current~, and ~vc-git-root~.
 
 * Installation
-[[id:01cffea4-3329-45e2-a892-95a384ab2338][Enable this module in your ~doom!~ block.]]
+Enable this module in your ~doom!~ block.
 
 /This module has no external requirements./
 
 * Usage
 #+begin_quote wip
-This module has no usage documentation yet. [[doom-contrib-module:][Write some?]]
+This module has no usage documentation yet.
 #+end_quote
 
 * TODO Configuration
 #+begin_quote wip
-This module has no configuration documentation yet. [[doom-contrib-module:][Write some?]]
+This module has no configuration documentation yet.
 #+end_quote
 
 * Troubleshooting
-[[doom-report:][Report an issue?]]
 
 ** Known compatibility issues
 - gdb-mi (via ~M-x gdb~) ::
   Doesn't work with direct-async enabled. To get around this, add ~set debuginfod
-  enabled~ to =~/.gdbinit= (reported in [[github:doomemacs/core/issues/8510][doomemacs/core#8510]]).
+  enabled~ to =~/.gdbinit= (reported in [[https://github.com/doomemacs/core/issues/8510][doomemacs/core#8510]]).
 
 * Frequently asked questions
-/This module has no FAQs yet./ [[doom-contrib-faq:][Ask one?]]
+/This module has no FAQs yet./

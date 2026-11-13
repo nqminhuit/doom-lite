@@ -4,27 +4,27 @@
 #+since:    21.12.0
 
 * Description :unfold:
-This module integrates [[https://langserver.org/][language servers]] into Doom Emacs through the built-in [[pkg:eglot]]. They provide features you'd expect from IDEs, like code completion, realtime linting, language-aware [[pkg:imenu]]/[[pkg:xref]] integration, jump-to-definition/references support, and more.
+This module integrates [[https://langserver.org/][language servers]] into Doom Emacs through the built-in =eglot=. They provide features you'd expect from IDEs, like code completion, realtime linting, language-aware =imenu=/=xref= integration, jump-to-definition/references support, and more.
 
 Eglot's list of supported servers (and how to register more) is [[https://github.com/joaotavora/eglot?tab=readme-ov-file#connecting-to-a-server][on its README]]. Each of Doom's :lang modules may add new, extend existing, or change support for existing LSP clients; ~set-eglot-client!~ registers a server for a major mode.
 
 ** Maintainers
-/This module has no dedicated maintainers./ [[doom-contrib-maintainer:][Become a maintainer?]]
+/This module has no dedicated maintainers./
 
 ** Module flags
 /This module has no flags./
 
 ** Packages
-- [[package:eglot]]
-- [[package:jsonrpc]]
-- [[package:xref]]
-- [[package:consult-eglot]]
+- =eglot=
+- =jsonrpc=
+- =xref=
+- =consult-eglot=
 
 ** Hacks
 /No hacks documented for this module./
 
 * Installation
-[[id:01cffea4-3329-45e2-a892-95a384ab2338][Enable this module in your ~doom!~ block.]]
+Enable this module in your ~doom!~ block.
 
 To get LSP working, you'll need to do two things:
 
@@ -35,15 +35,14 @@ The :lang modules start eglot in their buffers with ~lsp!~. Eglot will not insta
 
 * Usage
 ** LSP-powered project search
-| Keybind | Description                         |
-|---------+-------------------------------------|
-| [[kbd:SPC c j]] | Jump to symbol in current workspace (~consult-eglot-symbols~) |
+| Keybind   | Description                                                   |
+|-----------+---------------------------------------------------------------|
+| =SPC c j= | Jump to symbol in current workspace (~consult-eglot-symbols~) |
 
 * Configuration
 ~+lsp-defer-shutdown~ (default 3) is the number of seconds to wait before shutting down a server after its last buffer is closed; set it to nil or 0 to shut down immediately.
 
 * Troubleshooting
-[[doom-report:][Report an issue?]]
 
 ** My language server is not found
 Make sure the server executable is on the =PATH= of the Emacs (or daemon) process.
@@ -52,4 +51,4 @@ Make sure the server executable is on the =PATH= of the Emacs (or daemon) proces
 Eglot only starts when a client is defined for the buffer's major mode (see ~eglot-server-programs~ and ~set-eglot-client!~).
 
 * Frequently asked questions
-/This module has no FAQs yet./ [[doom-contrib-faq:][Ask one?]]
+/This module has no FAQs yet./
