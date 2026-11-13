@@ -13,12 +13,14 @@
 (defvar doom-user-dir (file-name-as-directory (make-temp-file "pb-user" t)))
 (defvar doom-data-dir (file-name-as-directory (make-temp-file "pb-data" t)))
 (defvar doom--system-windows-p nil)
+(defvar doom-local-dir (file-name-as-directory (make-temp-file "pb-local" t)))
 (defvar doom-module-load-path nil)
 
 (add-hook 'kill-emacs-hook
           (lambda ()
             (delete-directory doom-user-dir t)
-            (delete-directory doom-data-dir t)))
+            (delete-directory doom-data-dir t)
+            (delete-directory doom-local-dir t)))
 
 ;; The CLI's output macros are not loaded here.
 (unless (fboundp 'print!)
@@ -395,3 +397,21 @@
 
 (provide 'packages-backend-tests)
 ;;; packages-backend-tests.el ends here
+
+(ert-deftest pb-test-straight-migration-removes-only-old-trees ()
+  (let* ((doom-local-dir (file-name-as-directory (make-temp-file "pb-local" t)))
+         (old '("straight/" "elpa/"))
+         (kept '("etc/" "cache/" "packages/")))
+    (unwind-protect
+        (progn
+          (dolist (d (append old kept))
+            (make-directory (concat doom-local-dir d "sub") t)
+            (write-region "" nil (concat doom-local-dir d "sub/f")))
+          (doom-packages-migrate-straight)
+          (dolist (d old) (should-not (file-exists-p (concat doom-local-dir d))))
+          (dolist (d kept) (should (file-exists-p (concat doom-local-dir d "sub/f"))))
+          ;; Without a straight tree, nothing is touched (even elpa/).
+          (make-directory (concat doom-local-dir "elpa/") t)
+          (doom-packages-migrate-straight)
+          (should (file-directory-p (concat doom-local-dir "elpa/"))))
+      (delete-directory doom-local-dir t))))

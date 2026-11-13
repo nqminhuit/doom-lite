@@ -57,7 +57,7 @@ package's name as a symbol, and whose CDR is the plist supplied to its
   '("*.el" "lisp/*.el"
     (:exclude ".dir-locals.el" "test.el" "tests.el" "*-test.el" "*-tests.el"
               "*-pkg.el" "*-autoloads.el"))
-  "The :files a recipe gets when it has none (the .el part of MELPA's default).")
+  "The :files a recipe gets when it has none (the .el files of a package, minus tests and generated files).")
 
 (defconst doom-packages--recipe-keys '(:host :repo :files :compile :branch)
   "The keys a recipe may have. :branch is accepted but ignored; the pin decides.")
@@ -769,12 +769,24 @@ Returns the names of the repos that were cloned or moved."
       (cl-some (lambda (dep) (memq dep built)) (plist-get (cdr info) :deps))))
 
 ;;;###autoload
+(defun doom-packages-migrate-straight ()
+  "Delete the old straight tree (.local/straight/) and .local/elpa/, if present."
+  (let ((straight-dir (file-name-concat doom-local-dir "straight/"))
+        (elpa-dir (file-name-concat doom-local-dir "elpa/")))
+    (when (file-exists-p (directory-file-name straight-dir))
+      (print! (item "Replacing the old straight tree under %s") (path straight-dir))
+      (dolist (dir (list straight-dir elpa-dir))
+        (when (file-exists-p (directory-file-name dir))
+          (delete-directory dir t))))))
+
+;;;###autoload
 (defun doom-packages-ensure (&optional force-p)
   "Check every repo out at its pin, then (re)build the packages that need it.
 
 A package is rebuilt when its pin, recipe or the Emacs version changed, when a
 dependency was rebuilt, or when FORCE-P is non-nil. Returns the packages that
 failed to byte-compile."
+  (doom-packages-migrate-straight)
   (doom-packages-update)
   (let* ((plan (doom-packages--plan))
          (graph (mapcar (lambda (info) (cons (car info) (plist-get (cdr info) :deps))) plan))
