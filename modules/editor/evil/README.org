@@ -120,7 +120,7 @@ And these are text objects added by this module:
 | ~:enhtml [INPUT]~        | HTML encode selected text / inserts result if INPUT is given                       |
 | ~:iedit REGEXP~          | Invoke iedit on all matches for REGEXP                                             |
 | ~:kill~                  | Kill the current buffer                                                            |
-| ~:killa[ll][!]~          | Kill all buffers                        |
+| ~:killa[ll][!]~          | Kill all buffers                                                                   |
 | ~:killb[uried]~          | Kill all buried buffers                                                            |
 | ~:killm[atch][!] REGEXP~ | Kill buffers whose name matches REGEXP (if BANG, affect buffers across workspaces) |
 | ~:killo[ther]~           | Kill all other buffers besides the selected one                                    |
@@ -146,7 +146,7 @@ And these are text objects added by this module:
 | ~:tabclear~              | ([[module::ui workspaces]]) Kill all buffers in current workspace                 |
 | ~:tabf[irst]~            | ([[module::ui workspaces]]) Switch to the first workspace                         |
 | ~:tabl[ast]~             | ([[module::ui workspaces]]) Switch to the last workspace                          |
-| ~:tabn[ew][!]~ [NAME]    | ([[module::ui workspaces]]) Create a new workspace                                |
+| ~:tabn[ew]~ [NAME]       | ([[module::ui workspaces]]) Create a new workspace                                |
 | ~:tabnext~               | ([[module::ui workspaces]]) Switch to next workspace                              |
 | ~:tabprev~               | ([[module::ui workspaces]]) Switch to previous workspace                          |
 | ~:tabr[ename]~ NAME      | ([[module::ui workspaces]]) Rename the current workspace to NAME                  |
