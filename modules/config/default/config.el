@@ -110,8 +110,8 @@ Continues comments if executed from a commented line."
         ;; Conventional text-editing keys & motions
         "s-a" #'mark-whole-buffer
         "s-/" (cmd! (save-excursion (comment-line 1)))
-        :n "s-/" #'evilnc-comment-or-uncomment-lines
-        :v "s-/" #'evilnc-comment-operator
+        :n "s-/" #'comment-line
+        :v "s-/" #'comment-line
         :gi  [s-backspace] #'doom/backward-kill-to-bol-and-indent
         :gi  [s-left]      #'doom/backward-to-bol-or-indent
         :gi  [s-right]     #'doom/forward-to-last-non-comment-or-eol

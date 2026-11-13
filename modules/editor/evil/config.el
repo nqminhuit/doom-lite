@@ -421,13 +421,6 @@ don't offer any/enough real value to users.")
   :commands (evil-quick-diff evil-quick-diff-cancel))
 
 
-(use-package! evil-nerd-commenter
-  :commands (evilnc-comment-operator
-             evilnc-inner-comment
-             evilnc-outer-commenter
-             evilnc-comment-or-uncomment-lines)
-  :init (define-key! [remap comment-line] #'evilnc-comment-or-uncomment-lines))
-
 
 (use-package! evil-snipe
   :commands evil-snipe-local-mode evil-snipe-override-local-mode
@@ -535,7 +528,7 @@ don't offer any/enough real value to users.")
       :n  "gp"    #'+evil/reselect-paste
       :v  "gp"    #'+evil/alt-paste
       :nv "g@"    #'+evil:apply-macro
-      :nv "gc"    #'evilnc-comment-operator
+      :nv "gc"    #'+evil:comment
       :nv "gO"    #'imenu
       :nv "gx"    #'evil-exchange
       :nv "gy"    #'+evil:yank-unindented
@@ -594,7 +587,6 @@ don't offer any/enough real value to users.")
       ;; text objects
       :textobj "a" #'evil-inner-arg                    #'evil-outer-arg
       :textobj "B" #'evil-textobj-anyblock-inner-block #'evil-textobj-anyblock-a-block
-      :textobj "c" #'evilnc-inner-comment              #'evilnc-outer-commenter
       :textobj "f" #'+evil:defun-txtobj                #'+evil:defun-txtobj
       :textobj "g" #'+evil:whole-buffer-txtobj         #'+evil:whole-buffer-txtobj
       :textobj "i" #'evil-indent-plus-i-indent         #'evil-indent-plus-a-indent

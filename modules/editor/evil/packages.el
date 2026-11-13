@@ -11,7 +11,6 @@
 (package! evil-exchange :pin "5f0a2d41434c17c6fb02e4f744043775de1c63a2")
 (package! evil-indent-plus :pin "f392696e4813f1d3a92c7eeed333248914ba6dae")
 (package! evil-lion :pin "5a0bca151466960e090d1803c4c5ded88875f90a")
-(package! evil-nerd-commenter :pin "db5ee61a6e75db074b7d20e9dcb68e0b94b4edc7")
 (package! evil-numbers
   ;; REVIEW: Don't byte-compile until juliapath/evil-numbers#30 is addressed.
   :recipe (:build (:not compile))
