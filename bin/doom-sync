@@ -26,14 +26,9 @@
 ;;; * Commands
 
 (defcli! sync
-    ((update?   ("-u") "Update all installed packages after syncing")
-     (noupdate? ("-U") "Don't update any packages")
-     (purge?    ("--gc") "Purge orphaned package repos & regraft them")
-     (jobs      ("-j" "--jobs" num) "How many threads to use for native compilation")
-     (reload?   ("-r" "--reload") "Regenerate the existing profile & envvar files only")
+    ((reload?   ("-r" "--reload") "Regenerate the existing profile & envvar files only")
      (rebuild?  ("-b" "--rebuild") "Rebuild all installed packages, unconditionally")
      (nobuild?  ("-B") "Don't rebuild packages when hostname or Emacs version has changed")
-     (aot?      ("--aot") "Natively compile packages ahead-of-time (if available)")
      &flags
      (env       ("-e" "--env") "Generate an envvar file or delete existing one")
      &context context)
@@ -49,25 +44,12 @@ recompile. Run this whenever you:
   5. Move your Doom config (either $EMACSDIR or $DOOMDIR) to a new location.
   6. Up or downgrade Emacs itself (e.g. 29.1 -> 29.4).
 
-Sync'ing ensures that unneeded packages are removed, needed packages are
-installed, autoloads files are up-to-date, and no byte-compiled files have gone
-stale.
-
-OPTIONS:
-  -j, --jobs
-    Defaults to the maximum number of threads (or 1, if your CPU's threadcount
-    can't be determined).
-  --aot
-    Will only perform AOT native-compilation for packages updated/installed
-    during the execution of this command. Use --rebuild as well to do so for all
-    packages."
+Sync'ing ensures that unneeded packages are removed, every package is checked
+out at its pin and built, autoloads files are up-to-date, and no byte-compiled
+files have gone stale."
   :benchmark t
-  (when aot?
-    (after! straight
-      (setq straight--native-comp-available t)))
-  (when jobs
-    (setq native-comp-async-jobs-number (truncate jobs)))
-  (let* ((emacs-running?
+  (let* (failed
+         (emacs-running?
           (cl-loop for pid in (remove (emacs-pid) (list-system-processes))
                    for attrs = (process-attributes pid)
                    for args = (alist-get 'args attrs "")
@@ -130,12 +112,8 @@ OPTIONS:
                       ((y-or-n-p (format! "  %s" "Installed packages must be rebuilt. Do so now?"))
                        (setq rebuild? t))
                       ((exit! 0)))))
-            (when update?
-              (doom-initialize-packages)
-              (doom-packages--cli-recipes-update))
-            (doom-packages-ensure rebuild?)
-            (unless noupdate? (doom-packages-update (not update?)))
-            (call! `(gc ,(unless purge? "-begpr"))))
+            (setq failed (doom-packages-ensure rebuild?))
+            (call! '(gc)))
           (when (doom-profile-generate nil reload?)
             (if daemon-running?
                 (print! (warn "Restart the Emacs daemon for changes to take effect!"))
@@ -154,6 +132,10 @@ OPTIONS:
                    (with-temp-buffer
                      (insert-file-contents (doom-emacs-dir "static/QUICKSTART_INTRO"))
                      (print! "%s" (buffer-string))))))
+          (when failed
+            (print! (error "%d package(s) failed to byte-compile: %s")
+                    (length failed) (string-join (mapcar #'symbol-name failed) ", "))
+            (exit! 1))
           t)
       (remove-hook 'kill-emacs-hook #'doom-sync--abort-warning-h))))
 
@@ -167,7 +149,7 @@ OPTIONS:
          #'identity
          (list
           ;; Changes to this path could indicate a change to the username and/or
-          ;; the location of Straight's build artifacts; both warrant a rebuild
+          ;; the location of the packages' build artifacts; both warrant a rebuild
           ;; of your packages.
           doom-local-dir
           ;; Changes to this indicate the user's system/OS has changed (e.g. if

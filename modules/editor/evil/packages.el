@@ -24,7 +24,7 @@
 (package! evil-lion :pin "5a0bca151466960e090d1803c4c5ded88875f90a")
 (package! evil-numbers
   ;; REVIEW: Don't byte-compile until juliapath/evil-numbers#30 is addressed.
-  :recipe (:host github :repo "juliapath/evil-numbers" :build (:not compile))
+  :recipe (:host github :repo "juliapath/evil-numbers" :compile nil)
   :pin "616aff9e5cee012954756ed2715209fa90308cdf")
 (package! evil-snipe :pin "16317d7e54313490a0fe8642ed9a1a72498e7ad2")
 ;; shift-number: dependency of evil-numbers

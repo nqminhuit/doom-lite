@@ -332,22 +332,6 @@ ready to be pasted in a bug report on github."
                 #'cdr (doom--collect-forms-in
                        (doom-path doom-user-dir doom-module-packages-file)
                        "package!"))
-             (error (format "<%S>" e))))
-        (unpin
-         ,@(condition-case e
-               (mapcan #'identity
-                       (mapcar
-                        #'cdr (doom--collect-forms-in
-                               (doom-path doom-user-dir doom-module-packages-file)
-                               "unpin!")))
-             (error (list (format "<%S>" e)))))
-        (elpa
-         ,@(condition-case e
-               (progn
-                 (unless (bound-and-true-p package--initialized)
-                   (package-initialize))
-                 (cl-loop for (name . _) in package-alist
-                          collect (format "%s" name)))
              (error (format "<%S>" e))))))))
 
 ;;;###autoload

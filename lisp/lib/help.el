@@ -228,7 +228,6 @@ If prefix arg is present, refresh the cache."
                     (symbol-at-point))))
      (require 'finder-inf nil t)
      (require 'package)
-     (require 'straight)
      (let ((packages
             (if (and doom--help-packages-list (null current-prefix-arg))
                 doom--help-packages-list
@@ -236,10 +235,7 @@ If prefix arg is present, refresh the cache."
               (redisplay)
               (setq doom--help-packages-list
                     (delete-dups
-                     (append (mapcar #'car package-alist)
-                             (mapcar #'car package--builtins)
-                             (mapcar #'intern
-                                     (hash-table-keys straight--build-cache))
+                     (append (mapcar #'car package--builtins)
                              (mapcar #'car (doom-package-list 'all))
                              nil))))))
        (unless (memq guess packages)
@@ -258,10 +254,8 @@ If prefix arg is present, refresh the cache."
                    (called-interactively-p 'interactive))
   (with-help-window (help-buffer)
     (with-current-buffer standard-output
-      (when (or (package-desc-p package)
-                (and (symbolp package)
-                     (or (assq package package-alist)
-                         (assq package package--builtins))))
+      (when (and (symbolp package)
+                 (assq package package--builtins))
         (describe-package-1 package))
       (let ((indent (make-string 13 ? )))
         (goto-char (point-min))
@@ -274,41 +268,24 @@ If prefix arg is present, refresh the cache."
 
         (package--print-help-section "Source")
         (pcase (doom-package-backend package)
-          (`straight
-           (insert "Straight\n")
-           (package--print-help-section "Pinned")
-           (insert (if-let* ((pin (plist-get (cdr (assq package doom-packages)) :pin)))
-                       pin
-                     "unpinned")
-                   "\n")
+          (`installed
+           (insert "Pinned\n")
+           (package--print-help-section "Pin")
+           (insert (doom-package-get package :pin) "\n")
 
-           (package--print-help-section "Build")
-           (let ((default-directory (straight--repos-dir (symbol-name package))))
-             (if (file-exists-p default-directory)
-                 (insert (cdr (doom-call-process "git" "log" "-1" "--format=%D %h %ci")))
-               (insert "n/a")))
-           (insert "\n" indent)
+           (package--print-help-section "Repo location")
+           (let ((repo-dir (doom-packages--repos-dir (doom-package-recipe-repo package))))
+             (if (file-exists-p repo-dir)
+                 (doom--help-insert-button (abbreviate-file-name repo-dir))
+               (insert "n/a"))
+             (insert "\n" indent))
 
            (package--print-help-section "Build location")
-           (let ((build-dir (straight--build-dir (symbol-name package))))
+           (let ((build-dir (doom-packages--build-dir package)))
              (if (file-exists-p build-dir)
                  (doom--help-insert-button (abbreviate-file-name build-dir))
                (insert "n/a")))
            (insert "\n" indent)
-
-           (package--print-help-section "Repo location")
-           (let* ((local-repo (doom-package-recipe-repo package))
-                  (repo-dir (straight--repos-dir local-repo)))
-             (if (file-exists-p repo-dir)
-                 (doom--help-insert-button (abbreviate-file-name repo-dir))
-               (insert "n/a"))
-             (insert "\n"))
-
-           (let ((recipe (doom-package-build-recipe package)))
-             (package--print-help-section "Recipe")
-             (insert
-              (replace-regexp-in-string "\n" (concat "\n" indent)
-                                        (pp-to-string recipe))))
 
            (package--print-help-section "Homepage")
            (let ((homepage (doom-package-homepage package)))
@@ -316,32 +293,20 @@ If prefix arg is present, refresh the cache."
                  (doom--help-insert-button homepage)
                (insert "n/a"))))
 
-          (`elpa (insert "[M]ELPA ")
-                 (doom--help-insert-button (doom-package-homepage package))
-                 (package--print-help-section "Location")
-                 (doom--help-insert-button
-                  (abbreviate-file-name
-                   (file-name-directory
-                    (locate-library (symbol-name package))))))
           (`builtin (insert "Built-in\n")
                     (package--print-help-section "Location")
                     (doom--help-insert-button
                      (abbreviate-file-name
                       (file-name-directory
                        (locate-library (symbol-name package))))))
-          (`other (doom--help-insert-button
-                   (abbreviate-file-name
-                    (or (symbol-file package)
-                        (locate-library (symbol-name package))))))
           (_ (insert "Not installed")))
         (insert "\n")
 
         (when-let
             (modules
-             (if (gethash (symbol-name package) straight--build-cache)
-                 (doom-package-get package :modules)
-               (plist-get (cdr (assq package (doom-package-list 'all)))
-                          :modules)))
+             (or (doom-package-get package :modules)
+                 (plist-get (cdr (assq package (doom-package-list 'all)))
+                            :modules)))
           (package--print-help-section "Modules")
           (insert "Declared by the following Doom modules:\n")
           (dolist (m modules)
@@ -401,17 +366,17 @@ If prefix arg is present, refresh the cache."
 
 (defvar doom--package-cache nil)
 (defun doom--package-list (&optional prompt)
+  (require 'package)
   (require 'finder-inf nil t)
-  (unless package--initialized (package-initialize t))
+  (doom-initialize-packages)
   (let* ((guess (or (function-called-at-point)
                     (symbol-at-point)))
          (packages
           (with-memoization doom--package-cache
             (with-temp-message "Reading packages..."
               (delete-dups
-               (append (mapcar #'car package-alist)
-                       (mapcar #'car package--builtins)
-                       (mapcar #'car package-archive-contents))))))
+               (append (mapcar #'car doom-packages)
+                       (mapcar #'car package--builtins))))))
          (guess (if (memq guess packages) guess)))
     (intern (completing-read (or prompt
                                  (if guess
@@ -441,7 +406,10 @@ config blocks in your private config."
     (recenter)))
 
 ;;;###autoload
-(defalias 'doom/help-package-homepage #'straight-visit-package-website)
+(defun doom/help-package-homepage (package)
+  "Open PACKAGE's homepage in a browser."
+  (interactive (list (doom--package-list "Visit homepage of: ")))
+  (browse-url (doom-package-homepage package)))
 
 ;;;###autoload
 (defun doom/help-search-load-path (query)

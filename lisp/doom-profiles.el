@@ -57,7 +57,6 @@ Can be changed externally by setting $DOOMPROFILELOADFILE.")
   '(doom-profile--generate-init
     doom-profile--generate-loaddefs-doom
     doom-profile--generate-user-init-loader
-    doom-profile--generate-package-envs
     doom-profile--generate-loaddefs-packages
     doom-profile--generate-loaddefs-modules
     doom-profile--generate-module-loader)
@@ -466,19 +465,6 @@ Regenerates the last profile if RELOAD? is non-nil."
        (with-doom-context '(module init)
          (doom-load ,(doom-user-dir doom-module-init-file) t))))))
 
-(defun doom-profile--generate-package-envs (_profile)
-  (doom-file-write
-   "30-doom-package-envs.init.el"
-   `((static-unless noninteractive
-       ,@(cl-loop for (_ . plist) in doom-packages
-                  if (plist-get plist :env)
-                  append (cl-loop for (var . val) in it
-                                  if (and (stringp var) val)
-                                  collect `(setenv ,var ,val)
-                                  else if (and (symbolp var)
-                                               (string-prefix-p "_" (symbol-name var)))
-                                  collect `(setq-default ,var ,val)))))))
-
 (defun doom-profile--generate-loaddefs-modules (_profile)
   (doom-file-write
    "60-doom-module-loaddefs.init.el"
@@ -491,41 +477,16 @@ Regenerates the last profile if RELOAD? is non-nil."
      (add-hook 'doom-startup-functions #'doom--startup-loaddefs-modules 60))))
 
 (defun doom-profile--generate-loaddefs-packages (_profile)
+  (doom-packages--check-built)
   (doom-file-write
    "70-doom-package-loaddefs.init.el"
    `((defun doom--startup-loaddefs-packages (_profile)
        ,@(doom-loaddefs-scan-literal
-          ;; Create a list of packages starting with the Nth-most dependencies
-          ;; by walking the package dependency tree depth-first. This ensures
-          ;; any load-order constraints in package autoloads are always met.
-          (let (autoloads)
-            (letf! (defun* walk-packages (pkglist)
-                     (cond ((null pkglist) nil)
-                           ((stringp pkglist)
-                            (let ((sym (intern pkglist)))
-                              (if-let* ((deps (and
-                                               (not (eq (plist-get
-                                                         (alist-get sym doom-packages)
-                                                         :type)
-                                                        'built-in))
-                                               (gethash pkglist straight--build-cache))))
-                                  (progn
-                                    (walk-packages (nth 1 deps))
-                                    (cl-pushnew (straight--autoloads-file pkglist)
-                                                autoloads
-                                                :test #'equal))
-                                ;; Handle system-installed packages (e.g.
-                                ;; installed via OS package manager)
-                                (when-let* ((desc (car (alist-get sym package-alist))))
-                                  (walk-packages (cl-loop for req in (package-desc-reqs desc)
-                                                          collect (symbol-name (car req))))
-                                  (cl-pushnew (format
-                                               "%s.el" (package--autoloads-file-name desc))
-                                              autoloads :test #'equal)))))
-                           ((listp pkglist)
-                            (mapc #'walk-packages (reverse pkglist)))))
-              (walk-packages (mapcar #'symbol-name (mapcar #'car doom-packages))))
-            (nreverse autoloads)))
+          ;; Dependencies first, so any load-order constraints in package
+          ;; autoloads are always met.
+          (mapcar #'doom-packages--autoloads-file
+                  (doom-packages--toposort (doom-packages--installed)
+                                           #'doom-package-dependencies)))
        ,@(when-let* ((info-dirs
                       (cl-loop for dir in load-path
                                if (file-exists-p (doom-path dir "dir"))

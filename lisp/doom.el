@@ -470,8 +470,7 @@ safely cleaned up with \\='doom sync' or \\='doom gc'."
 
       (with-eval-after-load 'comp
         ;; HACK: On Emacs 30.0.92, `native-comp-jit-compilation-deny-list' was
-        ;;   moved to comp-run. See emacsmirror/emacs@e6a955d24268. Doom forces
-        ;;   straight to consult this variable when building packages.
+        ;;   moved to comp-run. See emacsmirror/emacs@e6a955d24268.
         (require 'comp-run nil t)
         ;; HACK: Disable native-compilation for some troublesome packages
         (mapc (apply-partially #'add-to-list 'native-comp-deferred-compilation-deny-list)

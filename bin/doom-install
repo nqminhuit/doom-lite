@@ -16,8 +16,7 @@
 ;;; * Commands
 
 (defcli! install
-    ((aot?     ("--aot") "Enable ahead-of-time native-compilation (if available)")
-     &flags
+    (&flags
      (config?  ("--config" :yes)  "Create `$DOOMDIR' or dummy files therein?")
      (envfile? ("--env")          "(Re)generate an envvars file? (see `$ doom help env`)")
      (install? ("--install" :yes) "Auto-install packages?"))
@@ -92,10 +91,6 @@ Change `$DOOMDIR' with the `--doomdir' option, e.g.
                 :yes
               :no)))
 
-    (when aot?
-      (after! straight
-        (setq straight--native-comp-available t)))
-
     (if (eq install? :no)
         (print! (warn "Not installing plugins, as requested"))
       (when (file-exists-p "~/.emacs")
@@ -105,7 +100,7 @@ Change `$DOOMDIR' with the `--doomdir' option, e.g.
       (or (sh? git submodule update -f --init --recursive)
           (error "Failed to update submodules"))
       (put! :installing? t)
-      (exit! "doom" "sync" (if aot? "--aot") (if (eq envfile? :yes) "--env")))))
+      (exit! "doom" "sync" (if (eq envfile? :yes) "--env")))))
 
 
 ;;

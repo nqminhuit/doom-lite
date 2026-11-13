@@ -34,7 +34,7 @@ run before `doom-after-modules-config-hook' and after `doom-module-init-file'.")
 
 Package files are read whenever Doom's package manager wants a manifest of all
 desired packages. They are rarely read in interactive sessions (unless the user
-uses a straight or package.el command directly).")
+uses `doom/describe-package' or a similar command).")
 
 ;;;###autoload
 (defvar doom-module-cli-file "cli.el"

@@ -15,8 +15,12 @@
   "Module root outside the user dir, so modules are not recorded as user-overridden.")
 (defvar doom-module-load-path (list pa-test-modules-dir))
 
+(add-hook 'kill-emacs-hook
+          (lambda ()
+            (delete-directory doom-user-dir t)
+            (delete-directory pa-test-modules-dir t)))
+
 (load (expand-file-name "lisp/doom-lib.el" pa-test-root) nil t)
-(provide 'doom-straight)
 (load (expand-file-name "lisp/doom-modules.el" pa-test-root) nil t)
 (load (expand-file-name "lisp/doom-packages.el" pa-test-root) nil t)
 
@@ -41,13 +45,6 @@
   (doom-module--put pa-test-module
                     :path (file-name-directory (pa-test--module-file)))
   (doom-package-list (append (list pa-test-module) (when user-text '((:user))))))
-
-(defmacro pa-test--with-recipes (&rest body)
-  "Run BODY with recipe lookup reduced to what the declarations say."
-  `(cl-letf (((symbol-function 'straight-recipes-retrieve) (lambda (&rest _) nil))
-             ((symbol-function 'straight-vc-local-repo-name)
-              (lambda (recipe) (file-name-nondirectory (plist-get recipe :repo)))))
-     ,@body))
 
 (defconst pa-test-pin-a "1111111111111111111111111111111111111111")
 (defconst pa-test-pin-b "2222222222222222222222222222222222222222")
@@ -89,10 +86,9 @@
 (package! eldoc :pin %S :built-in t)
 (package! unpinned :recipe (:host github :repo \"o/unpinned\"))"
                        pa-test-pin-a pa-test-pin-a pa-test-pin-a))))
-    (pa-test--with-recipes
-     (let ((doom-packages pkgs))
-       (should (equal (doom-package-pinned-alist)
-                      `(("foo.el" . ,pa-test-pin-a))))))))
+    (let ((doom-packages pkgs))
+      (should (equal (doom-package-pinned-alist)
+                     `(("foo.el" . ,pa-test-pin-a)))))))
 
 (provide 'packages-api-tests)
 ;;; packages-api-tests.el ends here

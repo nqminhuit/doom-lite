@@ -10,7 +10,7 @@
   (expand-file-name "../.." (file-name-directory (or load-file-name buffer-file-name))))
 
 ;; The only place that knows where build dirs live.
-(defconst pl-test-build-root ".local/straight/build-31.1/")
+(defconst pl-test-build-root ".local/packages/build-31.1/")
 
 (defconst pl-test-fixture "tests/fixtures/packages-layout.eld")
 
@@ -29,10 +29,9 @@
 (defun pl-test--synced-p () (file-directory-p (pl-test--build-root)))
 
 (defun pl-test--package-names ()
-  "Installed package names: every build dir except straight's own."
+  "Installed package names: every build dir."
   (sort (cl-loop for f in (directory-files (pl-test--build-root) nil "\\`[^.]")
-                 when (and (file-directory-p (expand-file-name f (pl-test--build-root)))
-                           (not (equal f "straight")))
+                 when (file-directory-p (expand-file-name f (pl-test--build-root)))
                  collect f)
         #'string<))
 
