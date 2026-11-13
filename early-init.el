@@ -36,7 +36,7 @@
     ;;   startup times. Just don't set it too high to avoid runaway memory usage
     ;;   in long-running elisp shell scripts.
     (setq gc-cons-threshold 134217728)  ; 128mb
-  ;; PERF: Doom relies on `gcmh-mode' to reset this while the user is idle, so I
+  ;; PERF: `doom-startup' resets this once startup is done (see lisp/doom.el), so I
   ;;   effectively disable GC during startup. DON'T COPY THIS BLINDLY! If it's
   ;;   not reset later there will be stuttering, freezes, and crashes.
   (setq gc-cons-threshold most-positive-fixnum)
