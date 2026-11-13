@@ -70,6 +70,7 @@ What the wrapper does:
 - Sets `EMACSDIR` to the checkout or worktree it lives in and `DOOMDIR` to `$DOOM_LITE_CONFIG`, defaulting to `config/` in that same checkout. Values already in the environment are overwritten, not trusted.
 - Refuses to run, with a message and a non-zero exit, when after resolving symlinks `EMACSDIR` is `~/.config/emacs`, or `DOOMDIR` is `~/.config/doom`, lies under `/opt/minh/linux-config/`, or has no `init.el`.
 - Passes `--init-directory "$EMACSDIR"` to every `emacs` call and `-s doom-lite` to every `emacsclient` call; `daemon` refuses to start if that socket is already live.
+- `emacs`, `daemon` and `client` refuse to run, pointing at `bin/lite doom sync`, until the checkout's `.local` has a generated profile init (`.local/etc/@/init.*.el`); `doom` and `stop` always run.
 - Is plain bash, passes shellcheck, and has no other logic.
 
 Rules:
