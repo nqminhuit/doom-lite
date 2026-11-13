@@ -69,7 +69,8 @@ This creates NAME-hook and NAME-map as well.
 PLIST may contain any of these properties, which are all checked to see if NAME
 should be activated. If they are *all* true, NAME is activated.
 
-  :modes MODES -- if buffers are derived from MODES (one or a list of symbols).
+  :modes MODES -- if buffers are derived from MODES (one or a list of symbols,
+    where t means any major mode).
 
   :files FILES -- if project contains FILES; takes a string or a form comprised
     of nested (and ...) and/or (or ...) forms. Each path is relative to the
@@ -111,7 +112,7 @@ Relevant: `doom-project-hook'."
             ,on-enter))
         (dolist (hook ,add-hooks)
           (add-hook ',(intern (format "%s-hook" name)) hook)))
-      (cond ((or files modes when)
+      (cond ((or files modes when match)
              (cl-check-type files (or null list string))
              (let ((fn
                     `(lambda ()
@@ -134,12 +135,11 @@ Relevant: `doom-project-hook'."
                               (intern (format "doom--enable-%s%s-h" ',name
                                               (if (eq mode t) "" (format "-in-%s" mode))))))
                          (fset hook-name #',fn)
-                         (if (eq mode t)
-                             (add-to-list 'auto-minor-mode-magic-alist (cons hook-name #',name))
-                           (add-hook (intern (format "%s-hook" mode)) hook-name)))))
-                 `((add-hook 'change-major-mode-after-body-hook #',fn)))))
-            (match
-             `((add-to-list 'auto-minor-mode-alist (cons ,match #',name)))))))))
+                         (add-hook (if (eq mode t)
+                                       'change-major-mode-after-body-hook
+                                     (intern (format "%s-hook" mode)))
+                                   hook-name))))
+                 `((add-hook 'change-major-mode-after-body-hook #',fn)))))))))
 
 
 (provide 'doom-projects)

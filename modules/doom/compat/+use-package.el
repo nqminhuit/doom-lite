@@ -28,20 +28,6 @@
   ;; Emacs 26+ already highlights macros, so it's redundant.
   (font-lock-remove-keywords 'emacs-lisp-mode use-package-font-lock-keywords)
 
-  ;; We define :minor and :magic-minor from the `auto-minor-mode' package here
-  ;; so we don't have to load `auto-minor-mode' so early.
-  (dolist (keyword '(:minor :magic-minor))
-    (setq use-package-keywords
-          (use-package-list-insert keyword use-package-keywords :commands)))
-
-  (defalias 'use-package-normalize/:minor #'use-package-normalize-mode)
-  (defun use-package-handler/:minor (name _ arg rest state)
-    (use-package-handle-mode name 'auto-minor-mode-alist arg rest state))
-
-  (defalias 'use-package-normalize/:magic-minor #'use-package-normalize-mode)
-  (defun use-package-handler/:magic-minor (name _ arg rest state)
-    (use-package-handle-mode name 'auto-minor-mode-magic-alist arg rest state))
-
   (define-advice use-package-normalize-paths (:around (fn label arg &optional recursed) relative-to-doomdir)
     "Resolve :load-path from the current directory instead of $EMACSDIR.
 
