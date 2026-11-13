@@ -14,6 +14,24 @@
                         (file-name-directory (or load-file-name buffer-file-name))))
      (buffer-string))))
 
+(defun +java--lombok-jar ()
+  "Expanded path of the Lombok jar for `+java/lombok-version' in ~/.m2."
+  (expand-file-name
+   (format "~/.m2/repository/org/projectlombok/lombok/%s/lombok-%s.jar"
+           +java/lombok-version +java/lombok-version)))
+
+(defvar +java--lombok-warned nil
+  "Non-nil once the missing-Lombok warning was shown; eglot may ask for the contact repeatedly.")
+
+(defun +java--warn-lombok-missing (jar)
+  "Warn once that JAR is missing; a bad `-javaagent' would make the JVM exit 1."
+  (unless +java--lombok-warned
+    (setq +java--lombok-warned t)
+    (display-warning
+     '(java lombok)
+     (format "Lombok jar not found at %s; jdtls runs without Lombok support.\nInstall it: mvn dependency:get -Dartifact=org.projectlombok:lombok:%s"
+             jar +java/lombok-version))))
+
 (defun +java--project ()
   "The current project, or eglot's transient project for `default-directory' when there is none."
   (or (project-current) `(transient . ,(expand-file-name default-directory))))
@@ -25,11 +43,11 @@
            ;; The full root, not its basename: two checkouts named alike must not share a workspace.
            (project-dir (directory-file-name (expand-file-name (project-root (or project (+java--project))))))
            (data-dir (expand-file-name (file-name-concat jdtls-cache-dir (md5 project-dir))))
-           (java-agent-path
-            (expand-file-name
-             (format "~/.m2/repository/org/projectlombok/lombok/%s/lombok-%s.jar" +java/lombok-version +java/lombok-version)))
-           (jvm-args `(,(concat "-javaagent:" java-agent-path)))
-           (jvm-args (mapcar (lambda (arg) (concat "--jvm-arg=" arg)) jvm-args))
+           (lombok-jar (+java--lombok-jar))
+           (jvm-args (if (file-exists-p lombok-jar)
+                         (list (concat "--jvm-arg=-javaagent:" lombok-jar))
+                       (+java--warn-lombok-missing lombok-jar)
+                       nil))
            ;; tell jdtls the data directory and jvm args
            (contact (append '("jdtls") jvm-args `("-data" ,data-dir))))
       contact))
