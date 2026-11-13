@@ -68,6 +68,7 @@ Rules:
 - `EMACSDIR` is the checkout or worktree, `DOOMDIR` is the doom-lite config (`$DOOM_LITE_CONFIG` for the tests); never inherit either from the environment, and never point them at `~/.config/*`. Every bare `emacs` call gets `--init-directory "$EMACSDIR"`. Never run `doom upgrade` at all (it pulls upstream; P1 deleted it).
 - Never touch the `eterm` daemon. `tests/smoke.sh` runs its own daemon on the socket `doom-smoke`, refuses to run when that socket is live or `.local` is not synced, and never uses the default socket.
 - The first sync clones 41 packages from 38 shallow clones into the workspace `.local` (about 45 s in P11 call C).
+- A `.local` copied from another checkout keeps that checkout's paths in `.local/etc/@`, and a plain re-sync re-dumps them; remove `.local/etc/@` first, then sync.
 - The first sync does not install tree-sitter grammars. Without them, opening a Go or Java file asks "Missing tree-sitter grammars ... Install now?", which in a daemon blocks every client. After the first sync, copy them from the fork workspace: `mkdir -p .local/etc/tree-sitter && cp -p /opt/minh/doom-lite/.local/etc/tree-sitter/*.so .local/etc/tree-sitter/`. `tests/smoke.sh` turns any prompt into an error so a check fails instead of hanging.
 - The config hardcodes `/opt/minh/linux-config` paths (eshell aliases, `minh/java/config.el`, `minh/utils/autoload.el`); that is where the config lives now, so they stay valid.
 
@@ -524,7 +525,7 @@ Scripted (stacea runs these):
   - opening one Java and one Go file loads their modes without error
   - init time and package count, compared with the baseline
   - stop the daemon afterwards (`emacsclient -s doom-smoke --eval '(kill-emacs)'`), also when a check fails
-- Config phases: the config's ERT suite (`tests/elisp/minh-tests.el` in linux-config) passes there; the fork's unit tests that read the config use `$DOOM_LITE_CONFIG`.
+- Config phases: the config's ERT suite (`tests/elisp/doom-lite-tests.el` in linux-config) passes there; the fork's unit tests that read the config use `$DOOM_LITE_CONFIG`.
 - Grep for the symbols the phase removed (`grep -rn "<prefix>" lisp modules` and the config) returns only intentional hits.
 
 Interactive (the user's optional check after merge; the conductor reviews and merges): `SPC SPC`, `SPC p p`, `SPC b b`, `SPC /`, magit status, eglot in one Java and one Go project, a ghostel terminal, and an `emacsclient -c` frame.
