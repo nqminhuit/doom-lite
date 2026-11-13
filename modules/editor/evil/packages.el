@@ -3,7 +3,6 @@
 
 (package! evil :pin "6a3e1ddd04ac504a016590940d0af2a3361b9efd")
 (package! evil-args :pin "a8151556f63c9d45d0c44c8a7ef9e5a542f3cdc7")
-(package! evil-easymotion :pin "629c894af63336028a61cc93d6465d10837eb82b")
 (package! evil-embrace :pin "3081d37811b6a3dfaaf01d578c7ab7a746c6064d")
 (package! evil-escape
   :recipe (:host github :repo "hlissner/evil-escape")
@@ -11,7 +10,6 @@
 (package! evil-exchange :pin "5f0a2d41434c17c6fb02e4f744043775de1c63a2")
 (package! evil-indent-plus :pin "f392696e4813f1d3a92c7eeed333248914ba6dae")
 (package! evil-lion :pin "5a0bca151466960e090d1803c4c5ded88875f90a")
-(package! evil-nerd-commenter :pin "db5ee61a6e75db074b7d20e9dcb68e0b94b4edc7")
 (package! evil-numbers
   ;; REVIEW: Don't byte-compile until juliapath/evil-numbers#30 is addressed.
   :recipe (:build (:not compile))

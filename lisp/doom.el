@@ -520,10 +520,9 @@ Triggers `doom-after-init-hook' and sets `doom-init-time.'"
           (setq server-name name))
         (server-start)))
 
-    ;; If `gc-cons-threshold' and `gc-cons-percentage' haven't been reset at
-    ;; this point, do it now (without overwriting `gcmh' or the user's config).
-    ;; If not done, the session may see freezing and crashes. Also handles the
-    ;; case where the user has `gcmh' disabled (e.g. users on the IGC branch).
+    ;; Reset the startup GC settings if they are still at their startup values
+    ;; (without overwriting the user's config); otherwise the session may see
+    ;; freezing and crashes.
     (if (= (default-value 'gc-cons-threshold) most-positive-fixnum)
         (setq-default gc-cons-threshold (* 16 1024 1024)))
     (if (= (default-value 'gc-cons-percentage) 1.0)

@@ -83,6 +83,7 @@ Baseline (SETUP, saved next to this plan as `doom-lite-baseline.md`): init time,
 ## Cutover (after the last phase, user's call)
 - Point `~/.config/emacs` at the fork (swap dirs or re-clone).
 - If the live `.local` is reused rather than re-synced from scratch, delete the stale build dirs of packages that are now built in (P4: eglot, eldoc, flymake, jsonrpc, project, xref, seq, external-completion, transient, compat) from `.local/straight/build-31.1/`, then run `doom sync --rebuild`. straight still registers them as dependencies, so `doom gc` keeps them, and Doom puts registered build dirs on the `load-path` ahead of the built-ins.
+- The live install needs the `markdown`, `markdown-inline`, `gomod` and `gowork` tree-sitter grammars (none are in the live `.local/etc/tree-sitter`): install them with `treesit-install-language-grammar` or `markdown-ts-mode-install-parsers` before first opening a `.md` file, or copy them from the fork's `.local/etc/tree-sitter`, which has all four. `go.mod`/`go.work` now map straight to `go-mod-ts-mode`/`go-work-ts-mode`, which prompt to install a missing grammar.
 - Delete `bin/lite` and switch `tests/smoke.sh` to plain `bin/doom`, `emacs` and a test socket; the wrapper's refusals would block the fork once it is the live install.
 - Copy `config/` back to linux-config's `configs/dotfiles/emacs/doom-emacs/` in one linux-config PR to `master`, so `~/.config/doom` picks it up. First diff it against linux-config `master`: any config change made live after `3ced698a` must be carried over, not overwritten.
 - In the same linux-config PR, update `lazarus.sh` `_install_doom` (line 429 clones `doomemacs/doomemacs`; point it at the fork repo and check the `doom install`/`doom sync` calls still exist), its bats tests, and the Doom paragraph in `CLAUDE.md`.
@@ -295,7 +296,7 @@ After P1–P8 these third-party packages remain although a built-in covers the j
 | wgrep | drop | `grep-edit-mode` (in 31.1); update the vertico/embark export path and the evil wgrep wrapper in `editor/evil/autoload/evil.el` |
 | go-mode | drop | `go-ts-mode`; go-tag and go-gen-test require go-mode, so they go too unless they work without it |
 | json-mode, json-snatcher | drop | `json-ts-mode` |
-| yaml-mode | drop | `yaml-ts-mode` |
+| yaml-mode | keep | 31.1 `yaml-ts-mode` has no indentation; the module borrows `yaml-indent-line` (user, 2026-11-13) |
 | markdown-mode, edit-indirect, markdown-toc | drop | `markdown-ts-mode` (in 31.1); reduce `lang/markdown` to the `auto-mode-alist` entry and grammar setup, and delete its markdown-mode bindings and config. Accepted loss: markdown-mode's editing commands and preview |
 | dumb-jump | drop | xref with eglot; remove it from the lookup handler chain |
 | gorepl-mode | drop | none needed; this also drops hydra, lv, s, f and dash, once markdown-toc is gone too |

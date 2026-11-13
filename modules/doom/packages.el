@@ -2,9 +2,6 @@
 
 ;; doom.el
 (package! compat :built-in t)  ; Emacs 31's compat.el satisfies (compat "31")
-(unless (fboundp 'igc-info)
-  (package! gcmh
-    :pin "0089f9c3a6d4e9a310d0791cf6fa8f35642ecfd9"))
 
 ;; doom-packages.el
 (package! straight

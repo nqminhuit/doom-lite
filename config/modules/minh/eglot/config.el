@@ -5,12 +5,10 @@
 ;; deferral.  `add-hook' on a mode hook is already lazy.
 (add-hook! python-ts-mode #'eglot-ensure)
 (add-hook! 'java-mode-hook #'eglot-ensure)
-(add-hook! 'go-mode-hook #'eglot-ensure)
 (add-hook! go-ts-mode #'eglot-ensure)
 (add-hook! js-ts-mode #'eglot-ensure)
 (add-hook! java-ts-mode #'eglot-ensure)
 ;; (add-hook! 'java-mode-hook #'eglot-ensure #'flymake-mode)
-;; (add-hook! 'go-mode-hook #'eglot-ensure #'flymake-mode)
 ;; (add-hook! typescript-ts-mode #'eglot-ensure)
 
 (with-eval-after-load 'eglot

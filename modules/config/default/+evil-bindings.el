@@ -289,9 +289,7 @@
       ;;; <leader> g --- git/version control
       (:prefix-map ("g" . "git")
        :desc "Revert file"                 "R"   #'vc-revert
-       :desc "Copy link to remote"         "y"   #'+vc/git-link-kill
-       :desc "Copy link to homepage"       "Y"   #'+vc/git-link-kill-homepage
-       :desc "Git time machine"            "t"   #'git-timemachine-toggle
+       :desc "File/region history"         "t"   #'vc-region-history
        :desc "Revert hunk at point"      "r"   #'+vc-gutter/save-and-revert-hunk
        :desc "Stage hunk at point"       "s"   #'+vc-gutter/stage-hunk
        :desc "Jump to next hunk"         "]"   #'+vc-gutter/next-hunk
@@ -312,9 +310,6 @@
         :desc "Find file"                 "f"   #'magit-find-file
         :desc "Find gitconfig file"       "g"   #'magit-find-git-config-file
         :desc "Find commit"               "c"   #'magit-show-commit)
-       (:prefix ("o" . "open in browser")
-        :desc "Browse file or region"     "o"   #'+vc/git-link
-        :desc "Browse homepage"           "h"   #'+vc/git-link-homepage)
        (:prefix ("l" . "list")
         :desc "List repositories"         "r"   #'magit-list-repositories
         :desc "List submodules"           "s"   #'magit-list-submodules)

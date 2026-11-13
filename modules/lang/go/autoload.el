@@ -124,11 +124,3 @@ non-nil."
       (+go--generate (file-truename (expand-file-name proot)) "./...")
     (user-error "Not in a valid project")))
 
-
-;;;###autoload
-(defun +go/play-buffer-or-region (&optional beg end)
-  "Evaluate active selection or buffer in the Go playground."
-  (interactive "r")
-  (if (use-region-p)
-      (go-play-region beg end)
-    (go-play-buffer)))

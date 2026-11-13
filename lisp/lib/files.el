@@ -529,7 +529,7 @@ which case it will save it without prompting."
         ;; Record of the cursor's old position if it isn't at BOB (indicating
         ;; this buffer was already open), in case the user wishes to go to it.
         (unless (bobp)
-          (doom-set-jump-h)
+          (when (fboundp 'doom-set-jump-h) (doom-set-jump-h))
           ;; save-place-find-file-hook requires point be a BOB to do its thang.
           (goto-char (point-min)))
         (with-local-name (save-place-find-file-hook))

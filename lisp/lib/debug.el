@@ -10,7 +10,6 @@
     (async-debug t 2)
     (debug-on-error t)
     (epg-debug t)
-    (gcmh-verbose t 3)
     (init-file-debug t)
     (jka-compr-verbose t 3)
     (message-log-max 16384)
@@ -96,9 +95,6 @@ DEBUG-LEVEL dictates at what `doom-log-level' it should be set at, defaulting to
          (advice-add #'run-hooks :override #'doom-run-hooks)
          ;; Add time stamps to lines in *Messages*
          (advice-add #'message :before #'doom-debug--timestamped-message-a)
-         ;; The constant debug output from GC is mostly unhelpful. I still
-         ;; want it logged to *Messages*, just out of the echo area.
-         (advice-add #'gcmh-idle-garbage-collect :around #'doom-debug-shut-up-a)
          ;; Watch for changes in `doom-debug--vars', or when packages load
          ;; (and potentially define one of `doom-debug--vars'), in case
          ;; some of them aren't defined when `doom-debug-mode' is first loaded.
@@ -107,16 +103,10 @@ DEBUG-LEVEL dictates at what `doom-log-level' it should be set at, defaulting to
         (t
          (advice-remove #'run-hooks #'doom-run-hooks)
          (advice-remove #'message #'doom-debug--timestamped-message-a)
-         (advice-remove #'gcmh-idle-garbage-collect #'doom-debug-shut-up-a)
          (remove-variable-watcher 'doom-debug--vars #'doom-debug--watch-vars-h)
          (remove-hook 'after-load-functions #'doom-debug--watch-vars-h)
          (setq doom-debug--unbound-vars nil)
          (message "Debug mode disabled!"))))
-
-(defun doom-debug-shut-up-a (fn &rest args)
-  "Suppress output from FN, even in debug mode."
-  (let (init-file-debug)
-    (apply #'doom-shut-up-a fn args)))
 
 
 ;;

@@ -12,4 +12,3 @@
 
 (package! marginalia :pin "d76d7e36185ab552240c14fb08f7abcbf9a2910c")
 
-(package! wgrep :pin "49f09ab9b706d2312cab1199e1eeb1bcd3f27f6f")

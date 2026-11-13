@@ -9,15 +9,13 @@
 ;;   + `+lookup/file': open the file referenced at point
 ;;
 ;; This module uses `xref', an experimental new library in Emacs. It may change
-;; in the future. When xref can't be depended on it will fall back to
-;; `dumb-jump' to find what you want.
+;; in the future.
 
 (defvar +lookup-definition-functions
   '(+lookup-xref-definitions-backend-fn
-    +lookup-dumb-jump-backend-fn
     +lookup-project-search-backend-fn
     +lookup-evil-goto-definition-backend-fn)
-  "Functions for `+lookup/definition' to try, before resorting to `dumb-jump'.
+  "Functions for `+lookup/definition' to try, before resorting to a project text search.
 Stops at the first function to return non-nil or change the current
 window/point.
 
@@ -47,7 +45,7 @@ this list.")
 (defvar +lookup-references-functions
   '(+lookup-xref-references-backend-fn
     +lookup-project-search-backend-fn)
-  "Functions for `+lookup/references' to try, before resorting to `dumb-jump'.
+  "Functions for `+lookup/references' to try, before resorting to a project text search.
 Stops at the first function to return non-nil or change the current
 window/point.
 
@@ -58,7 +56,7 @@ this list.")
 
 (defvar +lookup-documentation-functions ()
   "Functions for `+lookup/documentation' to try, before resorting to
-`dumb-jump'. Stops at the first function to return non-nil or change the current
+a project text search. Stops at the first function to return non-nil or change the current
 window/point.
 
 If the argument is interactive (satisfies `commandp'), it is called with
@@ -77,19 +75,6 @@ If the argument is interactive (satisfies `commandp'), it is called with
 `call-interactively' (with no arguments). Otherwise, it is called with one
 argument: the identifier at point. See `set-lookup-handlers!' about adding to
 this list.")
-
-;;
-;;; dumb-jump
-
-(use-package! dumb-jump
-  :commands dumb-jump-result-follow
-  :config
-  (setq dumb-jump-default-project doom-emacs-dir
-        dumb-jump-prefer-searcher 'rg
-        dumb-jump-aggressive nil
-        dumb-jump-selector 'popup)
-  (add-hook 'dumb-jump-after-jump-hook #'better-jumper-set-jump))
-
 
 ;;
 ;;; xref

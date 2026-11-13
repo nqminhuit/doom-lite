@@ -175,7 +175,8 @@ This can be passed nil as its second argument to unset handlers for MODES. e.g.
                      result)
                     (result))
           (with-current-buffer (marker-buffer origin)
-            (better-jumper-set-jump (marker-position origin)))
+            (when (fboundp 'evil-set-jump)
+              (evil-set-jump (marker-position origin))))
           result)
       (set-marker origin nil))))
 
@@ -211,19 +212,6 @@ This can be passed nil as its second argument to unset handlers for MODES. e.g.
   (condition-case _
       (+lookup--xref-show 'xref-backend-references identifier #'xref--show-xrefs)
     (cl-no-applicable-method nil)))
-
-(defun +lookup-dumb-jump-backend-fn (identifier)
-  "Look up the symbol at point (or selection) with `dumb-jump', which conducts a
-project search with ag, rg, pt, or git-grep, combined with extra heuristics to
-reduce false positives.
-
-This backend prefers \"just working\" over accuracy."
-  (and (require 'dumb-jump nil t)
-       ;; See: https://github.com/jacktasia/dumb-jump/issues/353
-       ;; This is a workaround for a workaround to actually both fall back to dumb-jump and use the xref integration for it.
-       (dlet ((xref-backend-functions '(dumb-jump-xref-activate))
-              (stop-infinite-dumb-jump-recursion t))
-         (+lookup-xref-definitions-backend-fn identifier))))
 
 (defun +lookup-project-search-backend-fn (identifier)
   "Conducts a simple project text search for IDENTIFIER.
@@ -319,7 +307,7 @@ the browser."
   "Jump to the definition of IDENTIFIER (defaults to the symbol at point).
 
 Each function in `+lookup-definition-functions' is tried until one changes the
-point or current buffer. Falls back to dumb-jump, naive
+point or current buffer. Falls back to naive
 ripgrep/the_silver_searcher text search, then `evil-goto-definition' if
 evil-mode is active."
   (interactive (list (doom-thing-at-point-or-region)
