@@ -10,6 +10,10 @@
   :hook (ghostel-mode . mode-line-invisible-mode)
   :hook (ghostel-mode . doom-disable-line-numbers-h)
   :init
+  ;; The module is only ever downloaded, into a dir outside the package tree
+  ;; so a rebuild never deletes a module Emacs has loaded.
+  (setq ghostel-module-auto-install 'download
+        ghostel-module-directory (file-name-concat doom-data-dir "ghostel/"))
   ;; REVIEW: PR more elegant solution to solaire-mode.
   (add-hook! 'solaire-global-mode-hook :append
     (defun +ghostel-init-solaire-h ()
