@@ -4,21 +4,10 @@
 ;;; Packages
 
 (defun +go-common-config (mode)
-  (set-lookup-handlers! mode
-    :documentation #'godoc-at-point)
-
   (add-hook (intern (format "%s-local-vars-hook" mode)) #'lsp! 'append)
 
   (map! :map ,(intern (format "%s-map" mode))
         :localleader
-        "a" #'go-tag-add
-        "d" #'go-tag-remove
-        "e" #'+go/play-buffer-or-region
-        "i" #'go-goto-imports      ; Go to imports
-        (:prefix ("h" . "help")
-          "." #'godoc-at-point)    ; Lookup in godoc
-        (:prefix ("ri" . "imports")
-          "a" #'go-import-add)
         (:prefix ("b" . "build")
           :desc "go run ." "r" (cmd! (compile "go run ."))
           :desc "go build" "b" (cmd! (compile "go build"))
@@ -41,21 +30,9 @@
             "a" #'+go/bench-all))))
 
 
-(after! go-mode
-  (+go-common-config 'go-mode))
-
-
-(use-package! go-ts-mode  ; 29.1+ only
-  :mode ("/go\\.mod\\'" . go-mod-ts-mode-maybe)
-  :init
-  (set-tree-sitter! 'go-mode 'go-ts-mode 'go)
-  (set-tree-sitter! nil 'go-mod-ts-mode 'gomod)
-  (when (fboundp 'go-work-ts-mode)  ; 30.1+ only
-    (add-to-list 'auto-mode-alist '("/go\\.work\\'" . go-work-ts-mode-maybe))
-    (set-tree-sitter! nil 'go-work-ts-mode 'gowork))
+(use-package! go-ts-mode
+  :mode ("\\.go\\'" . go-ts-mode)
+  :mode ("/go\\.mod\\'" . go-mod-ts-mode)
+  :mode ("/go\\.work\\'" . go-work-ts-mode)
   :config
   (+go-common-config 'go-ts-mode))
-
-
-(use-package! gorepl-mode
-  :commands gorepl-run-load-current-file)
