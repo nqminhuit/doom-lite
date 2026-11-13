@@ -22,7 +22,7 @@
 
        :completion
        ;; company           ; the ultimate code completion backend
-       (corfu +orderless +icons)  ; complete with cap(f), cape and a flying feather!
+       corfu                      ; complete with cap(f), cape and a flying feather!
        ;;helm              ; the *other* search engine for love and life
        ;;ido               ; the other *other* search engine...
        ;;ivy               ; a search engine for love and life
@@ -45,14 +45,14 @@
        ;;tabs              ; a tab bar for Emacs
        ;;treemacs          ; a project drawer, like neotree but cooler
        ;;unicode           ; extended unicode support for various languages
-       (vc-gutter +pretty)         ; vcs diff in the fringe
+       vc-gutter                   ; vcs diff in the fringe
        ;; vi-tilde-fringe   ; fringe tildes to mark beyond EOB
        ;;window-select     ; visually switch windows
        workspaces        ; tab-bar based workspaces
        ;;zen               ; distraction-free coding or writing
 
        :editor
-       (evil +everywhere); come to the dark side, we have cookies
+       evil              ; come to the dark side, we have cookies
        ;; file-templates    ; auto-snippets for empty files
        ;; fold              ; (nigh) universal code folding
        ;;(format +onsave)  ; automated prettiness
@@ -83,7 +83,7 @@
        ghostel            ; the best terminal emulation in Emacs
 
        :checkers
-       (syntax +flymake)              ; tasing you for every semicolon you forget
+       syntax                         ; tasing you for every semicolon you forget
        ;;grammar           ; tasing grammar mistake every you make
 
        :tools
@@ -98,7 +98,7 @@
        ;; (eval +overlay)     ; run code, run (also, repls)
        lookup              ; navigate your code and its documentation
        ;; llm               ; when I said you needed friends, I didn't mean...
-       (lsp +eglot)               ; M-x vscode
+       lsp                        ; M-x vscode
        magit             ; a git porcelain for Emacs
        ;;make              ; run make tasks from Emacs
        ;;pass              ; password manager for nerds
@@ -136,15 +136,15 @@
        ;;fsharp            ; ML stands for Microsoft's Language
        ;;fstar             ; (dependent) types and (monadic) effects and Z3
        ;;gdscript          ; the language you waited for
-       (go +lsp +tree-sitter)         ; the hipster dialect
+       go                             ; the hipster dialect
        ;;(graphql +lsp)    ; Give queries a REST
        ;;(haskell +lsp)    ; a language that's lazier than I am
        ;;hy                ; readability of scheme w/ speed of python
        ;;idris             ; a language you can depend on
-       (json +tree-sitter)               ; At least it ain't XML
+       json                              ; At least it ain't XML
        ;;janet             ; Fun fact: Janet is me!
-       (java +lsp +tree-sitter)        ; the poster child for carpal tunnel syndrome
-       (javascript +lsp +tree-sitter)         ; all(hope(abandon(ye(who(enter(here))))))
+       java                            ; the poster child for carpal tunnel syndrome
+       javascript                             ; all(hope(abandon(ye(who(enter(here))))))
        ;;julia             ; a better, faster MATLAB
        ;;kotlin            ; a better, slicker Java(Script)
        ;;latex             ; writing papers in Emacs has never been so fun
@@ -177,7 +177,7 @@
        ;;swift             ; who asked for emoji variables?
        ;;terra             ; Earth and Moon in alignment for performance.
        ;; (web +lsp +tree-sitter)               ; the tubes
-       (yaml +tree-sitter)               ; JSON, but readable
+       yaml                              ; JSON, but readable
        ;;zig               ; C, but simpler
 
        :email
@@ -194,7 +194,7 @@
 
        :config
        ;;literate
-       (default +bindings)
+       default
 
        :minh
        abbrev

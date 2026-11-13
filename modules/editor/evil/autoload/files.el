@@ -11,7 +11,7 @@ kills the buffer. If FORCE-P, force the deletion (don't ask for confirmation)."
 ;;;###autoload (autoload '+evil:move-this-file "editor/evil/autoload/files" nil t)
 (evil-define-command +evil:move-this-file (new-path &optional force-p)
   "Move current buffer's file to NEW-PATH. Replaces %, # and other vim-esque
-filename modifiers (see `+evil*ex-replace-special-filenames'). If FORCE-P,
+filename modifiers (see `+evil-replace-filename-modifiers-a'). If FORCE-P,
 overwrite the destination file if it exists, without confirmation."
   :repeat nil
   (interactive "<f><!>")
@@ -22,7 +22,7 @@ overwrite the destination file if it exists, without confirmation."
 ;;;###autoload (autoload '+evil:copy-this-file "editor/evil/autoload/files" nil t)
 (evil-define-command +evil:copy-this-file (new-path &optional force-p)
   "Copy current buffer's file to NEW-PATH. Replaces %, # and other vim-esque
-filename modifiers (see `+evil*ex-replace-special-filenames'). If FORCE-P,
+filename modifiers (see `+evil-replace-filename-modifiers-a'). If FORCE-P,
 overwrite the destination file if it exists, without confirmation."
   :repeat nil
   (interactive "<f><!>")
