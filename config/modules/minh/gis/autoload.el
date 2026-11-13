@@ -250,9 +250,8 @@ Synchronous by necessity -- the caller prompts with the result."
 ;;; The status buffer
 ;;
 ;; One buffer per root, not the single "gis-mode" buffer there used to be:
-;; that one reported on whichever root happened to create it, and drifted
-;; between persp workspaces.  Matched on `gis--root' rather than on the
-;; buffer name, which two roots can share.
+;; that one reported on whichever root happened to create it.  Matched on
+;; `gis--root' rather than on the buffer name, which two roots can share.
 
 (defun gis--status-buffer (root &optional create)
   "The status buffer reporting on ROOT, made when CREATE and there is none."
@@ -641,9 +640,8 @@ document."
 ;;
 ;; Nothing here displays a buffer.  This used to end in `gis/status', whose
 ;; `switch-to-buffer' then fired from a sentinel: a fetch finishing after
-;; you had moved on took over the window you were looking at, and persp-mode
-;; adopted the gis buffer into that workspace.  The result lands in the
-;; root's status buffer whether or not it is on screen.
+;; you had moved on took over the window you were looking at.  The result
+;; lands in the root's status buffer whether or not it is on screen.
 ;;
 ;; Arguments come as a list rather than a shell command line, so that
 ;; `--progress' can be appended and names need no quoting.

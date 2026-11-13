@@ -12,8 +12,8 @@
                        (file-name-nondirectory
                         (directory-file-name default-directory))))
             "")
-          (if (bound-and-true-p persp-mode)
-              (safe-persp-name (get-current-persp))
+          (if (fboundp '+workspace-current-name)
+              (+workspace-current-name)
             "main")))
 
 ;;;###autoload

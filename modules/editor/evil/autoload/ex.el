@@ -145,12 +145,10 @@ This command understands vim file modifiers (like %:p:h). See
     (message "Changed directory to '%s'" (abbreviate-file-name (expand-file-name path)))))
 
 ;;;###autoload (autoload '+evil:kill-all-buffers "editor/evil/autoload/ex" nil t)
-(evil-define-command +evil:kill-all-buffers (&optional bang)
-  "Kill all buffers. If BANG, kill current session too."
+(evil-define-command +evil:kill-all-buffers (&optional _bang)
+  "Kill all buffers (the buffer list is global; BANG has no extra effect)."
   (interactive "<!>")
-  (if (and bang (fboundp '+workspace/kill-session))
-      (+workspace/kill-session)
-    (call-interactively #'doom/kill-all-buffers)))
+  (call-interactively #'doom/kill-all-buffers))
 
 ;;;###autoload (autoload '+evil:kill-matching-buffers "editor/evil/autoload/ex" nil t)
 (evil-define-command +evil:kill-matching-buffers (&optional bang pattern)

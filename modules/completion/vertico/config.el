@@ -97,8 +97,7 @@
     [remap switch-to-buffer]              #'consult-buffer
     [remap switch-to-buffer-other-window] #'consult-buffer-other-window
     [remap switch-to-buffer-other-frame]  #'consult-buffer-other-frame
-    [remap yank-pop]                      #'consult-yank-pop
-    [remap persp-switch-to-buffer]        #'+vertico/switch-workspace-buffer)
+    [remap yank-pop]                      #'consult-yank-pop)
   :config
   (setq consult-project-function #'doom-project-root
         consult-narrow-key "<"
@@ -203,9 +202,8 @@
   (map! :map minibuffer-local-map
         :desc "Cycle marginalia views" "M-A" #'marginalia-cycle)
   :config
-  (dolist (cat '((flycheck-error-list-set-filter . builtin)
-                 (persp-switch-to-buffer . buffer)))
-    (add-to-list 'marginalia-command-categories cat)))
+  (add-to-list 'marginalia-command-categories
+               '(flycheck-error-list-set-filter . builtin)))
 
 
 (use-package! wgrep
