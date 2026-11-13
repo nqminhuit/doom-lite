@@ -17,6 +17,10 @@
     {
       "name": "CUT2",
       "start": "Read docs/handoff/CUT2.md first (Conductor brief), then plan and implement the fork PR from doom-lite-plan.md § Cutover in your own worktree, and report STATUS lines to doom-lite-conductor."
+    },
+    {
+      "name": "CUT3",
+      "start": "Read docs/handoff/CUT3.md first (Conductor brief), then run the live cutover steps from doom-lite-plan.md § Cutover one at a time, asking the user before each, and report STATUS lines to doom-lite-conductor."
     }
   ]
 }
