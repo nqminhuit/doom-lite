@@ -3,29 +3,23 @@
 ## Conductor brief
 Conductor: `doom-lite-conductor`, set `doom-lite`; board `docs/handoff/doom-lite.md`. Report `STATUS CUT1: <state> | next | blocked | needs user` to the conductor.
 
-Goal: the linux-config PR from `doom-lite-plan.md` § Cutover → Changes → "linux-config PR" (base `master` of `/opt/minh/linux-config`). User asked to start the cutover on 2026-11-13; this PR comes first.
+Goal: the linux-config PR from `doom-lite-plan.md` § Cutover → Changes → "linux-config PR" (base `master` of `/opt/minh/linux-config`).
 
-Decided:
-- Work in a worktree `/opt/minh/linux-config-wt/CUT1`; leave the main linux-config checkout alone.
-- The uncommitted change in the main checkout's `configs/dotfiles/emacs/doom-emacs/config.el` goes into `doom-emacs/` in this PR (user chose this) and is carried into `doom-lite/`. Copy `doom-lite/` from the fork's `config/` at `origin/master`.
-- Do not touch the live install, `~/.config/doom`, or the `eterm` daemon; Steps 2–8 are CUT3's.
-- The conductor reviews and merges the PR. CUT2 (fork PR) waits for that merge.
-
-## Handoff (2026-11-13)
-Done: linux-config PR #160 merged as `2fabc329`. Worktree `/opt/minh/linux-config-wt/CUT1` and branch `doom-lite-cutover` (local and remote) removed.
-
-What landed:
-- `configs/dotfiles/emacs/doom-lite/` copied from the fork's `config/` at `origin/master`, plus the live `gemit-backend 'gemini` edit, which also went into `doom-emacs/config.el`. `custom.el` is gitignored in both config dirs. `LOMBOK_VERSION` now reads from `doom-lite/`.
-- `./lazarus.sh doom-use lite|doom`: refuses before changing anything; stops the `eterm` daemon only if it answers; always uses symlinks; listed in the help text.
-- `_install_doom` handles each starting state:
-  - Every refusal is checked before anything is moved, removed or cloned.
-  - A real upstream checkout at `~/.config/emacs` is renamed to `~/.config/doom-emacs`, and both links then point at the upstream pair.
-  - When `~/.config/emacs` is absent, both links point at the lite pair.
-  - When one link exists, the other is made to match it; existing links never flip.
-  - A real `~/.config/doom` is accepted only if it holds just links and `custom.el`. `custom.el` is copied into both configs where missing, and the script refuses if an existing copy differs; anything else is refused with a message.
-  - Each install is installed and synced with its own `EMACSDIR`/`DOOMDIR`.
-- 17 bats tests in `tests/lazarus.bats`; `tests/elisp/doom-lite-tests.el` added and wired into `tests/run.sh`; `CLAUDE.md` Doom paragraph and a `mutils.sh` comment updated.
-
-Side effects: `bats` and `shellcheck` installed via apt on this machine.
-
-Open for others: the user removes the uncommitted `config.el` edit in the main linux-config checkout before pulling. Next is CUT2 (fork PR), then CUT3 (live Steps 2–8).
+## Handoff
+- **Task**: CUT1, linux-config PR for the doom-lite cutover. Status: done (merged). Owner: conductor `doom-lite-conductor`; no tracker. Link: [linux-config#160](https://github.com/nqminhuit/linux-config/pull/160).
+- **Done**:
+  - #160 merged as `2fabc329`. Worktree `/opt/minh/linux-config-wt/CUT1` and branch `doom-lite-cutover` (local and remote) removed.
+  - The main linux-config checkout is clean at `2fabc329`; the user already dropped the uncommitted `config.el` edit and pulled.
+- **Gaps**: none.
+- **Context for continuing**:
+  - `configs/dotfiles/emacs/doom-lite/` is the fork's `config/` plus `gemit-backend 'gemini`, which is also in `doom-emacs/config.el`. `custom.el` is gitignored in both; `LOMBOK_VERSION` reads from `doom-lite/`.
+  - `lazarus.sh`:
+    - `__doom_pair` and `_doom_use`: refuse before any change, stop `eterm` only if it answers, always symlink.
+    - `__doom_prepare_config_dir`: a real `~/.config/doom` may hold only links and `custom.el`; `custom.el` is copied where missing, and the script refuses if an existing copy differs.
+    - `_install_doom`: checks every refusal before it moves, removes or clones anything. A real upstream checkout is renamed to `~/.config/doom-emacs` with both links to the upstream pair. An absent `~/.config/emacs` gets the lite pair. If one link exists, the other matches it; existing links never flip. `lazarus doom` clones the fork over https.
+  - Verified with `tests/run.sh`: lint, 17 new bats tests in `tests/lazarus.bats`, and `tests/elisp/doom-lite-tests.el`.
+- **Next steps**:
+  1. CUT1 needs nothing more. CUT2 (fork PR #20) is merged too. CUT3 continues at Cutover Step 2 (stop `eterm`, `mv ~/.config/emacs ~/.config/doom-emacs`), which waits for the user's OK in the conductor's CUT3 session.
+- **Watch out**:
+  - Run Cutover Step 3 by hand, as the plan says, or let `lazarus.sh doom` do it. On this machine the script refuses if `~/.config/doom` holds anything other than links and `custom.el`.
+  - `bats` and `shellcheck` were installed via apt on this machine during CUT1.

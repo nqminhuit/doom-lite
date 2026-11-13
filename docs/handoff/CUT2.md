@@ -11,18 +11,30 @@ Decided:
 - Don't touch the live install or `~/.config/*`; the live steps belong to CUT3, which starts after this merges.
 - The conductor reviews and merges the PR.
 
+
 ## Handoff
-Done: fork PR #20 merged as `25bb8877`. Worktree `/opt/minh/doom-lite-wt/CUT2` and branch `cut2-fork-cutover` (local and remote) removed.
+- **Task**: CUT2, the fork side of the cutover (`doom-lite-plan.md` § Cutover → Changes → "Fork PR"). Status: done. Conductor: `doom-lite-conductor`. There is no tracker.
 
-What landed:
-- Removed `bin/lite`, `tests/lite-test.sh`, `config/` and `tests/unit/minh-tests.el`. The config and its ERT suite (`tests/elisp/doom-lite-tests.el`) now live only in linux-config.
-- `tests/smoke.sh` sets `EMACSDIR` from its own location and `DOOMDIR` from `$DOOM_LITE_CONFIG`, defaulting to `/opt/minh/linux-config/configs/dotfiles/emacs/doom-lite`; it never inherits `DOOMDIR`. It runs on the socket `doom-smoke` and never touches `eterm`. It refuses when `DOOMDIR` has no `init.el`, when `.local` is unsynced or when `doom-smoke` is already live, and it installs its kill trap only after those checks. `tests/smoke-guard-test.sh` covers the refusals with stubs and replaces `lite-test.sh` in `tests/run.sh`.
-- `tests/config-dir.el` (`tcd-config-dir`) is the one place unit tests resolve the config. Eleven tests use it: abbrev, java, startup, keybinds, modulep-targets, autodef, help, core-trims, no-spellcheck, minh-autoload and workspace-keys. They error, rather than skip, when the config is missing.
-- README and the plan's Workspace and Verification sections describe working with an explicit `EMACSDIR`/`DOOMDIR` and the linux-config dependency. Historical phase sections, `doom-lite-baseline.md` and `docs/handoff/` are unchanged.
+**Done**
+- [#20](https://github.com/nqminhuit/doom-lite/pull/20) is merged as `25bb8877`. The worktree and the `cut2-fork-cutover` branch (local and remote) are removed, and nothing is unpushed.
 
-Gotcha: a `.local` copied from another checkout keeps that checkout's paths in `.local/etc/@`, and a plain `doom sync` re-dumps them. Remove `.local/etc/@` and sync again. This is noted in the plan's Workspace section.
+**Gaps**
+- None.
 
-Open for others:
-- The fork's `tests/run.sh` and `tests/smoke.sh` fail until the main linux-config checkout is pulled. It was 5 commits behind, with an uncommitted `doom-emacs/config.el`, so `doom-lite/` was not on disk yet. CUT1's note applies: drop that edit before pulling.
-- The main doom-lite checkout has a stray untracked `config/custom.el`, which is all that is left of `config/`. Remove it or ignore it. Step 3 of the cutover copies `custom.el` from `~/.config/doom`, not from here.
-- Next is CUT3 (live Steps 2–8).
+**Context for continuing**
+- Removed: `bin/lite`, `tests/lite-test.sh`, `config/` and `tests/unit/minh-tests.el`. The config and its ERT suite (`tests/elisp/doom-lite-tests.el`) now live only in linux-config.
+- `tests/smoke.sh` runs its own daemon on the socket `doom-smoke` and never touches `eterm`.
+  - It sets `EMACSDIR` from its own location and `DOOMDIR` from `$DOOM_LITE_CONFIG`, whose default is `/opt/minh/linux-config/configs/dotfiles/emacs/doom-lite`. It never inherits `DOOMDIR`.
+  - It refuses to start when that dir has no `init.el`, when `.local` is unsynced, or when `doom-smoke` is already running. The kill trap is installed only after those checks.
+  - `tests/smoke-guard-test.sh` covers the refusals using stub `emacs`/`emacsclient`.
+- `tests/config-dir.el` (`tcd-config-dir`) is the only place the unit tests look up the config. Eleven tests use it, and they error rather than skip when the config is missing.
+- How it was verified: `tests/run.sh`, `tests/smoke.sh` and shellcheck all passed against a copy of linux-config `master`.
+
+**Next steps**
+1. CUT3: the live steps 2–8 (see `CUT3.md`). Step 2 is waiting for the user's OK.
+2. After CUT3 step 6, run the fork's `tests/run.sh` once more against the real linux-config path. It is pulled now (`2fabc329`).
+
+**Watch out**
+- A `.local` copied from another checkout keeps that checkout's paths in `.local/etc/@`, and a plain `doom sync` writes them back. Remove `.local/etc/@` and sync again.
+- The stray untracked `config/custom.el` in the main doom-lite checkout was deleted on the user's instruction.
+- Config edits now go to linux-config `doom-lite/`. The fork has no config.
