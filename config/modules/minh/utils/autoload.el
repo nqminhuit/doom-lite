@@ -64,6 +64,7 @@ Argument MILLIS: A string representing the timestamp in milliseconds (e.g., \"17
     (kill-new time)
     (message "Copied: '%s'" time)))
 
+;;;###autoload
 (defun mtime/convert-selected-millis-to-date ()
   "Convert the milliseconds timestamp at point to a human-readable date.
 Uses the word at point as the timestamp input.
@@ -73,6 +74,7 @@ for details on the conversion and output format."
   (mtime/convert-millis-to-date
    (or (word-at-point) (user-error "No word at point"))))
 
+;;;###autoload
 (defun m/catcmd ()
   "Copy a useful Linux command from a predefined reference file to the kill ring.
 Uses `consult' to select from the commands listed in
@@ -200,6 +202,7 @@ Paths that do not live under PROJ fall back to `file-relative-name'."
   (eww-browse-with-external-browser
    (format "https://www.oxfordlearnersdictionaries.com/definition/english/%s?q=%s" word word)))
 
+;;;###autoload
 (defun m/show-current-path ()
   (interactive)
   (if-let (filename (buffer-file-name (buffer-base-buffer)))
@@ -244,6 +247,7 @@ If N is negative, insert N lines above."
           (forward-char -1)
           (insert (if use-hard-newlines hard-newline "\n")))))))
 
+;;;###autoload
 (defun m/run-sh-paragraph ()
   "Run the current shell block defined by `###` headers via `compile`.
 If a `### vars` or `### globals` block exists earlier in the buffer, its
@@ -295,6 +299,7 @@ Source: https://github.com/protesilaos/dotfiles/blob/master/emacs/.emacs.d/prot-
         (not flag))
     t))
 
+;;;###autoload
 (defun m/select-text-line ()
   "Select only text in current line."
   (interactive)
@@ -314,6 +319,7 @@ Source: https://github.com/protesilaos/dotfiles/blob/master/emacs/.emacs.d/prot-
       (find-file file)
       (setq this-command 'find-file))))
 
+;;;###autoload
 (defun m/find-file-in-project-root ()
   "Find file under project root directory."
   (interactive)
@@ -321,6 +327,7 @@ Source: https://github.com/protesilaos/dotfiles/blob/master/emacs/.emacs.d/prot-
     (call-interactively 'find-file))
   (setq this-command 'find-file))
 
+;;;###autoload
 (defun m/magit-copy-current-branch ()
   "Show the current branch in the echo-area and add it to the `kill-ring'."
   (interactive)
@@ -330,6 +337,7 @@ Source: https://github.com/protesilaos/dotfiles/blob/master/emacs/.emacs.d/prot-
                (message "'%s' copied" branch))
       (user-error "There is no current git branch"))))
 
+;;;###autoload
 (defun m/quick-calc-region (beg end)
   "Evaluate math expression in region or current line and insert result right after it.
 If an existing = result is present at the end of the region, automatically remove it before evaluating."

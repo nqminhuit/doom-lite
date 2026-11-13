@@ -834,6 +834,7 @@ pipeline -- and with a shell in the way, no stderr to read progress from."
     (message "gis %s..." label)))
 
 ;;;###autodef
+;;;###autoload
 (defun gis/magit-status-at-point()
   "Open `magit-status' for the module of the row at point."
   (interactive)
@@ -909,6 +910,7 @@ the module at point."
   (gis--call-gis-function '("pull" "--progress") "pulling"))
 
 ;;;###autodef
+;;;###autoload
 (defun gis/yank-branch-name ()
   "Copy the branch of the module of the row at point.
 The status document already carries it, so this no longer has to ask git."
@@ -943,6 +945,7 @@ The status document already carries it, so this no longer has to ask git."
   (gis--call-gis-function '("rebase-current-origin" "--progress") "rebasing"))
 
 ;;;###autodef
+;;;###autoload
 (defun gis/find-modified-files()
   (interactive)
   (require 'consult)

@@ -69,6 +69,7 @@
             (if compile (format "%s -DskipTests clean -pl $n package || return 1;" mvn-cmd) ""))))
 
 ;;;###autodef
+;;;###autoload
 (defun java/build-lib (module)
   (interactive (list (completing-read "Build lib: " (cons all-modules lib-modules))))
   (mvn--build-lib module))
@@ -79,6 +80,7 @@
   (setq cm--ver ver))
 
 ;;;###autodef
+;;;###autoload
 (defun java/build-lib-and-restart (module service)
   (interactive
    (list (completing-read "Build lib: " (cons all-modules lib-modules))
@@ -86,6 +88,7 @@
   (mvn--build-lib module service))
 
 ;;;###autodef
+;;;###autoload
 (defun java/compile (module)
   (interactive (list (completing-read "Compile module: " compileable-modules)))
   (m--compile
@@ -95,6 +98,7 @@
    module))
 
 ;;;###autodef
+;;;###autoload
 (defun java/test (module)
   (interactive (list (completing-read "Test module: " compileable-modules)))
   (let ((cmd (format "%s -DtrimStackTrace=false -Djacoco.skip=true verify" mvn-cmd))
@@ -110,6 +114,7 @@
    "genclasspath"))
 
 ;;;###autodef
+;;;###autoload
 (defun java/test-current-method ()
   "Run mvn test method inside method body, require `java-ts-mode'."
   (interactive)
@@ -121,6 +126,7 @@
      (concat "test:" method))))
 
 ;;;###autodef
+;;;###autoload
 (defun java/test-current-class ()
   "Run mvn test current buffer."
   (interactive)
@@ -131,6 +137,7 @@
      (concat "test:" class))))
 
 ;;;###autodef
+;;;###autoload
 (defun java/rebuild-services (services)
   (interactive (list (completing-read-multiple
                       (format "Build and Deploy %s service: " cm--ver)
@@ -140,6 +147,7 @@
     (m--compile (cm--s-restart service t) service)))
 
 ;;;###autodef
+;;;###autoload
 (defun java/restart-services (services)
   (interactive (list (completing-read-multiple
                       (format "Restart %s service: " cm--ver)
