@@ -108,7 +108,7 @@
            :desc "Switch terminal buffer" "c" #'calc)
   (:prefix "o"
            :desc "Open project dired" "o" #'project-dired)
-  "<SPC>" #'m/find-file
+  :desc "Find file in project" "<SPC>" #'m/find-file
   :desc "Consult from my useful commands" "C-r" #'m/catcmd
   :desc "Select only text in current line" "V" #'m/select-text-line)
 

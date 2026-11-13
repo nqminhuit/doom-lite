@@ -380,6 +380,23 @@
     (evil-insert-state)
     (should (kbt--bound-p "M-SPC m q" #'kbt-local-cmd)))))
 
+;;; the real leader map
+
+(defun kbt--config-leader-form ()
+  "The top-level `(:leader ...)' clause of the user's keybindings config, read as data."
+  (with-temp-buffer
+    (insert-file-contents (kbt--path "config/modules/minh/keybindings/config.el"))
+    (let ((form (read (current-buffer))))
+      (seq-find (lambda (f) (eq (car-safe f) :leader)) (cdr form)))))
+
+(kbt--test config-leader-spc-label
+  (let ((doom-leader-map (make-sparse-keymap))
+        (form (kbt--config-leader-form)))
+    (should form)
+    (eval `(let ((noninteractive nil)) (map! ,form)) t)
+    (should (eq (kbt--lookup doom-leader-map "SPC") #'m/find-file))
+    (should (equal (kbt--label doom-leader-map "SPC") "Find file in project"))))
+
 ;;; no general
 
 (kbt--test no-general
