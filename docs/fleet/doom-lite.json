@@ -11,8 +11,8 @@
       "stop": "Bring the board up to date and write the Conductor handoff section, then stop."
     },
     {
-      "name": "P5",
-      "start": "Read docs/handoff/P5.md first (Conductor brief), then doom-lite-plan.md and docs/handoff/P4.md, then do phase P5 in your own worktree and report STATUS lines to doom-lite-conductor."
+      "name": "P6",
+      "start": "Read docs/handoff/P6.md first (Conductor brief), then doom-lite-plan.md and docs/handoff/P5.md, then do phase P6 in your own worktree and report STATUS lines to doom-lite-conductor."
     }
   ]
 }
