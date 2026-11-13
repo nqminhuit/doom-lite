@@ -17,23 +17,22 @@ Set `doom-lite`, conductor `doom-lite-conductor`. Executes `doom-lite-plan.md`. 
 - Cutover started 2026-11-13 (user): CUT1 linux-config PR, then CUT2 fork PR, then CUT3 live Steps 2–8 with the user confirming each. The uncommitted `doom-emacs/config.el` change is committed into `doom-emacs/` in CUT1 and carried into `doom-lite/`.
 
 ## Conductor handoff
-- **Task**: set `doom-lite`, executing `doom-lite-plan.md` (hard fork of Doom Emacs). Conductor `doom-lite-conductor`; no tracker. Status: the cutover is done (CUT1–CUT3); doom-lite is the active install. Nothing left: CUT1–CUT4 merged and their sessions removed; only the conductor remains.
-- **Done**: SETUP, S1, P1–P11, P10b, FIX1–FIX4 and CUT0 are merged into `master` (PRs #1–#19; last merge `639118f`). Nothing is unpushed, no PR is open, no worker is running, and no worktree is left besides the main checkout.
-- **Gaps**: the main checkout has an untracked `config/custom.el` that Emacs wrote. Don't commit it. The cutover gitignores `custom.el` in linux-config.
+- **Task**: set `doom-lite`, executing `doom-lite-plan.md` (hard fork of Doom Emacs). Conductor `doom-lite-conductor`; no tracker. Status: the plan is done, cutover included; doom-lite is the user's active Emacs.
+- **Done**: SETUP, S1, P1–P11, P10b, FIX1–FIX4, CUT0–CUT4 are merged (fork PRs #1–#21, last merge `0638b7ca`; linux-config #160 as `2fabc329`). CUT3 ran the live Steps 2–8. Nothing is unpushed, no PR is open, no worker is running, no worktree is left besides the main checkouts.
+- **Gaps**: none. Optional for the user: re-check eglot on Go (gopls is now v0.24.0).
 - **Context for continuing**:
   - User decisions are under Decisions above and in the board rows.
-  - The conductor reviews and merges every PR and removes sessions and worktrees after a merge, without asking. Conductors never edit code: even one-line fixes go through a worker with a brief in `docs/handoff/<KEY>.md`.
-  - The main checkout `/opt/minh/doom-lite` is where the user tries the fork (`bin/lite emacs`). Its `.local` uses the new backend.
-  - Still untested by the user: ghostel, yaml/json/go.mod, `gcc`, jumps, `SPC TAB` new/rename/kill, `SPC ;`/`:` pairing, Java outside git.
+  - Layout: upstream install `~/.config/doom-emacs` + config linux-config `doom-emacs/` (frozen); doom-lite install `~/.config/doom-lite` (clone of the fork) + config linux-config `configs/dotfiles/emacs/doom-lite/` (gets all edits). `~/.config/emacs` and `~/.config/doom` are symlinks; `./lazarus.sh doom-use lite|doom` switches, which is also the rollback.
+  - The fork has no `config/` and no `bin/lite` any more. Its `tests/run.sh` and `tests/smoke.sh` read the config through `$DOOM_LITE_CONFIG` (default the linux-config path). Config changes are linux-config PRs; fork changes are doom-lite PRs.
+  - `/opt/minh/doom-lite` is now only the fork's dev checkout and the board's home; its `.local` holds the nine tree-sitter grammars.
+  - The conductor reviews and merges every PR. It removes sessions only with the user's OK in that conversation. Conductors never edit code: even one-line fixes go through a worker with a brief in `docs/handoff/<KEY>.md`.
 - **Next steps**:
-  1. Wait for the user's next request: a bug from testing goes to a FIX worker; "start the cutover" follows Plan § Cutover.
-  2. Cutover: one worker for the linux-config PR first, then the fork PR. Run steps 2–8 with the user present and confirm before each live step.
+  1. Wait for the user's next request; a bug goes to a FIX worker (fork or linux-config, whichever holds the code).
 - **Watch out**:
-  - linux-config has an uncommitted change in `doom-emacs/config.el`. The carry-over must diff the working tree.
+  - Env files (`doom sync --env`, `doom env`, `lazarus doom`) are generated only from the user's own terminal, never a Claude Code shell (they capture `CLAUDE_*` vars and the messaging token). Same for anything needing `sudo`.
   - The live daemon socket is `eterm`; never touch it from tests.
   - Force-push is denied in workers.
-  - A copied `.local` needs `yes y | bin/lite doom sync`.
-  - A plan-only worker needs the user's own go-ahead in its pane before it implements.
+  - A `.local` copied into a worktree keeps the source's paths in `.local/etc/@`; remove that dir before syncing.
   - Restart with `lazarus fleet up doom-lite` from `/opt/minh/doom-lite`. Commit the board on `master` only, then push.
 
 ## Board
