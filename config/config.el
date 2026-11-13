@@ -231,10 +231,6 @@
 (with-eval-after-load 'org
   (setopt org-startup-folded 'fold))
 
-(with-eval-after-load 'jinx
-  (dolist (hook '(text-mode-hook prog-mode-hook conf-mode-hook))
-    (add-hook hook #'jinx-mode)))
-
 (define-key! :keymaps +default-minibuffer-maps
   "C-r"    #'(lambda ()
                (interactive)

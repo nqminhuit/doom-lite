@@ -6,7 +6,7 @@
 ;; STYLE: Redefine fringe bitmaps to be sleeker by making them solid bars (with
 ;;   no border) that only take up half the horizontal space in the fringe. This
 ;;   approach lets us avoid robbing fringe space from other packages/modes that
-;;   may need benefit from it (like magit, flycheck, or flyspell).
+;;   may need benefit from it (like magit or flycheck).
 (if (fboundp 'fringe-mode) (fringe-mode '8))
 (setq-default fringes-outside-margins t)
 

@@ -68,6 +68,3 @@
 (package! podel :recipe (:host github :repo "nqminhuit/podel"))
 
 ;; (package! capf-autosuggest)
-
-;; https://github.com/minad/jinx
-;; (package! jinx :recipe (:host github :repo "minad/jinx"))

@@ -458,6 +458,9 @@ A few places use the backup file name so paths don't get too long."
 ;; modes, even if hard wrapping is more performant.
 (add-hook 'text-mode-hook #'visual-line-mode)
 
+;; No spellchecking: keep `text-mode' from adding ispell completion to CAPF.
+(setq text-mode-ispell-word-completion nil)
+
 
 ;;; ** Clipboard / kill-ring
 
@@ -1718,8 +1721,7 @@ and whether the line count of the buffer exceeds that matching entry in
     ;; But disable everything else that may be unnecessary/expensive for large or
     ;; wide buffers.
     (cl-callf append so-long-minor-modes
-      '(spell-fu-mode
-        eldoc-mode
+      '(eldoc-mode
         ws-butler-mode
         auto-composition-mode
         undo-tree-mode
