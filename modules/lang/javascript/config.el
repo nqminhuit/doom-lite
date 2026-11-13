@@ -62,10 +62,9 @@
   :modes '(html-mode
            css-mode
            web-mode
-           markdown-mode
+           markdown-ts-mode
            js-mode  ; includes js2-mode and rjsx-mode
            js-ts-mode
-           json-mode
            json-ts-mode
            typescript-mode
            typescript-ts-mode

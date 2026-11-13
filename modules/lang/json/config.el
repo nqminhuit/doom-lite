@@ -1,24 +1,8 @@
 ;;; lang/json/config.el -*- lexical-binding: t; -*-
 
-(use-package! json-mode
-  :mode ("\\.js\\(?:on\\|[hl]int\\(?:rc\\)?\\)\\'" . json-mode)
-  :mode ("\\.jsonc\\'" . jsonc-mode)
+;; Explicit entries: no json-mode left to claim these files and remap to the ts mode.
+(use-package! json-ts-mode
+  :mode ("\\.js\\(?:on\\|[hl]int\\(?:rc\\)?\\)\\'" . json-ts-mode)
+  :mode ("\\.jsonc\\'" . json-ts-mode)
   :config
-  (set-electric! '(json-mode jsonc-mode) :chars '(?\n ?: ?{ ?}))
-
-  (map! :after json-mode
-        :map json-mode-map
-        :localleader
-        :desc "Copy path" "p" #'json-mode-show-path
-        "t" #'json-toggle-boolean
-        "d" #'json-mode-kill-path
-        "x" #'json-nullify-sexp
-        "+" #'json-increment-number-at-point
-        "-" #'json-decrement-number-at-point
-        "f" #'json-mode-beautify))
-
-
-(use-package! json-ts-mode  ; 29.1+ only
-  :defer t
-  :init
-  (set-tree-sitter! 'json-mode 'json-ts-mode 'json))
+  (set-electric! 'json-ts-mode :chars '(?\n ?: ?{ ?})))
