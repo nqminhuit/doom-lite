@@ -40,24 +40,24 @@ go install golang.org/x/tools/gopls@latest
 
 * Usage
 ** Keybinds
-| Keys                | Description                                           |
-|---------------------+-------------------------------------------------------|
+| Keys                  | Description                                             |
+|-----------------------+---------------------------------------------------------|
 | =<localleader> b c=   | run ~$ go clean~                                        |
 | =<localleader> b b=   | run ~$ go build~                                        |
 | =<localleader> b r=   | run ~$ go run .~                                        |
-| =<localleader> g f=   | run ~go generate~ on the current file                 |
-| =<localleader> g d=   | run ~go generate~ in the current directory, recursively           |
-| =<localleader> g a=   | run ~go generate~ on the whole project                |
-| =<localleader> t t=   | rerun last test                                       |
-| =<localleader> t a=   | run all tests in project                              |
-| =<localleader> t f=   | run all tests in current file                         |
-| =<localleader> t s=   | run single test at point                              |
-| =<localleader> t n=   | run nested tests at point                             |
-| =<localleader> t g=   | Generate tests for all exported or selected functions |
-| =<localleader> t G=   | Generate tests for all functions                      |
-| =<localleader> t e=   | Generate tests for all exported functions             |
-| =<localleader> t b s= | go test.bench single                                  |
-| =<localleader> t b a= | go test.bench all                                     |
+| =<localleader> g f=   | run ~go generate~ on the current file                   |
+| =<localleader> g d=   | run ~go generate~ in the current directory, recursively |
+| =<localleader> g a=   | run ~go generate~ on the whole project                  |
+| =<localleader> t t=   | rerun last test                                         |
+| =<localleader> t a=   | run all tests in project                                |
+| =<localleader> t f=   | run all tests in current file                           |
+| =<localleader> t s=   | run single test at point                                |
+| =<localleader> t n=   | run nested tests at point                               |
+| =<localleader> t g=   | Generate tests for all exported or selected functions   |
+| =<localleader> t G=   | Generate tests for all functions                        |
+| =<localleader> t e=   | Generate tests for all exported functions               |
+| =<localleader> t b s= | go test.bench single                                    |
+| =<localleader> t b a= | go test.bench all                                       |
 
 * Troubleshooting
 /There are no known problems with this module./

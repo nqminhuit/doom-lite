@@ -35,8 +35,8 @@ The :lang modules start eglot in their buffers with ~lsp!~. Eglot will not insta
 
 * Usage
 ** LSP-powered project search
-| Keybind | Description                         |
-|---------+-------------------------------------|
+| Keybind   | Description                                                   |
+|-----------+---------------------------------------------------------------|
 | =SPC c j= | Jump to symbol in current workspace (~consult-eglot-symbols~) |
 
 * Configuration

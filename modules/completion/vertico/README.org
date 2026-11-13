@@ -54,18 +54,18 @@ Doom-specific additions:
 When in an active Vertico completion session, the following doom added
 keybindings are available:
 
-| Keybind                               | Description                                                  |
-|---------------------------------------+--------------------------------------------------------------|
-| =C-k=                         | (evil) Go to previous candidate                              |
-| =C-j=                         | (evil) Go to next candidate                                  |
-| =C-M-k=                       | (evil) Go to previous group                                  |
-| =C-M-j=                       | (evil) Go to next group                                      |
+| Keybind               | Description                                                    |
+|-----------------------+----------------------------------------------------------------|
+| =C-k=                 | (evil) Go to previous candidate                                |
+| =C-j=                 | (evil) Go to next candidate                                    |
+| =C-M-k=               | (evil) Go to previous group                                    |
+| =C-M-j=               | (evil) Go to next group                                        |
 | =C-;= or =<leader> a= | Open an ~embark-act~ menu to chose a useful action             |
-| =C-c C-;=                     | export the current candidate list to a buffer                |
-| =C-c C-l=                     | ~embark-collect~ the current candidate list (collect verbatim) |
-| =C-c C-e=                     | export to a writable buffer (~+vertico/embark-export-write~)   |
-| =C-SPC=                       | Preview the current candidate                                |
-| =M-RET=                       | Exit with the input as typed                                 |
+| =C-c C-;=             | export the current candidate list to a buffer                  |
+| =C-c C-l=             | ~embark-collect~ the current candidate list (collect verbatim) |
+| =C-c C-e=             | export to a writable buffer (~+vertico/embark-export-write~)   |
+| =C-SPC=               | Preview the current candidate                                  |
+| =M-RET=               | Exit with the input as typed                                   |
 
 ~embark-act~ will prompt you with a =which-key= menu with useful commands on the
 selected candidate or candidate list, depending on the completion category. Note
@@ -76,17 +76,17 @@ due to Marginalia annotations.
 ** Jump-to navigation
 This module provides an interface to navigate within a project using =project.el=:
 
-| Keybind                              | Description                         |
-|--------------------------------------+-------------------------------------|
-| =SPC p f=, =SPC SPC= | Jump to file in project             |
-| =SPC f f=, =SPC .=   | Jump to file                        |
-| =SPC s i=                    | Jump to symbol in file              |
+| Keybind              | Description             |
+|----------------------+-------------------------|
+| =SPC p f=, =SPC SPC= | Jump to file in project |
+| =SPC f f=, =SPC .=   | Jump to file            |
+| =SPC s i=            | Jump to symbol in file  |
 
 ** Project search & replace
 This module provides interactive text search and replace using ripgrep.
 
-| Keybind                | Description              |
-|------------------------+--------------------------|
+| Keybind        | Description              |
+|----------------+--------------------------|
 | =<leader> s p= | Search project           |
 | =<leader> s P= | Search another project   |
 | =<leader> s d= | Search this directory    |
@@ -95,8 +95,8 @@ This module provides interactive text search and replace using ripgrep.
 Prefixing these keys with the universal argument (=SPC u= for evil users; =C-u= otherwise) changes the behavior of these commands, instructing the underlying search engine to include ignored files.
 
 This module also provides Ex Commands for evil users:
-| Ex command           | Description                                                    |
-|----------------------+----------------------------------------------------------------|
+| Ex command             | Description                                                      |
+|------------------------+------------------------------------------------------------------|
 | ~:pg[rep][!] [QUERY]~  | Search project (if ~!~, include hidden files)                    |
 | ~:pdg[rep][!] [QUERY]~ | Search from current directory (if ~!~, don't search recursively) |
 
@@ -119,34 +119,34 @@ An ~occur-edit~ buffer can be opened from ~consult-line~ with =C-c C-e=.
 
 ** Vertico integration for various completing commands
 *** General
-| Keybind                        | Description                 |
-|--------------------------------+-----------------------------|
+| Keybind        | Description                 |
+|----------------+-----------------------------|
 | =M-x=, =SPC := | Enhanced M-x                |
-| =SPC '=                | Resume last Vertico session |
+| =SPC '=        | Resume last Vertico session |
 
 *** Jump to files, buffers or projects
-| Keybind                              | Description                           |
-|--------------------------------------+---------------------------------------|
-| =SPC RET=                    | Find bookmark                         |
-| =SPC f f=, =SPC .=   | Find file                             |
-| =SPC p f=, =SPC SPC= | Find file in project                  |
-| =SPC f r=                    | Find recently opened file             |
-| =SPC p p=                    | Open another project                  |
+| Keybind              | Description                                   |
+|----------------------+-----------------------------------------------|
+| =SPC RET=            | Find bookmark                                 |
+| =SPC f f=, =SPC .=   | Find file                                     |
+| =SPC p f=, =SPC SPC= | Find file in project                          |
+| =SPC f r=            | Find recently opened file                     |
+| =SPC p p=            | Open another project                          |
 | =SPC b b=, =SPC ,=   | Switch to buffer (in the project, inside one) |
-| =SPC b B=, =SPC <=   | Switch to buffer                      |
+| =SPC b B=, =SPC <=   | Switch to buffer                              |
 
 =SPC f f= and =SPC .= support exporting to a =wdired= buffer using =C-c C-e=.
 
 *** Search
-| Keybind           | Description                               |
-|-------------------+-------------------------------------------|
-| =SPC s b= | Search the current buffer                 |
-| =SPC s d= | Search this directory                     |
-| =SPC s D= | Search another directory                  |
-| =SPC s i= | Jump to symbol in current buffer          |
-| =SPC s p= | Search project                            |
-| =SPC s P= | Search another project                    |
-| =SPC s s= | Search the current buffer                 |
+| Keybind   | Description                      |
+|-----------+----------------------------------|
+| =SPC s b= | Search the current buffer        |
+| =SPC s d= | Search this directory            |
+| =SPC s D= | Search another directory         |
+| =SPC s i= | Jump to symbol in current buffer |
+| =SPC s p= | Search project                   |
+| =SPC s P= | Search another project           |
+| =SPC s s= | Search the current buffer        |
 
 *** File Path Completion
 Note that Emacs allows you to switch directories with shadow paths, for example
@@ -178,9 +178,9 @@ filtering should be done after a second =#=.
 For more information [[https://github.com/minad/consult#asynchronous-search][see here]].
 
 ** Marginalia
-| Keybind       | Description                     |
-|---------------+---------------------------------|
-| =M-A= | Cycle between annotation levels |
+| Keybind | Description                     |
+|---------+---------------------------------|
+| =M-A=   | Cycle between annotation levels |
 
 Marginalia annotations for symbols (e.g. =SPC h f= and =SPC h v=) come with extra
 information the nature of the symbol. For the meaning of the annotations see
@@ -202,15 +202,15 @@ pressing space and entering another input. In essence, when trying to match
 
 Doom has some builtin [[https://github.com/oantolin/orderless#style-dispatchers][style dispatchers]] for more fine-grained filtering, which
 you can use to further specify each space separated input in the following ways:
-| Input        | Description                              |
-|--------------+------------------------------------------|
-| ~!foo~         | match without literal input =foo=          |
+| Input            | Description                                  |
+|------------------+----------------------------------------------|
+| ~!foo~           | match without literal input =foo=            |
 | ~%foo~ or ~foo%~ | perform ~char-fold-to-regexp~ on input =foo= |
-| ~`foo~ or ~foo`~ | match input =foo= as an initialism         |
-| ~=foo~ or ~foo=~ | match only with literal input =foo=        |
-| ~^foo~ or ~foo^~ | match input =foo= as a literal prefix      |
-| ~&foo~ or ~foo&~ | match input =foo= against the annotation   |
-| ~~foo~ or ~foo~~ | match input =foo= with fuzzy/flex matching |
+| ~`foo~ or ~foo`~ | match input =foo= as an initialism           |
+| ~=foo~ or ~foo=~ | match only with literal input =foo=          |
+| ~^foo~ or ~foo^~ | match input =foo= as a literal prefix        |
+| ~&foo~ or ~foo&~ | match input =foo= against the annotation     |
+| ~~foo~ or ~foo~~ | match input =foo= with fuzzy/flex matching   |
 
 * TODO Configuration
 #+begin_quote wip

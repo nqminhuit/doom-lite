@@ -39,12 +39,12 @@ This module has no direct requirements, but some languages may have their own re
 
 By default, completion gets triggered after typing 2 consecutive characters, or by means of =C-SPC= at any moment. The following keybindings are generally available:
 
-| Keybind | Description                                |
-|---------+--------------------------------------------|
-| =C-n=     | Go to next candidate                       |
-| =C-p=     | Go to previous candidate                   |
-| =C-S-s=   | Export to minibuffer                       |
-| =C-SPC=   | (insert state) Complete                    |
+| Keybind | Description              |
+|---------+--------------------------|
+| =C-n=   | Go to next candidate     |
+| =C-p=   | Go to previous candidate |
+| =C-S-s= | Export to minibuffer     |
+| =C-SPC= | (insert state) Complete  |
 
 For users of evil, =C-SPC= is smart regarding your state. In normal-like states, enter insert then start corfu; in visual-like states, perform [[help:evil-change][evil-change]] (which leaves you in insert state) then start corfu.
 
@@ -76,15 +76,15 @@ pass-through The exact action of =RET= can be changed via
 
 | Keybind | Description           |
 |---------+-----------------------|
-| =RET=     | Insert candidate DWIM |
+| =RET=   | Insert candidate DWIM |
 
 ** Cycle with =TAB=
 =TAB=-based cycling alternatives are also bound according to the table below:
 
 | Keybind | Description              |
 |---------+--------------------------|
-| =TAB=     | Go to next candidate     |
-| =S-TAB=   | Go to previous candidate |
+| =TAB=   | Go to next candidate     |
+| =S-TAB= | Go to previous candidate |
 
 ** Searching with multiple keywords
 Completion uses =orderless= (configured by =:completion vertico=), so you can search with multiple space-separated keywords. Press =M-SPC= while completing to insert a separator (~+corfu/smart-sep-toggle-escape~; pressing it again escapes the separator with a backslash, and once more deletes it). Pressing just =SPC= acts as normal and quits completion.

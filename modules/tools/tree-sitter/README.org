@@ -70,6 +70,7 @@ it:
 #+end_src
 
 * Troubleshooting
+/There are no known problems with this module./
 
 * Frequently asked questions
 /This module has no FAQs yet./

@@ -43,14 +43,14 @@ released, this can't be changed.
 /This module's configuration documentation is incomplete./
 #+end_quote
 
-| Syntax                      | Type     | What to use instead                                                                           |
-|-----------------------------+----------+-----------------------------------------------------------------------------------------------|
-| IS-MAC                      | var      | ~(featurep :system 'macos)~                                                                     |
-| IS-LINUX                    | var      | ~(featurep :system 'linux)~                                                                     |
-| IS-WINDOWS                  | var      | ~(featurep :system 'windows)~                                                                   |
-| IS-BSD                      | var      | ~(featurep :system 'bsd)~                                                                       |
-| ~use-package!~            | macro    | ~use-package~                                                                               |
-| ~map!~                    | macro    | ~define-key!~, ~keymap-set~, ~define-key~, ~global-set-key~, ~evil-define-key~, etc |
+| Syntax         | Type  | What to use instead                                                                 |
+|----------------+-------+-------------------------------------------------------------------------------------|
+| IS-MAC         | var   | ~(featurep :system 'macos)~                                                         |
+| IS-LINUX       | var   | ~(featurep :system 'linux)~                                                         |
+| IS-WINDOWS     | var   | ~(featurep :system 'windows)~                                                       |
+| IS-BSD         | var   | ~(featurep :system 'bsd)~                                                           |
+| ~use-package!~ | macro | ~use-package~                                                                       |
+| ~map!~         | macro | ~define-key!~, ~keymap-set~, ~define-key~, ~global-set-key~, ~evil-define-key~, etc |
 
 * TODO Configuration
 #+begin_quote wip

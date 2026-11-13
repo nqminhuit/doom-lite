@@ -53,12 +53,12 @@ Enable this module in your ~doom!~ block.
 ** Ported vim plugins
 The following vim plugins have been ported to evil:
 
-| Vim Plugin            | Emacs Plugin                   | Keybind(s)                     |
-|-----------------------+--------------------------------+--------------------------------|
-| vim-lion              | evil-lion                      | omap =gl= / =gL=                   |
-| vim-seek or vim-sneak | evil-snipe                     | mmap =s= / =S=, omap =z= / =Z= & =x= / =X= |
-| vim-surround          | evil-embrace and evil-surround | vmap =S=, omap =ys=                |
-| vim-unimpaired        | (provided by Doom)             | see the =[= and =]= bindings in =config.el=    |
+| Vim Plugin            | Emacs Plugin                   | Keybind(s)                                  |
+|-----------------------+--------------------------------+---------------------------------------------|
+| vim-lion              | evil-lion                      | omap =gl= / =gL=                            |
+| vim-seek or vim-sneak | evil-snipe                     | mmap =s= / =S=, omap =z= / =Z= & =x= / =X=  |
+| vim-surround          | evil-embrace and evil-surround | vmap =S=, omap =ys=                         |
+| vim-unimpaired        | (provided by Doom)             | see the =[= and =]= bindings in =config.el= |
 
 This module has also ported vim-unimpaired keybinds to Emacs.
 
@@ -89,45 +89,45 @@ And these are text objects added by this module:
 - =x= XML attributes (provided by ~exato~)
 
 ** Custom Ex Commands
-| Ex Command             | Description                                                                        |
-|------------------------+------------------------------------------------------------------------------------|
-| ~:a~                     | Open sibling file (e.g. .cpp -> .hpp, .scss -> .css, etc)                          |
-| ~:al[ign][!]/REGEXP~     | Align text to the first match of REGEXP. If BANG, align all matches on each line   |
-| ~:cap[ture]~             | Invoke ~org-capture~                                                                 |
-| ~:cd DIRECTORY~          | Change ~default-directory~ to =DIRECTORY=                                              |
-| ~:com[pile] CMD~         | Run a compile command (with vim-style filename modifiers)                          |
-| ~:cp[!] NEWPATH~         | Copy the current file to NEWPATH                                                   |
-| ~:er[rors]~              | List diagnostics                                                                   |
-| ~:h[elp] [QUERY]~        | Look up the documentation of an ex command, or ~apropos~ QUERY                       |
-| ~:kill~                  | Kill the current buffer                                                            |
-| ~:killa[ll][!]~          | Kill all buffers                                                                   |
-| ~:killb[uried]~          | Kill all buried buffers                                                            |
-| ~:killm[atch][!] REGEXP~ | Kill buffers whose name matches REGEXP                                             |
-| ~:killo[ther]~           | Kill all other buffers besides the selected one                                    |
-| ~:ldiff~                 | Ediff two regions (must be used twice)                                             |
-| ~:make~ / ~:mk~            | Run ~make~ (with vim-style filename modifiers)                                       |
-| ~:msg~                   | Open \*Messages\* buffer                                                           |
-| ~:mv[!] NEWPATH~         | Move the current file to NEWPATH                                                   |
-| ~:na[rrow]~              | Narrow the buffer to the selection                                                 |
-| ~:pad~                   | Open a scratch pad for running code quickly                                        |
-| ~:pdg[rep]~              | Search the current directory                                                       |
-| ~:pg[rep]~               | Search the project                                                                 |
-| ~:pwd~                   | Display the current ~default-directory~ in echo area                                 |
-| ~:ral[ign][!]/REGEXP~    | Right-Align text that matches REGEXP. If BANG, align all matches on each line      |
-| ~:retab~                 | Convert indentation to the default within the selection                            |
-| ~:rev[erse]~             | Reverse the selected lines                                                         |
-| ~:rm[!] [PATH]~          | Delete the current buffer's file and buffer                                        |
-| ~:sl[oad]~               | Load the last saved session                                                        |
-| ~:ss[ave]~               | Save the current session                                                           |
-| ~:tabc[lose]~            | (=:ui workspaces=) Close the current workspace                           |
-| ~:tabclear~              | (=:ui workspaces=) Kill all buffers in current workspace                 |
-| ~:tabf[irst]~            | (=:ui workspaces=) Switch to the first workspace                         |
-| ~:tabl[ast]~             | (=:ui workspaces=) Switch to the last workspace                          |
-| ~:tabn[ew]~ [NAME]       | (=:ui workspaces=) Create a new workspace                                |
-| ~:tabnext~               | (=:ui workspaces=) Switch to next workspace                              |
-| ~:tabprev~               | (=:ui workspaces=) Switch to previous workspace                          |
-| ~:tabr[ename]~ NAME      | (=:ui workspaces=) Rename the current workspace to NAME                  |
-| ~:tabs~                  | (=:ui workspaces=) Display all workspaces in the echo area               |
+| Ex Command               | Description                                                                      |
+|--------------------------+----------------------------------------------------------------------------------|
+| ~:a~                     | Open sibling file (e.g. .cpp -> .hpp, .scss -> .css, etc)                        |
+| ~:al[ign][!]/REGEXP~     | Align text to the first match of REGEXP. If BANG, align all matches on each line |
+| ~:cap[ture]~             | Invoke ~org-capture~                                                             |
+| ~:cd DIRECTORY~          | Change ~default-directory~ to =DIRECTORY=                                        |
+| ~:com[pile] CMD~         | Run a compile command (with vim-style filename modifiers)                        |
+| ~:cp[!] NEWPATH~         | Copy the current file to NEWPATH                                                 |
+| ~:er[rors]~              | List diagnostics                                                                 |
+| ~:h[elp] [QUERY]~        | Look up the documentation of an ex command, or ~apropos~ QUERY                   |
+| ~:kill~                  | Kill the current buffer                                                          |
+| ~:killa[ll][!]~          | Kill all buffers                                                                 |
+| ~:killb[uried]~          | Kill all buried buffers                                                          |
+| ~:killm[atch][!] REGEXP~ | Kill buffers whose name matches REGEXP                                           |
+| ~:killo[ther]~           | Kill all other buffers besides the selected one                                  |
+| ~:ldiff~                 | Ediff two regions (must be used twice)                                           |
+| ~:make~ / ~:mk~          | Run ~make~ (with vim-style filename modifiers)                                   |
+| ~:msg~                   | Open \*Messages\* buffer                                                         |
+| ~:mv[!] NEWPATH~         | Move the current file to NEWPATH                                                 |
+| ~:na[rrow]~              | Narrow the buffer to the selection                                               |
+| ~:pad~                   | Open a scratch pad for running code quickly                                      |
+| ~:pdg[rep]~              | Search the current directory                                                     |
+| ~:pg[rep]~               | Search the project                                                               |
+| ~:pwd~                   | Display the current ~default-directory~ in echo area                             |
+| ~:ral[ign][!]/REGEXP~    | Right-Align text that matches REGEXP. If BANG, align all matches on each line    |
+| ~:retab~                 | Convert indentation to the default within the selection                          |
+| ~:rev[erse]~             | Reverse the selected lines                                                       |
+| ~:rm[!] [PATH]~          | Delete the current buffer's file and buffer                                      |
+| ~:sl[oad]~               | Load the last saved session                                                      |
+| ~:ss[ave]~               | Save the current session                                                         |
+| ~:tabc[lose]~            | (=:ui workspaces=) Close the current workspace                                   |
+| ~:tabclear~              | (=:ui workspaces=) Kill all buffers in current workspace                         |
+| ~:tabf[irst]~            | (=:ui workspaces=) Switch to the first workspace                                 |
+| ~:tabl[ast]~             | (=:ui workspaces=) Switch to the last workspace                                  |
+| ~:tabn[ew]~ [NAME]       | (=:ui workspaces=) Create a new workspace                                        |
+| ~:tabnext~               | (=:ui workspaces=) Switch to next workspace                                      |
+| ~:tabprev~               | (=:ui workspaces=) Switch to previous workspace                                  |
+| ~:tabr[ename]~ NAME      | (=:ui workspaces=) Rename the current workspace to NAME                          |
+| ~:tabs~                  | (=:ui workspaces=) Display all workspaces in the echo area                       |
 
 * TODO Configuration
 #+begin_quote wip
