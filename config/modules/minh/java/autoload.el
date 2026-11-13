@@ -6,11 +6,8 @@
 (defconst mm-classpath "mm.classpath")
 (defconst junit-jar-path "/opt/minh/tools/junit-platform-console-standalone-1.12.1.jar")
 
-;;;###autodef
 (defconst all-modules "<all>")
-;;;###autodef
 (defconst cm--vers '("cmonp" "cmcloud"))
-;;;###autodef
 (defvar cm--ver (car cm--vers))
 
 ;; Placeholder vars for per-project `.dir-locals.el'
@@ -58,7 +55,6 @@
 (defun mvn--get-root-module ()
   (m--get-parent-dir-only (project-root (project-current t))))
 
-;;;###autodef
 (defun cm--s-restart (service &optional compile)
   (if (string= all-modules service)
       (format "n=\"%s\"; podman pod stop --ignore $n &; %s wait; podman kube play -q --configmap ../dockers/config/config-$n.yaml --replace dev-composes/$n.yaml"
@@ -68,24 +64,24 @@
             cm--ver service
             (if compile (format "%s -DskipTests clean -pl $n package || return 1;" mvn-cmd) ""))))
 
-;;;###autodef
+;;;###autoload
 (defun java/build-lib (module)
   (interactive (list (completing-read "Build lib: " (cons all-modules lib-modules))))
   (mvn--build-lib module))
 
-;;;###autodef
+;;;###autoload
 (defun cm/switch-cloud-or-onprem (ver)
   (interactive (list (completing-read "Choose version: " cm--vers)))
   (setq cm--ver ver))
 
-;;;###autodef
+;;;###autoload
 (defun java/build-lib-and-restart (module service)
   (interactive
    (list (completing-read "Build lib: " (cons all-modules lib-modules))
          (completing-read (format "Deploy %s service: " cm--ver) (cons all-modules mm--services))))
   (mvn--build-lib module service))
 
-;;;###autodef
+;;;###autoload
 (defun java/compile (module)
   (interactive (list (completing-read "Compile module: " compileable-modules)))
   (m--compile
@@ -94,7 +90,7 @@
      (format "%s -f %s test-compile" mvn-cmd module))
    module))
 
-;;;###autodef
+;;;###autoload
 (defun java/test (module)
   (interactive (list (completing-read "Test module: " compileable-modules)))
   (let ((cmd (format "%s -DtrimStackTrace=false -Djacoco.skip=true verify" mvn-cmd))
@@ -103,13 +99,14 @@
                (file-name-concat (project-root (project-current t)) module))))
     (m--compile cmd (format "test:%s" module) dir)))
 
+;;;###autoload
 (defun java/generate-current-project-classpath ()
   (interactive)
   (m--compile
    (format "%s dependency:build-classpath -Dmdep.outputFile=%s" mvn-cmd mm-classpath)
    "genclasspath"))
 
-;;;###autodef
+;;;###autoload
 (defun java/test-current-method ()
   "Run mvn test method inside method body, require `java-ts-mode'."
   (interactive)
@@ -120,7 +117,7 @@
      (format "mvn -q -f %s test -DtrimStackTrace=false -Dtest=%s#%s" pom class method)
      (concat "test:" method))))
 
-;;;###autodef
+;;;###autoload
 (defun java/test-current-class ()
   "Run mvn test current buffer."
   (interactive)
@@ -130,7 +127,7 @@
      (format "mvn -q -T 1C -f %s test -DtrimStackTrace=false -Dtest=%s" pom class)
      (concat "test:" class))))
 
-;;;###autodef
+;;;###autoload
 (defun java/rebuild-services (services)
   (interactive (list (completing-read-multiple
                       (format "Build and Deploy %s service: " cm--ver)
@@ -139,7 +136,7 @@
   (dolist (service services)
     (m--compile (cm--s-restart service t) service)))
 
-;;;###autodef
+;;;###autoload
 (defun java/restart-services (services)
   (interactive (list (completing-read-multiple
                       (format "Restart %s service: " cm--ver)

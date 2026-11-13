@@ -209,7 +209,7 @@ If set to `always', show the benchmark no matter what.")
     (_ 'sh))
   "What shell environment Doom has been started with.
 
-Can be `pwsh' if invoked via bin/doom.ps1, or `sh' in unix environments.")
+Can be `pwsh' if invoked through PowerShell, or `sh' in unix environments.")
 
 
 ;;; ** Internal variables

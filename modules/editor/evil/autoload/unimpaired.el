@@ -150,10 +150,6 @@ See `+evil/next-preproc-directive' for details."
 ;;
 ;;; Encoding/Decoding
 
-;; NOTE: For [x / ]x see :lang web
-;; - `+web:encode-html-entities'
-;; - `+web:decode-html-entities'
-
 (defun +evil--encode (beg end fn)
   (save-excursion
     (goto-char beg)

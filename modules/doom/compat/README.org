@@ -1,4 +1,3 @@
-# -*- doom-docs -*-
 :PROPERTIES:
 :ID:       7a7065bd-18d5-4622-8d56-6df760fd8015
 :END:
@@ -18,12 +17,9 @@ manually instead of relying on this module!
 #+end_quote
 
 * Description :unfold:
-This module provides backwards compatibility with v2 of Doom's core. It
-reinstates old APIs, variables, packages, and configuration that are slated for
-removal in v3. This exists to give you more time to adapt to the changes.
+This module keeps the v2 =use-package!= and =map!= macros (and the pre-3.0 =IS-MAC=, =IS-LINUX=, =IS-WINDOWS= and =IS-BSD= variables, which live in core) working until v3.
 
-For a full table of what's been changed and what to use instead, see the Usage
-section below.
+For what to use instead, see the Usage section below.
 
 ** Maintainers
 - @hlissner
@@ -31,15 +27,11 @@ section below.
 [[doom-contrib-maintainer:][Become a maintainer?]]
 
 ** Module flags
-- -better-jumper ::
-  Don't install or configure [[pkg:better-jumper]].
-- -use-package ::
-  Don't install or configure [[pkg:use-package]], or define [[fns:use-package!]] or
-  [[fns:use-package-hook!]].
+- +keybinds ::
+  Define [[fns:map!]], [[fns:define-key!]], [[fns:undefine-key!]] and [[fns:define-localleader-key!]]. Always enabled.
 
 ** Packages
-- [[package:better-jumper]] unless [[module:-better-jumper]]
-- [[package:use-package]] unless [[module:-use-package]]
+- [[package:use-package]]
 
 ** Hacks
 /No hacks documented for this module./
@@ -59,30 +51,8 @@ released, this can't be changed.
 | IS-LINUX                    | var      | ~(featurep :system 'linux)~                                                                     |
 | IS-WINDOWS                  | var      | ~(featurep :system 'windows)~                                                                   |
 | IS-BSD                      | var      | ~(featurep :system 'bsd)~                                                                       |
-| EMACS28+                    | var      | ~(>= emacs-major-version 28)~                                                                   |
-| EMACS29+                    | var      | ~(>= emacs-major-version 29)~                                                                   |
-| MODULES                     | var      | ~(bound-and-true-p module-file-suffix)~                                                         |
-| NATIVECOMP                  | var      | ~(featurep 'native-compile)~                                                                    |
-| doom-private-dir            | var      | [[var:doom-user-dir]]                                                                             |
-| doom-etc-dir                | var      | [[var:doom-data-dir]] or [[var:doom-profile-data-dir]]                                                |
-| ~(featurep 'dynamic-modules)~ | form     | ~(bound-and-true-p module-file-suffix)~                                                         |
-| ~(featurep 'jansson)~         | form     | ~(fboundp #'json-parse-string)~                                                                 |
-| ~(featurep 'harfbuzz)~        | form     | ~(string-match-p "HARFBUZZ" system-configuration-features)~                                     |
-| [[fns:featurep!]]               | macro    | [[fns:modulep!]]                                                                                  |
-| [[fns:letenv!]]                 | macro    | [[fns:with-environment-variables]]                                                                |
-| [[fns:eval-if!]]                | macro    | [[fns:static-if]]                                                                                 |
-| [[fns:eval-when!]]              | macro    | [[fns:static-when]]                                                                               |
-| [[fns:setq!]]                   | macro    | [[fns:setopt]]                                                                                    |
-| [[fns:doom-enlist]]             | function | [[fns:ensure-list]]                                                                               |
-| [[fns:appendq!]]                | macro    | ~(cl-callf append VAR LISTS...)~                                                                |
-| [[fns:prependq!]]               | macro    | ~(cl-callf2 append LISTS... VAR)~                                                               |
-| [[fns:delq!]]                   | macro    | ~(cl-callf2 delq 'KEY ALIST)~ or ~(setf (alist-get 'KEY ALIST nil t) nil)~                        |
-| [[fns:pushnew!]]                | macro    | [[fns:add-to-list]] or [[fns:cl-pushnew]] in a loop                                                   |
 | [[fns:use-package!]]            | macro    | [[fns:use-package]]                                                                               |
 | [[fns:map!]]                    | macro    | [[fns:define-key!]], [[fns:keymap-set]], [[fns:define-key]], [[cmd:global-set-key]], [[fns:evil-define-key]], etc |
-
-There are in-depth examples for some of these in =docs/examples.org= in this
-module.
 
 * TODO Configuration
 #+begin_quote wip

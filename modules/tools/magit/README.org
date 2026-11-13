@@ -1,4 +1,3 @@
-# -*- doom-docs -*-
 #+title:    :tools magit
 #+subtitle: Wield git like a wizard
 #+created:  February 20, 2017
@@ -13,31 +12,23 @@ This module provides Magit, an interface to the Git version control system.
 [[doom-contrib-maintainer:][Become a maintainer?]]
 
 ** Module flags
-- +forge ::
-  Enable Forge; a porcelain for managing Github issues and PRs from within
-  Emacs. Will take a while on first run to build =emacsql-sqlite=. *Requires Emacs
-  29.1 or newer.*
+/This module has no flags./
 
 ** Packages
-- [[package:evil-magit]] if [[module::editor evil +everywhere]]
-- [[package:forge]] if [[module:+forge]]
-- [[package:code-review]] if [[module:+forge]]
 - [[package:magit]]
+- [[package:transient]] (built-in)
+- [[package:cond-let]]
+
+Evil keybindings come from =evil-collection-magit= ([[module::editor evil]]).
 
 ** Hacks
-- [[package:magit]] has been modified to recognize =$XDG_CACHE_HOME/git/credential/socket=.
-- [[package:magit]] has been modified to revert repo buffers (e.g. after changing branches)
-  when you later switch to them, rather than all at once.
-- [[package:forge]] was modified to defer compilation of emacsql-sqlite until you try to use
-  forge, rather than when magit first loads (which could be as soon as startup).
+- [[package:magit]] has been modified to revert repo buffers (e.g. after changing branches) when you later switch to them, rather than all at once (~+magit-auto-revert~).
+- ~magit-uniquify-buffer-names~ is disabled so two projects with the same name don't share magit buffers.
 
 * Installation
 [[id:01cffea4-3329-45e2-a892-95a384ab2338][Enable this module in your ~doom!~ block.]]
 
-This module requires:
-- [[https://git-scm.com/][Git]]
-- [[module:+forge]] requires [[https://magit.vc/manual/forge/Token-Creation.html#Token-Creation][a Github API token]]
-- [[package:code-review]] will also require a token setup (see [[https://github.com/wandersoncferreira/code-review#configuration][configuration]] for your particular forge)
+This module requires [[https://git-scm.com/][Git]].
 
 * TODO Usage
 #+begin_quote wip
@@ -75,15 +66,4 @@ This is so for [[https://magit.vc/manual/magit/Performance.html][performance rea
 /There are no known problems with this module./ [[doom-report:][Report one?]]
 
 * Frequently asked questions
-** "I recently updated and now I get 'deferred error : (wrong-type-argument sequencep code-review--auth-token-set\?)' whenever I try to review'"
-The previous package "github-review" was replaced with a package that supercedes it called "code-review", which requires a simple change in your authinfo file.
-
-#+begin_src authinfo
-machine api.github.com login yourlogin^github-review password MYTOKENGOESHERE
-#+end_src
-
-becomes
-
-#+begin_src authinfo
-machine api.github.com login yourlogin^code-review password MYTOKENGOESHERE
-#+end_src
+/This module has no FAQs yet./ [[doom-contrib-faq:][Ask one?]]

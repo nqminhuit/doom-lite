@@ -44,6 +44,19 @@ check "*Warnings* empty" "$(ec "$WARN_EL")" '^"none"$'
 check "*Messages* clean before opening files" "$(ec "$LINES_EL")" '^"none"$'
 keys=$(ec "(with-current-buffer (find-file-noselect \"$TMP/proj/notes.txt\") (evil-normal-state) (mapcar (lambda (k) (cons k (commandp (key-binding (kbd k))))) '(\"SPC SPC\" \"SPC p p\" \"SPC b b\" \"SPC /\" \"SPC g g\")))")
 check "leader keys are commands" "$keys" '^\(\("SPC SPC" \. t\) \("SPC p p" \. t\) \("SPC b b" \. t\) \("SPC /" \. t\) \("SPC g g" \. t\)\)$'
+# Lazy: bound to Emacs/package commands that are unbound until their library loads (verified by requiring it).
+LAZY_EL='(org-clock-goto org-capture-goto-target org-store-link org-clock-cancel winner-undo winner-redo ffap-other-window eglot-rename eglot-code-actions)'
+UNBOUND_EL='(let (bad seen) (cl-labels ((walk (m path) (unless (memq m seen) (push m seen) (map-keymap (lambda (ev b) (let ((p (append path (list ev))) (b (if (eq (car-safe b) (quote menu-item)) (nth 2 b) (if (and (consp b) (stringp (car b))) (cdr b) b)))) (cond ((keymapp b) (walk (if (symbolp b) (symbol-function b) b) p)) ((and b (symbolp b) (not (memq b LAZYLIST)) (not (fboundp b))) (push (cons (key-description (vconcat p)) b) bad))))) m)))) (dolist (m (list help-map doom-leader-map)) (walk m nil))) (or (nreverse bad) "none"))'
+UNBOUND_EL=${UNBOUND_EL/LAZYLIST/"'$LAZY_EL"}
+check "commands in help-map and leader are fboundp" "$(ec "$UNBOUND_EL")" '^"none"$'
+# Lazy ex-command targets (none today); evil-ex is loaded explicitly because +commands.el only loads after it.
+LAZY_EX_EL='()'
+EX_EL='(progn (require (quote evil-ex)) (let (bad) (dolist (c evil-ex-commands) (let ((tg (cdr c)) (n 0)) (while (and (stringp tg) (< n 5)) (setq tg (cdr (assoc tg evil-ex-commands)) n (1+ n))) (unless (and (symbolp tg) (or (fboundp tg) (memq tg LAZYLIST))) (push (cons (car c) tg) bad)))) (or (nreverse bad) "none")))'
+EX_EL=${EX_EL/LAZYLIST/"'$LAZY_EX_EL"}
+check "evil-ex-commands targets are fboundp" "$(ec "$EX_EL")" '^"none"$'
+MINH_CMDS='(java/compile java/test java/test-current-method java/test-current-class java/build-lib java/build-lib-and-restart java/rebuild-services java/restart-services gis/find-modified-files gis/magit-status-at-point gis/yank-branch-name mtime/convert-selected-millis-to-date m/catcmd m/show-current-path m/run-sh-paragraph m/select-text-line m/find-file-in-project-root m/magit-copy-current-branch m/quick-calc-region)'
+check "bound minh commands are fboundp at startup" "$(ec "(or (seq-remove (function fboundp) (quote $MINH_CMDS)) \"none\")")" '^"none"$'
+check "text-mode has no ispell completion" "$(ec '(with-temp-buffer (text-mode) (and (memq (function ispell-completion-at-point) completion-at-point-functions) t))')" '^nil$'
 echo "## leader key bindings (informational)"
 ec "(with-current-buffer (find-file-noselect \"$TMP/proj/notes.txt\") (mapcar (lambda (k) (cons k (key-binding (kbd k)))) '(\"SPC SPC\" \"SPC p p\" \"SPC b b\" \"SPC /\" \"SPC g g\")))"
 files=$(ec "(mapcar (lambda (f) (condition-case e (with-current-buffer (find-file-noselect (expand-file-name f \"$TMP/proj/\")) (list f major-mode)) (error (list f 'ERROR e)))) '(\"Foo.java\" \"main.go\"))")

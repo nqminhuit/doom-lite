@@ -16,12 +16,10 @@
   '("(set-docsets! " "+lookup/online" "+lookup/in-docsets" "(modulep! :tools lsp -eglot)"))
 
 (defun lookup-lsp-test--files ()
-  "Every .el file under modules/ and lisp/, minus the CLI module."
-  (cl-remove-if
-   (lambda (f) (string-match-p "/modules/doom/cli/" f))
-   (cl-loop for d in '("modules" "lisp")
-            append (directory-files-recursively
-                    (expand-file-name d lookup-lsp-test--root) "\\.el\\'"))))
+  "Every .el file under modules/ and lisp/."
+  (cl-loop for d in '("modules" "lisp")
+           append (directory-files-recursively
+                   (expand-file-name d lookup-lsp-test--root) "\\.el\\'")))
 
 (ert-deftest lookup-lsp/scan-finds-files ()
   (should (lookup-lsp-test--files)))

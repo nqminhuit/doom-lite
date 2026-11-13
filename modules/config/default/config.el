@@ -134,7 +134,6 @@ Continues comments if executed from a commented line."
   ;; new keybinds
   "'"    #'doom/describe-char
   "u"    #'doom/describe-autodef
-  "E"    #'doom/sandbox
   "M"    #'doom/describe-active-minor-mode
   "T"    #'doom/toggle-profiler
   "V"    #'doom/describe-option
@@ -155,7 +154,6 @@ Continues comments if executed from a commented line."
   "rp"   #'doom/reload-packages
   "rf"   #'doom/reload-font
   "re"   #'doom/reload-env
-  "rd"   #'doom/reload-docs
 
   ;; make `describe-bindings' available under the b prefix which it previously
   ;; occupied. Add more binding related commands under that prefix as well
@@ -173,22 +171,15 @@ Continues comments if executed from a commented line."
   "db"   #'doom/report-bug
   "dc"   #'doom/open-private-config
   "dd"   #'doom-debug-mode
-  "df"   #'doom/docs-find-file
-  "dh"   #'doom/docs
   "di"   #'doom/info
   "dl"   #'doom/help-search-load-path
   "dL"   #'doom/help-search-loaded-files
   "dm"   #'doom/describe-module
-  "dM"   #'doom/docs-module
-  "dn"   #'doom/docs-news
   "dpc"  #'doom/help-package-config
   "dph"  #'doom/help-package-homepage
   "dpp"  #'doom/describe-package
-  "ds"   #'doom/docs-headings
-  "dS"   #'doom/docs-search
   "dt"   #'doom/toggle-profiler
   "dv"   #'doom/version
-  "dx"   #'doom/sandbox
 
   ;; replaces `apropos-command'
   "a"    #'apropos
@@ -197,11 +188,6 @@ Continues comments if executed from a commented line."
   "C-c"  #'describe-coding-system
   ;; replaces `Info-got-emacs-command-node' b/c redundant w/ `Info-goto-node'
   "F"    #'describe-face
-  ;; replaces `view-hello-file' b/c annoying
-  "h"    #'doom/help
-  "H"    #'doom/docs
-  ;; replaces `view-emacs-news' b/c it's on C-n too
-  "n"    #'doom/help-news
   ;; replaces `help-with-tutorial', b/c it's less useful than `load-theme'
   "t"    #'load-theme
   ;; replaces `finder-by-keyword' b/c not useful

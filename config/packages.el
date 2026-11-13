@@ -57,7 +57,6 @@
 (package! evil-embrace :disable t)
 (package! exato :disable t) ;; evil xml text object, no need for now.
 (package! evil-snipe :disable t);; experiment 10:59:33 2025-05-20
-(package! link-hint :disable t)
 (package! flymake-popon :disable t)
 
 (package! pulsar :recipe (:host github :repo "protesilaos/pulsar"))
@@ -68,6 +67,3 @@
 (package! podel :recipe (:host github :repo "nqminhuit/podel"))
 
 ;; (package! capf-autosuggest)
-
-;; https://github.com/minad/jinx
-;; (package! jinx :recipe (:host github :repo "minad/jinx"))

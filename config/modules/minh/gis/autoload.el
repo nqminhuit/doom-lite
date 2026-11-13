@@ -100,7 +100,6 @@ colors branches exactly like the CLI does."
         (cdr entry)
       fallback)))
 
-;;;###autodef
 (defun gis--get-gis-marker()
   "Check if current directory belong to a git submodule or gis modules.
 Return the root module."
@@ -833,7 +832,7 @@ pipeline -- and with a shell in the way, no stderr to read progress from."
         (with-current-buffer buffer (setq gis--command-process proc))))
     (message "gis %s..." label)))
 
-;;;###autodef
+;;;###autoload
 (defun gis/magit-status-at-point()
   "Open `magit-status' for the module of the row at point."
   (interactive)
@@ -858,7 +857,7 @@ the module at point."
       (call-interactively #'gis--refresh-dispatch)
     (call-interactively #'magit-status)))
 
-;;;###autodef
+;;;###autoload
 (defun gis/create-branch()
   (interactive)
   (let* ((completion-ignore-case t)
@@ -870,7 +869,7 @@ the module at point."
     (gis--call-gis-function (append (list "cb" branchName) modules)
                             "branching")))
 
-;;;###autodef
+;;;###autoload
 (defun gis/delete-branch()
   (interactive)
   (require 'consult)
@@ -882,7 +881,7 @@ the module at point."
                                  (shell-quote-argument branchName))
                          "deleting branch")))
 
-;;;###autodef
+;;;###autoload
 (defun gis/push(&rest args)
   (interactive)
   (require 'consult)
@@ -898,17 +897,17 @@ the module at point."
                          (mapcar #'string-trim (flatten-list args))))
      "pushing")))
 
-;;;###autodef
+;;;###autoload
 (defun gis/fetch()
   (interactive)
   (gis--call-gis-function '("fetch" "--progress") "fetching"))
 
-;;;###autodef
+;;;###autoload
 (defun gis/pull()
   (interactive)
   (gis--call-gis-function '("pull" "--progress") "pulling"))
 
-;;;###autodef
+;;;###autoload
 (defun gis/yank-branch-name ()
   "Copy the branch of the module of the row at point.
 The status document already carries it, so this no longer has to ask git."
@@ -920,13 +919,13 @@ The status document already carries it, so this no longer has to ask git."
     (kill-new branch)
     (message "'%s' copied." branch)))
 
-;;;###autodef
+;;;###autoload
 (defun gis/remote-prune-origin()
   "Run `git remote prune origin' on each submodule"
   (interactive)
   (gis--call-gis-function '("remote-prune-origin" "--progress") "pruning"))
 
-;;;###autodef
+;;;###autoload
 (defun gis/prune-local-merged-branch()
   "Run `git remote prune origin' on each submodule"
   (interactive)
@@ -937,12 +936,12 @@ The status document already carries it, so this no longer has to ask git."
          (branchName (consult--read branches :prompt "Base branch: ")))
     (gis--call-gis-function (list "prune" branchName "--progress") "pruning")))
 
-;;;###autodef
+;;;###autoload
 (defun gis/rebase-current-origin()
   (interactive)
   (gis--call-gis-function '("rebase-current-origin" "--progress") "rebasing"))
 
-;;;###autodef
+;;;###autoload
 (defun gis/find-modified-files()
   (interactive)
   (require 'consult)

@@ -73,12 +73,7 @@
            ((fboundp 'evil-jump-item)
             #'evil-jump-item))))
 
-      (:after help :map help-mode-map
-       :n "o"       #'link-hint-open-link)
-      (:after info :map Info-mode-map
-       :n "o"       #'link-hint-open-link)
       (:after apropos :map apropos-mode-map
-       :n "o"       #'link-hint-open-link
        :n "TAB"     #'forward-button
        :n [tab]     #'forward-button
        :n [backtab] #'backward-button)
@@ -86,8 +81,6 @@
        [escape]  #'View-quit-all)
       (:after man :map Man-mode-map
        :n "q"    #'kill-current-buffer)
-      (:after geiser-doc :map geiser-doc-mode-map
-       :n "o"    #'link-hint-open-link)
 
       ;; misc
       :n "C-S-f"  #'toggle-frame-fullscreen
@@ -253,12 +246,8 @@
        :desc "Recompile"                             "C"   #'recompile
        :desc "Jump to definition"                    "d"   #'+lookup/definition
        :desc "Jump to references"                    "D"   #'+lookup/references
-       :desc "Evaluate buffer/region"                "e"   #'+eval/buffer-or-region
-       :desc "Evaluate & replace region"             "E"   #'+eval:replace-region
-       :desc "Format buffer/region"                  "f"   #'+format/region-or-buffer
        :desc "Find implementations"                  "i"   #'+lookup/implementations
        :desc "Jump to documentation"                 "k"   #'+lookup/documentation
-       :desc "Send buffer/region to repl"            "s"   #'+eval/buffer-or-region-in-repl
        :desc "Find type definition"                  "t"   #'+lookup/type-definition
        :desc "Delete trailing whitespace"            "w"   #'delete-trailing-whitespace
        :desc "Delete trailing newlines"              "W"   #'doom/delete-trailing-newlines
@@ -327,7 +316,6 @@
        :desc "Current file path"             "F"   (cmd!! #'+default/insert-file-path t)
        :desc "Evil ex path"                  "p"   (cmd! (evil-ex "r!echo "))
        :desc "From evil register"            "r"   #'evil-show-registers
-       :desc "Snippet"                       "s"   #'yas-insert-snippet
        :desc "Unicode"                       "u"   #'insert-char
        :desc "From clipboard"                "y"   #'+default/yank-pop)
 
@@ -336,10 +324,7 @@
       (:prefix-map ("n" . "notes")
        :desc "Search notes for symbol"      "*" #'+default/search-notes-for-symbol-at-point
        :desc "Org agenda"                   "a" #'org-agenda
-
-       :desc "Toggle last org-clock"        "c" #'+org/toggle-last-clock
        :desc "Cancel current org-clock"     "C" #'org-clock-cancel
-
        :desc "Find file in notes"           "f" #'+default/find-in-notes
        :desc "Browse notes"                 "F" #'+default/browse-notes
        :desc "Org store link"               "l" #'org-store-link
@@ -350,9 +335,7 @@
        :desc "Todo list"                    "t" #'org-todo-list
        :desc "Search notes"                 "s" #'+default/org-notes-search
        :desc "Search org agenda headlines"  "S" #'+default/org-notes-headlines
-       :desc "View search"                  "v" #'org-search-view
-       :desc "Org export to clipboard"        "y" #'+org/export-to-clipboard
-       :desc "Org export to clipboard as RTF" "Y" #'+org/export-to-clipboard-as-rich-text)
+       :desc "View search"                  "v" #'org-search-view)
 
       ;;; <leader> o --- open
       (:prefix-map ("o" . "open")
@@ -363,11 +346,8 @@
         :desc "Tags search"    "m"  #'org-tags-view
         :desc "View search"    "v"  #'org-search-view)
        :desc "Default browser"    "b"  #'browse-url-of-file
-       :desc "Start a debugger"   "d"  #'+debugger/start
        :desc "New frame"          "f"  #'make-frame
        :desc "Select frame"       "F"  #'select-frame-by-name
-       :desc "REPL"               "r"  #'+eval/open-repl-other-window
-       :desc "REPL (same window)" "R"  #'+eval/open-repl-same-window
        :desc "Dired"              "-"  #'dired-jump
        :desc "Toggle ghostel popup"  "t" #'+ghostel/toggle
        :desc "Open ghostel here"     "T" #'+ghostel/here)
@@ -417,7 +397,6 @@
        :desc "Locate file"                  "f" #'locate
        :desc "Jump to symbol"               "i" #'imenu
        :desc "Jump to symbol in open buffers" "I" #'consult-imenu-multi
-       :desc "Jump to visible link"         "l" #'link-hint-open-link
        :desc "Jump to link"                 "L" #'ffap-menu
        :desc "Jump list"                    "j" #'evil-show-jumps
        :desc "Jump to bookmark"             "m" #'bookmark-jump
@@ -434,7 +413,6 @@
        :desc "Diff Highlights (Git Gutter)" "d" #'diff-hl-mode
        :desc "Flymake"                      "f" #'flymake-mode
        :desc "Frame fullscreen"             "F" #'toggle-frame-fullscreen
-       :desc "Evil goggles"                 "g" #'evil-goggles-mode
        :desc "Indent style"                 "I" #'doom/toggle-indent-style
        :desc "Line numbers"                 "l" #'doom/toggle-line-numbers
        :desc "Read-only mode"               "r" #'read-only-mode

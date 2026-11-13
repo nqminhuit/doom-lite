@@ -436,8 +436,7 @@ don't offer any/enough real value to users.")
   :after evil-ex
   :config
   (dolist (argtype '((+evil:align . evil-traces-global)
-                     (+evil:align-right . evil-traces-global)
-                     (+multiple-cursors:evil-mc . evil-traces-substitute)))
+                     (+evil:align-right . evil-traces-global)))
     (add-to-list 'evil-traces-argument-type-alist argtype))
   (evil-traces-mode))
 
@@ -550,7 +549,6 @@ don't offer any/enough real value to users.")
        "J"       #'+evil/window-move-down
        "K"       #'+evil/window-move-up
        "L"       #'+evil/window-move-right
-       "C-S-w"   #'ace-swap-window
        ;; Window undo/redo
        (:prefix ("m" . "maximize")
         "m"       #'doom/window-maximize-buffer
@@ -562,7 +560,6 @@ don't offer any/enough real value to users.")
        "o"       #'doom/window-enlargen
        ;; Delete window
        "d"       #'evil-window-delete
-       "C-C"     #'ace-delete-window
        "T"       #'tear-off-window)
 
       ;; text objects

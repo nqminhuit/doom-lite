@@ -1,4 +1,3 @@
-# -*- doom-docs -*-
 #+title:    :editor evil
 #+subtitle: The text editor Emacs was missing
 #+created:  April 08, 2020
@@ -13,21 +12,17 @@ This holy module brings the Vim editing model to Emacs.
 [[doom-contrib-maintainer:][Become a maintainer?]]
 
 ** Module flags
-- +everywhere ::
-  Enable evilified keybinds everywhere possible. Uses the [[https://github.com/emacs-evil/evil-collection][evil-collection]] plugin
-  as a foundation.
+/This module has no flags./
 
 ** Packages
 - [[package:evil]]
 - [[package:evil-args]]
-- [[package:evil-collection]] if [[module:+everywhere]]
-- [[package:evil-easymotion]]
+- [[package:evil-collection]]
 - [[package:evil-embrace]]
 - [[package:evil-escape]]
 - [[package:evil-exchange]]
 - [[package:evil-indent-plus]]
 - [[package:evil-lion]]
-- [[package:evil-nerd-commenter]]
 - [[package:evil-numbers]]
 - [[package:evil-quick-diff]]
 - [[package:evil-snipe]]
@@ -42,7 +37,6 @@ This holy module brings the Vim editing model to Emacs.
   setting ~+evil-want-o/O-to-continue-comments~ to ~nil~).
 - In visual mode, [[kbd:*]] and [[kbd:#]] will search for the current selection instead of the
   word-at-point.
-- The ~:g[lobal]~ ex command has been modified to highlight matches.
 - More of vim's filename modifiers are supported in ex commands (like ~:p~,
   ~:p:h~ or ~:t~) than vanilla evil-mode offers.
 - A custom filename modifier is available in Doom: ~:P~, which expands to the
@@ -63,21 +57,12 @@ The following vim plugins have been ported to evil:
 
 | Vim Plugin            | Emacs Plugin                   | Keybind(s)                     |
 |-----------------------+--------------------------------+--------------------------------|
-| vim-commentary        | evil-nerd-commenter            | omap [[kbd:gc]]                        |
-| vim-easymotion        | evil-easymotion                | omap [[kbd:gs]]                        |
 | vim-lion              | evil-lion                      | omap [[kbd:gl]] / [[kbd:gL]]                   |
 | vim-seek or vim-sneak | evil-snipe                     | mmap [[kbd:s]] / [[kbd:S]], omap [[kbd:z]] / [[kbd:Z]] & [[kbd:x]] / [[kbd:X]] |
 | vim-surround          | evil-embrace and evil-surround | vmap [[kbd:S]], omap [[kbd:ys]]                |
-| vim-unimpaired        | (provided by Doom)             | [[https://github.com/doomemacs/modules/blob/master/modules/editor/evil/config.el#L413-L460][see the list]]                   |
+| vim-unimpaired        | (provided by Doom)             | see the =[= and =]= bindings in =config.el=    |
 
 This module has also ported vim-unimpaired keybinds to Emacs.
-
-In other modules:
-- The [[module::ui neotree]] & [[module::ui treemacs]] modules provide a =NERDTree= equivalent.
-- The [[module::editor multiple-cursors]] module contains functionality equal to the
-  following vim plugins:
-  - [[package:evil-multiedit]] => [[github:hlissner/vim-multiedit][vim-multiedit]]
-  - [[package:evil-mc]] => [[https://github.com/terryma/vim-multiple-cursors][vim-multiple-cursors]]
 
 ** Custom Text Objects
 This module provides a couple extra text objects, along with the built-in ones.
@@ -96,7 +81,6 @@ And these are text objects added by this module:
 - [[kbd:a]] C-style function arguments (provided by ~evil-args~)
 - [[kbd:B]] any block delimited by braces, parentheses or brackets (provided by
   ~evil-textobj-anyblock~)
-- [[kbd:c]] Comments
 - [[kbd:f]] For functions (but relies on the major mode to have sane definitions for
   ~beginning-of-defun-function~ and ~end-of-defun-function~)
 - [[kbd:g]] The entire buffer
@@ -109,39 +93,34 @@ And these are text objects added by this module:
 ** Custom Ex Commands
 | Ex Command             | Description                                                                        |
 |------------------------+------------------------------------------------------------------------------------|
-| ~:@~                     | Apply macro on selected lines                                                      |
 | ~:a~                     | Open sibling file (e.g. .cpp -> .hpp, .scss -> .css, etc)                          |
 | ~:al[ign][!]/REGEXP~     | Align text to the first match of REGEXP. If BANG, align all matches on each line   |
 | ~:cap[ture]~             | Invoke ~org-capture~                                                                 |
 | ~:cd DIRECTORY~          | Change ~default-directory~ to =DIRECTORY=                                              |
+| ~:com[pile] CMD~         | Run a compile command (with vim-style filename modifiers)                          |
 | ~:cp[!] NEWPATH~         | Copy the current file to NEWPATH                                                   |
-| ~:dash QUERY~            | Look up QUERY (or the symbol at point) in dash docsets                             |
-| ~:dehtml [INPUT]~        | HTML decode selected text / inserts result if INPUT is given                       |
-| ~:enhtml [INPUT]~        | HTML encode selected text / inserts result if INPUT is given                       |
-| ~:iedit REGEXP~          | Invoke iedit on all matches for REGEXP                                             |
+| ~:er[rors]~              | List diagnostics                                                                   |
+| ~:h[elp] [QUERY]~        | Look up the documentation of an ex command, or ~apropos~ QUERY                       |
 | ~:kill~                  | Kill the current buffer                                                            |
 | ~:killa[ll][!]~          | Kill all buffers                                                                   |
 | ~:killb[uried]~          | Kill all buried buffers                                                            |
-| ~:killm[atch][!] REGEXP~ | Kill buffers whose name matches REGEXP (if BANG, affect buffers across workspaces) |
+| ~:killm[atch][!] REGEXP~ | Kill buffers whose name matches REGEXP                                             |
 | ~:killo[ther]~           | Kill all other buffers besides the selected one                                    |
-| ~:l[ast]~                | Reopen last popup                                                                  |
 | ~:ldiff~                 | Ediff two regions (must be used twice)                                             |
-| ~:lo[okup] QUERY~        | Look up QUERY on an online search engine                                           |
-| ~:mc[!]/REGEXP~          | Invoke multiple cursors on all matches for REGEXP (if BANG, REGEXP is literal)     |
+| ~:make~ / ~:mk~            | Run ~make~ (with vim-style filename modifiers)                                       |
 | ~:msg~                   | Open \*Messages\* buffer                                                           |
 | ~:mv[!] NEWPATH~         | Move the current file to NEWPATH                                                   |
 | ~:na[rrow]~              | Narrow the buffer to the selection                                                 |
 | ~:pad~                   | Open a scratch pad for running code quickly                                        |
-| ~:pop[up]~               | Convert the selected window to a popup window                                      |
+| ~:pdg[rep]~              | Search the current directory                                                       |
+| ~:pg[rep]~               | Search the project                                                                 |
 | ~:pwd~                   | Display the current ~default-directory~ in echo area                                 |
 | ~:ral[ign][!]/REGEXP~    | Right-Align text that matches REGEXP. If BANG, align all matches on each line      |
-| ~:repl~                  | Open a REPL and/or copy the current selection to it                                |
 | ~:retab~                 | Convert indentation to the default within the selection                            |
 | ~:rev[erse]~             | Reverse the selected lines                                                         |
 | ~:rm[!] [PATH]~          | Delete the current buffer's file and buffer                                        |
-| ~:sh[ell] CMD~           | Execute a command in the last opened eshell buffer (or make one)                   |
-| ~:sl[oad]~               | ([[module::ui workspaces]]) Load the last saved session                           |
-| ~:ss[ave]~               | ([[module::ui workspaces]]) Save the current session                              |
+| ~:sl[oad]~               | Load the last saved session                                                        |
+| ~:ss[ave]~               | Save the current session                                                           |
 | ~:tabc[lose]~            | ([[module::ui workspaces]]) Close the current workspace                           |
 | ~:tabclear~              | ([[module::ui workspaces]]) Kill all buffers in current workspace                 |
 | ~:tabf[irst]~            | ([[module::ui workspaces]]) Switch to the first workspace                         |

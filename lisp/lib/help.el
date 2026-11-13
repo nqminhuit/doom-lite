@@ -170,10 +170,18 @@ without needing to check if they are available."
         (helpful-callable fn)
       (describe-function fn))))
 
-;; TODO: Make into a proper describe-module command (i.e. generate a help buffer
-;;   with deduced state with package/source associations documented) in v3.
 ;;;###autoload
-(defalias 'doom/describe-module #'doom/docs-module)
+(defun doom/describe-module (key)
+  "Visit the README.org of module KEY, or dired its directory if it has none."
+  (interactive (list (doom-module-completing-read "Describe module: ")))
+  (cl-destructuring-bind (_source group module . _flags) key
+    (let ((dir (doom-module-locate-path (cons group module))))
+      (unless (and dir (file-directory-p dir))
+        (user-error "Can't find module %s %s" group module))
+      (let ((readme (expand-file-name "README.org" dir)))
+        (if (file-exists-p readme)
+            (find-file readme)
+          (dired dir))))))
 
 ;;;###autoload
 (defun doom/describe-option (var &optional buffer)
@@ -461,24 +469,6 @@ Uses the symbol at point or the current selection, if available."
 
 ;;
 ;;; * DEPRECATED aliases
-
-;;;###autoload
-(defalias 'doom/help #'doom/docs)
-
-;;;###autoload
-(defalias 'doom/help-search #'doom/docs-search)
-
-;;;###autoload
-(defalias 'doom/help-news #'doom/docs-news)
-
-;;;###autoload
-(defalias 'doom/help-faq #'doom/docs-faq)
-
-;;;###autoload
-(defalias 'doom/help-search-headings #'doom/docs-headings)
-
-;;;###autoload
-(defalias 'doom/help-search-news #'doom/docs-headings)
 
 ;;;###autoload
 (defalias 'doom/help-autodefs #'doom/describe-autodef)
