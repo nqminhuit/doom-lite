@@ -175,7 +175,8 @@ This can be passed nil as its second argument to unset handlers for MODES. e.g.
                      result)
                     (result))
           (with-current-buffer (marker-buffer origin)
-            (better-jumper-set-jump (marker-position origin)))
+            (when (fboundp 'evil-set-jump)
+              (evil-set-jump (marker-position origin))))
           result)
       (set-marker origin nil))))
 

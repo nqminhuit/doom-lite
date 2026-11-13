@@ -76,6 +76,20 @@ directives. By default, this only recognizes C directives."
 
   (add-to-list 'doom-which-key-trim-prefixes "^evil-")
 
+  ;; Record a jump before these commands, as better-jumper's advice used to.
+  (evil-set-command-property #'imenu :jump t)
+  (evil-set-command-property #'outline-up-heading :jump t)
+
+  (defun doom-set-jump-h ()
+    "Run `evil-set-jump' but return nil, for short-circuiting hooks."
+    (when (get-buffer-window)
+      (evil-set-jump))
+    nil)
+
+  ;; Set a jump point before killing a buffer, so an interactive kill can be
+  ;; undone with C-o (file buffers only).
+  (add-hook 'kill-buffer-hook #'doom-set-jump-h)
+
   ;; HACK: `evil-ex-search' (used by `n'/`N') calls `isearch-range-invisible'
   ;;   which temporarily opens fold overlays, but never calls
   ;;   `isearch-clean-overlays' to restore them. This corrupts org-fold overlay

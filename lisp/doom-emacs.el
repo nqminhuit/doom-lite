@@ -1720,7 +1720,6 @@ and whether the line count of the buffer exceeds that matching entry in
     (cl-callf append so-long-minor-modes
       '(spell-fu-mode
         eldoc-mode
-        better-jumper-local-mode
         ws-butler-mode
         auto-composition-mode
         undo-tree-mode

@@ -145,38 +145,36 @@ occur-edit, and consult-xref to xref-edit-mode (Emacs 31+)."
 
 ;;;###autoload
 (defun +vertico/jump-list (jump)
-  "Go to an entry in evil's (or better-jumper's) jumplist."
+  "Go to an entry in evil's jumplist."
   (interactive
    (let (buffers)
      (require 'consult)
      (unwind-protect
          (list
           (consult--read
-           ;; REVIEW: Refactor me
-           (nreverse
-            (delete-dups
-             (delq
-              nil (mapcar
-                   (lambda (mark)
-                     (when mark
-                       (cl-destructuring-bind (path pt _id) mark
-                         (let* ((visiting (find-buffer-visiting path))
-                                (buf (or visiting (find-file-noselect path t)))
-                                (dir default-directory))
-                           (unless visiting
-                             (push buf buffers))
-                           (with-current-buffer buf
-                             (goto-char pt)
-                             (font-lock-fontify-region
-                              (line-beginning-position) (line-end-position))
-                             (format "%s:%d: %s"
-                                     (car (cl-sort (list (abbreviate-file-name (buffer-file-name buf))
-                                                         (file-relative-name (buffer-file-name buf) dir))
-                                                   #'< :key #'length))
-                                     (line-number-at-pos)
-                                     (string-trim-right (or (thing-at-point 'line) ""))))))))
-                   (cddr (better-jumper-jump-list-struct-ring
-                          (better-jumper-get-jumps (better-jumper--get-current-context))))))))
+           (delete-dups
+            (delq
+             nil (mapcar
+                  (lambda (jump)
+                    (cl-destructuring-bind (pos path) jump
+                      (let ((pt (if (markerp pos) (marker-position pos) pos)))
+                        (when (and pt path (file-exists-p path))
+                          (let* ((visiting (find-buffer-visiting path))
+                                 (buf (or visiting (find-file-noselect path t)))
+                                 (dir default-directory))
+                            (unless visiting
+                              (push buf buffers))
+                            (with-current-buffer buf
+                              (goto-char (min pt (point-max)))
+                              (font-lock-fontify-region
+                               (line-beginning-position) (line-end-position))
+                              (format "%s:%d: %s"
+                                      (car (cl-sort (list (abbreviate-file-name (buffer-file-name buf))
+                                                          (file-relative-name (buffer-file-name buf) dir))
+                                                    #'< :key #'length))
+                                      (line-number-at-pos)
+                                      (string-trim-right (or (thing-at-point 'line) "")))))))))
+                  (ring-elements (evil--jumps-get-jumps (evil--jumps-get-current))))))
            :prompt "jumplist: "
            :sort nil
            :require-match t
@@ -188,7 +186,7 @@ occur-edit, and consult-xref to xref-edit-mode (Emacs 31+)."
           (line (match-string-no-properties 2 jump)))
       (find-file file)
       (goto-char (point-min))
-      (forward-line (string-to-number line)))))
+      (forward-line (1- (string-to-number line))))))
 
 ;;;###autoload
 (defun +vertico-embark-which-key-indicator ()

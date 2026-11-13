@@ -8,5 +8,3 @@
   :built-in 'prefer
   :pin "4b3484b550431f74ab9cda060a8dc983fe482131")
 
-(when (modulep! +better-jumper)
-  (package! better-jumper :pin "b1bf7a3c8cb820d942a0305e0e6412ef369f819c"))
