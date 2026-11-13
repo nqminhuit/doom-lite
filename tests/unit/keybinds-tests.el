@@ -378,4 +378,10 @@
     (evil-insert-state)
     (should (kbt--bound-p "M-SPC m q" #'kbt-local-cmd)))))
 
+;;; no general
+
+(kbt--test no-general
+  (should-not (featurep 'general))
+  (should-not (fboundp 'general-define-key)))
+
 ;;; keybinds-tests.el ends here
