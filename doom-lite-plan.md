@@ -328,17 +328,148 @@ For each drop: remove the `package!`, its `use-package!` block and bindings, and
 - **compat module:** delete the deprecated aliases and macros that have no callers (`init.el`, after a grep).
 - **Keep:** `doom.el`, `doom-lib.el`, `doom-modules.el`, `doom-emacs.el`, `lib/{files,text,ui,buffers,projects,config,help,debug,fonts,themes,scratch,sessions,process,system,git,strings}`, the CLI, and `doom env`.
 
-## P11 — straight → built-in clone-at-pin backend (planned in detail when reached)
-Decided after S1 (`docs/handoff/S1.md`): no package.el or package-vc. `doom sync` gets a small backend that clones each package at its pin, adds its dirs to the load-path, generates autoloads and byte-compiles.
-- Startup loads the profile init that `doom sync` generates (loaddefs, load-path, module loader). Keep `doom sync` as the entry point and swap only the installer backend in `doom-packages.el`.
-  - GitHub recipes map to clone URL + pin; `:built-in` packages are skipped.
-- **Pin every transitive dependency.** Today with-editor, llama and goto-chg have no `package!` and are unpinned; enumerate the deps of every other package too and declare each with a `:pin`. A dep that is not declared is an error, never fetched at HEAD.
-- **Built-ins must not shadow pins.** A pinned package goes on the load-path ahead of the built-in of the same name. Packages declared `:built-in t` (since P4: eglot, eldoc, flymake, jsonrpc, project, xref, seq, external-completion, transient, compat) are not pinned and load from the Emacs install.
-- **Multi-directory repos.** Put each repo's lisp dir on the load-path (`lisp/` for magit) plus extra dirs: vertico and corfu `extensions/`, with autoloads generated for them too (otherwise `vertico-directory` and `corfu-popupinfo` neither load nor bind). evil-collection needs no extra dirs (it loads `modes/<mode>/` by absolute path). evil-ghostel loads from ghostel's `extensions/evil-ghostel/`.
-- **Build order.** Byte-compile in topological order, dependencies first, so nothing compiles against a missing dep; honour each recipe's `:files` exclusions (test helpers such as evil's `evil-test-helpers.el` are not package code).
-- **ghostel module: download only.** Set `ghostel-module-auto-install` to `download` and `ghostel-module-directory` to a dir outside the package tree (for example under `doom-data-dir`), so a re-clone keeps the module. The zig compile path is unsupported. The live install has no module today, so the first ghostel use in the fork downloads one.
-- Delete `doom-straight.el` and the straight bump tooling in `lib/packages.el`. Port `doom gc` to the package dirs.
-- This phase gets its own plan pass before stacea, because the scope only becomes concrete after P1–P10.
+## P11 — straight → clone-at-pin backend (detailed plan; awaiting the user's approval and the three decisions at its end)
+Decided after S1 (`docs/handoff/S1.md`): no package.el, no package-vc, no recipe repos. `doom sync` keeps its name and flags it still needs, and gets a small backend of the fork's own: clone each package's repo at its pin, lay out a build dir per package, byte-compile in dependency order, generate autoloads, and let the generated profile init put the build dirs on the `load-path`. transient and the other P4 built-ins stay built in. ghostel's native module is download-only and lives outside the package tree.
+
+### Inventory (2026-11-13, `master` at `0d16201`, synced tree copied from P10)
+`doom-packages` holds 62 names. They split as:
+- **16 built in** (`:built-in t`, or `'prefer` resolving to the Emacs copy): compat, project, eldoc, seq, external-completion, which-key, use-package, flymake, vc, vc-annotate, smerge-mode, eglot, jsonrpc, xref, transient, treesit. Not installed; unchanged.
+- **9 disabled** in `config/packages.el`: groovy-mode, android-mode, marginalia, nodejs-repl, evil-lion, evil-embrace, exato, evil-snipe, flymake-popon. Not installed; unchanged.
+- **straight** itself: deleted.
+- **31 pinned and installed**, listed below.
+- **5 installed without a pin**, from `config/packages.el`: pulsar, ecoin, gemit, s3-manager, podel (see Decisions).
+
+Installed today but **not declared** (straight pulled them from MELPA recipes): goto-chg (evil), shift-number (evil-numbers), llama, with-editor (magit, transient), magit-section (magit's repo). P11 declares each with the HEAD the synced tree has, so nothing changes. That makes 41 installed packages from 38 clones.
+
+The table is the complete install set. "Files" is today's straight `:files` (from `.local/straight/build-31.1-cache.el`), minus `*-pkg.el`, `.texi` and docs entries; blank means the default set (below). Pins are full SHAs; where two packages share a repo they must share the pin.
+
+| Package | Repo (github unless noted) | Pin | Files / notes |
+|---|---|---|---|
+| nerd-icons | rainstormstudio/nerd-icons.el | `17faac79…` | default + `data` dir |
+| corfu | minad/corfu | `c68f993d…` | default + `extensions/corfu-*.el` |
+| cape | minad/cape | `f0135aba…` | |
+| nerd-icons-corfu | LuigiPiucco/nerd-icons-corfu | `e1197d6c…` | |
+| vertico | minad/vertico | `cd2eb6da…` | default + `extensions/vertico-*.el` |
+| orderless | oantolin/orderless | `51f677f4…` | |
+| consult | minad/consult | `3a2441dd…` | |
+| consult-dir | karthink/consult-dir | `1497b46d…` | |
+| embark | oantolin/embark | `87e53827…` | `embark.el`, `embark-org.el` |
+| embark-consult | oantolin/embark (shared) | `87e53827…` | `embark-consult.el` |
+| evil | emacs-evil/evil | `6a3e1ddd…` | default, exclude `evil-test-helpers.el` |
+| goto-chg (new) | emacs-evil/goto-chg | `72f55652…` | |
+| evil-args | wcsmith/evil-args | `a8151556…` | |
+| evil-escape | hlissner/evil-escape | `819f1ee1…` | |
+| evil-exchange | Dewdrops/evil-exchange | `5f0a2d41…` | |
+| evil-indent-plus | TheBB/evil-indent-plus | `f392696e…` | |
+| evil-numbers | juliapath/evil-numbers | `616aff9e…` | not byte-compiled (today's `:build (:not compile)`) |
+| shift-number (new) | codeberg: ideasman42/emacs-shift-number | `52f4d320…` | |
+| evil-surround | emacs-evil/evil-surround | `e6548372…` | |
+| evil-textobj-anyblock | willghatch/evil-textobj-anyblock | `29280cd7…` | pin is on branch `fix-inner-block`; fetched by SHA |
+| evil-traces | mamapanda/evil-traces | `82e8a7b4…` | |
+| evil-visualstar | bling/evil-visualstar | `06c053d8…` | |
+| evil-quick-diff | rgrinberg/evil-quick-diff | `69c88372…` | |
+| evil-collection | emacs-evil/evil-collection | `fa8da0eb…` | default + `modes` dir (compiled, 226 `.elc` today) |
+| git-modes | magit/git-modes | `f291a4cc…` | |
+| go-gen-test | s-kostyaev/go-gen-test | `af00a9ab…` | `go-gen-test.el` |
+| yaml-mode | yoshiki/yaml-mode | `93dba98c…` | |
+| ghostel | dakra/ghostel | `a63db707…` | default + `etc`, `src`, `vendor`, `build.zig`, `build.zig.zon`, `symbols.map` |
+| evil-ghostel | dakra/ghostel (shared) | `a63db707…` | `extensions/evil-ghostel/*.el` |
+| consult-eglot | mohkale/consult-eglot | `3e4d9a40…` | |
+| cond-let | tarsius/cond-let | `09292a77…` | |
+| llama (new) | tarsius/llama | `6850d0c9…` | `llama.el` |
+| with-editor (new) | magit/with-editor | `254c5418…` | |
+| magit | magit/magit | `659f8995…` | `lisp/magit*.el`, `lisp/git-*.el`, exclude `lisp/magit-section.el` |
+| magit-section (new) | magit/magit (shared) | `659f8995…` | `lisp/magit-section.el` |
+| diff-hl | dgutov/diff-hl | `8dfb5c27…` | |
+| pulsar | protesilaos/pulsar | `83d53271…` (proposed) | config |
+| ecoin | nqminhuit/ecoin | `086ad6a2…` (proposed) | config |
+| gemit | nqminhuit/gemit | `1291108a…` (proposed) | config |
+| s3-manager | nqminhuit/s3-manager.el | `5abb3df5…` (proposed) | config |
+| podel | nqminhuit/podel | `42e3db20…` (proposed) | config |
+
+Full SHAs: the existing `:pin`s in the modules, and for the new rows `git -C .local/straight/repos/<repo> rev-parse HEAD` in the synced tree (call A copies them from there).
+
+Dependencies seen in the tree that are not packages here: `emacs`, `cl-lib`, `nadvice` (built into Emacs, so allowed without a declaration; see Rules).
+
+### Design
+**Layout** (new; `.local/straight/` goes away):
+- `.local/packages/repos/<repo-name>/`: one shallow git checkout per repo, detached at the pin. `<repo-name>` is the repo's basename (`nerd-icons.el`, `emacs-shift-number`, ...), so shared repos clone once.
+- `.local/packages/build-<emacs-version>/<package>/`: symlinks to the files the recipe selects (directories such as `data`, `modes`, `etc` linked as directories), the `.elc`s, and `<package>-autoloads.el`. Byte-code stays per Emacs version as today, and the layout matches straight's, so library names, `locate-library` results and relative resource lookups (nerd-icons `data/`, ghostel `etc/`) are unchanged.
+- `.local/packages/build-<emacs-version>/.state.el`: package → (pin, recipe hash, Emacs version), so a sync rebuilds only what changed.
+
+**Recipe format.** `package!` stays (same keys: `:recipe`, `:pin`, `:disable`, `:built-in`, `:ignore`). Every installed package gets an explicit recipe in its `packages.el`; there are no recipe repos to fall back on. Recipe keys: `:host` (`github`, default, or `codeberg`), `:repo`, `:files`, `:compile` (nil to skip byte-compilation). `:branch` is accepted and ignored (the pin decides). Any other key, a missing `:repo`, or a `:pin` that is not 40 hex chars is an error at sync. `:files` uses a subset of straight's syntax: globs, `:defaults`, `(:exclude globs...)`; globs match relative to the repo root and land in the build dir under their basename. The default set is `("*.el" "lisp/*.el" (:exclude ".dir-locals.el" "test.el" "tests.el" "*-test.el" "*-tests.el" "*-pkg.el" "*-autoloads.el"))`, the `.el` part of MELPA's default.
+
+**Rules** (checked before any network access; every failure names the package and the `packages.el` that declared it):
+- Every installed package has a full-SHA `:pin`. Packages that share a repo have the same pin.
+- Dependencies come from the `Package-Requires` header of the package's main file (`<package>.el` in its build file set, read with `lisp-mnt`), so the check runs after checkout. Each dependency must be `emacs`, a declared installed package, a package declared `:built-in`, or a library in Emacs's own `load-path` (`cl-lib`, `nadvice`); for a built-in, its version must meet the required one (magit's `transient 0.13` against Emacs's 0.13.3). Anything else (undeclared, or declared `:disable t`) is an error, never a fetch.
+- Pinned build dirs go on the `load-path` ahead of Emacs's lisp dirs (the profile already adds the initial `load-path` first and package dirs in front of it). A `:built-in` package has no build dir, so it loads from the Emacs install.
+
+**Fetch.** For a missing repo: `git init`, add the remote (`https://github.com/<repo>.git` or `https://codeberg.org/<repo>.git`), `git fetch --depth 1 --no-tags origin <pin>`, `git checkout --detach FETCH_HEAD`. If the shallow fetch by SHA fails, fall back to a full `git fetch origin` and checkout of the pin. Verified 2026-11-13 that the SHA fetch works for GitHub, Codeberg (shift-number) and a pin that only exists on a non-default branch (evil-textobj-anyblock). For an existing repo whose `HEAD` differs from the pin: same fetch, then checkout; the package and every package depending on it are rebuilt. After checkout, `git rev-parse HEAD` must equal the pin or the sync fails. git runs with the global and system git config ignored (as `doom--ensure-straight` does today), keeping the `DOOMGITCONFIG` escape hatch.
+
+**Build** (in topological order of the dependency graph, dependencies first; a cycle is an error):
+1. Recreate the build dir from the recipe's file set.
+2. Byte-compile its `.el` files (recursively, so `modes/` is compiled) in a child `emacs --batch -Q` whose `load-path` is the package's build dir plus its transitive dependencies' build dirs, so a missing dependency shows up as a compile error instead of a silent skip. Compile warnings are logged, not fatal, as today; a file that fails to compile is reported and the sync exits non-zero at the end. Native compilation stays deferred (JIT at runtime), as today.
+3. `loaddefs-generate` over the build dir's top-level `.el` files into `<package>-autoloads.el` (with the existing `emacs-lisp-mode-hook` guard), which covers vertico's and corfu's extensions because they are flattened into the build dir.
+
+**Profile.** `doom-initialize-packages` reads the declarations, validates them, and adds the build dirs to `load-path`. `doom-profile--generate-loaddefs-packages` walks the new dependency graph instead of `straight--build-cache` and inlines each package's autoloads file, dependencies first. The system-package branch that reads `package-alist` is dropped.
+
+**ghostel module.** `modules/term/ghostel/config.el` sets `ghostel-module-auto-install` to `'download` and `ghostel-module-directory` to `(file-name-concat doom-data-dir "ghostel/")`, so re-cloning or rebuilding ghostel keeps the module, and the first terminal downloads it without a prompt. The zig compile path stays unsupported (`doctor.el` says so instead of suggesting `ghostel-module-compile`).
+
+**`doom gc`.** Deletes repos and build dirs not used by the current package set, build dirs of other Emacs versions, and old ELN dirs (kept from today). Regrafting and the ELPA purge go: clones are already depth 1, and nothing installs into `.local/elpa`.
+
+### What changes elsewhere (all consumers of straight)
+- **Delete:** `lisp/doom-straight.el`; the bump tooling in `lisp/lib/packages.el` (everything but `doom/reload-packages`, which stays and is bound to `SPC h r p`); the `with-eval-after-load 'straight` block in `doom-emacs.el:218-220`; the `package!` for straight in `modules/doom/packages.el`; `doom-initialize-core-packages`, `doom--ensure-straight`, `doom--ensure-core-packages`, `doom-packages--cli-recipes-update`, `doom-packages--straight-with`, `doom-packages--with-recipes`, `doom-packages--barf-if-incomplete` (replaced by a check that every build dir exists), `doom-package-recipe-alist`, `doom-package-build-recipe`, `doom-package-depending-on`, and `unpin!`/`disable-packages!`/`:unpin`/`:freeze`/`:env`/`:type` (no callers outside comments; `:env` has no users and its profile generator `30-doom-package-envs` goes too).
+- **Rewrite on the new backend:** `doom-packages-ensure`, `doom-packages-update` (now: bring every repo to its pin; there is nothing unpinned to update), `doom-package-recipe`, `doom-package-recipe-repo`, `doom-package-dependencies`, `doom-package-installed-p`, `doom-package-built-in-p`, `doom-package-backend` (`installed`/`builtin`/nil), `doom-package-pinned-alist`, `doom-package-homepage` (from the recipe's host and repo).
+- `bin/doom-sync`: drop `-u` (nothing unpinned to update), `-U`, `--aot`, `-j` and `--gc` (gc always runs its full pass); keep `-r`, `-b`, `-B`, `-e`. The Emacs-version/system-hash rebuild prompt stays.
+- `bin/doom-install`: drop the `--aot` straight hook. `bin/doom-gc`: rewritten as above. `bin/doom-doctor`: the stale-elc check points at the new build dir, and `(require 'straight)` goes.
+- `lisp/doom-cli.el:1020-1043`: the straight error-log branch becomes a git-output branch: the backend keeps the last failing git or compile command's output and the error handler prints it the same way.
+- `lisp/lib/help.el`: `doom/describe-package` lists packages from `doom-packages` and built-ins, and shows Source (Pinned / Built-in), Pin, repo dir, build dir and homepage from the new API; `doom/help-package-homepage` becomes a small command over `doom-package-homepage` (it aliases a straight function today). `lisp/lib/debug.el`: the `elpa` section of `doom-info` goes.
+- `lisp/doom-emacs.el:1535-1548`: the `package` block (MELPA/org archives) goes; Doom never uses package.el now. `package-enable-at-startup nil` (`doom.el:351`) stays.
+- `lisp/doom-modules.el:37`, `lisp/lib/projects.el:156`, `lisp/doom.el:474`, `lisp/cli/loaddefs.el:126` and the commentary in `doom-packages.el`: drop straight wording.
+- Tests and tools: `tests/unit/keybinds-tests.el:11`, `tests/unit/comment-tests.el:9` and `tests/smoke.sh:41` use `.local/straight/build-31.1/`; they move to a shared helper that returns `.local/packages/build-<emacs-version>/<package>`.
+- Plan sections that go stale, edited by call D (not by this plan PR): Cutover's paragraph on stale built-in build dirs under `.local/straight/build-31.1/` (obsolete: the first sync of the new backend starts clean), Workspace's "first sync re-downloads ~80 packages (79 build dirs)" (now 41 packages from 38 clones), and the Verification **P11** bullet (replaced by the list below).
+
+### Migration of an existing `.local`
+Proposed (Decision 2): the first sync on the new backend, seeing `.local/straight/`, prints that it is replacing the straight tree, deletes `.local/straight/` and `.local/elpa/`, and clones everything fresh (about 38 shallow clones; a few minutes once). No attempt to reuse straight's repos: the fresh path is the one verified, and nothing in the old tree is irreplaceable. Cases:
+- **Worktrees** (copies of another worktree's `.local`): run `bin/lite doom sync`; the tree is rebuilt in place.
+- **Main checkout** `/opt/minh/doom-lite`: the downloaded ghostel module sits inside `.local/straight/`, so it is deleted with it; the first ghostel terminal re-downloads it into `ghostel-module-directory` without a prompt.
+- **Live install at cutover**: the same first sync replaces the live `.local/straight/`. Cutover's "delete stale build dirs then `doom sync --rebuild`" step is no longer needed (call D updates Cutover).
+
+### Steps (stacea calls, one branch `p11-backend` off `master`, one PR)
+Every call ends with `tests/run.sh`, `bin/lite doom sync`, `bin/lite doom doctor` and `tests/smoke.sh` green.
+
+**A — fork, under straight: freeze today's layout and make every recipe explicit.**
+1. First commit, before any other change: `tests/unit/packages-layout-tests.el` plus a fixture `tests/fixtures/packages-layout.eld` captured from the synced tree. For each installed package it records the sorted file names in its build dir (recursively, `.el` and directories only) and the autoloaded function names its autoloads file defines; it also records `locate-library` for every `:built-in` package (must be under the Emacs install). The test compares the current synced tree with the fixture and skips with a message when `.local` is not synced. It must pass on straight.
+2. Old-behavior unit tests (no sync needed) for the API kept: `package!` in a temp `packages.el` records `:pin`, `:recipe`, `:disable` and `:modules`; `:built-in t` marks `:ignore`; a later `package!` for the same name in the user dir overrides an earlier one; `doom-package-pinned-alist` maps repo names to pins and skips disabled and built-in packages.
+3. Add `package!` declarations with pins for goto-chg (evil), shift-number (evil), llama, with-editor and magit-section (magit), each in the module that pulls it in, with a comment naming the dependent.
+4. Give every installed module package an explicit `:recipe` with `:host`, `:repo` and `:files` taken from today's build cache (table above). Straight builds the same layout from these, which the layout test proves.
+
+**B — config: pins for the five config packages** (as Decision 1 resolves). Add `:pin` to pulsar, ecoin, gemit, s3-manager and podel in `config/packages.el`, and delete the `unpin!` example comments. The layout test still passes.
+
+**C — fork: the backend swap.** Replace straight with the backend described in Design, in one call because the tree only works with all of it: `doom-packages.el` (rules, fetch, build, state, the rewritten API), the profile's package loaddefs generator, `doom gc`, `doom sync`/`install`/`doctor` flags, the CLI error branch, help/debug, the deletions listed above, and the test path helper. The layout test and old-behavior tests pass unchanged, except the fixture's paths now point under `.local/packages/`; any other change to the fixture is a behavior change and the PR says so. New unit tests, using temp `file://` git repos built in the test (no network):
+- a package is checked out at its pin, and `git rev-parse HEAD` equals it; changing the pin moves the checkout and rebuilds the package and its dependents, but not unrelated packages
+- an unpinned package, a short or non-hex pin, an unknown recipe key, two packages on one repo with different pins, an undeclared dependency, a dependency on a disabled package, and a built-in below the required version each fail with an error naming the package, before anything is fetched or built
+- dependencies are compiled before dependents; a dependency cycle is an error
+- `:files` globs, `:defaults`, `:exclude` and directory entries produce the expected build dir; `:compile nil` produces no `.elc`
+- a file from an extensions-style subdirectory gets autoloads (`vertico-directory-enter`-like) in `<package>-autoloads.el`
+- gc removes a repo and build dir no longer declared, and keeps declared ones
+- the build dir of a pinned package precedes an Emacs lisp dir in the generated `load-path` when both provide the same library
+
+**D — fork: ghostel, migration, docs.** The ghostel settings and doctor text; the one-time `.local/straight` replacement; module READMEs and core docs that mention straight (`grep -rn straight modules lisp bin docs`); the stale plan sections listed above.
+
+### Verification (phase-specific, on top of the every-phase list)
+- **Fresh `.local`:** in the P11 worktree, move `.local` aside, run `bin/lite doom sync`, and check: 38 repos and 41 build dirs; for every installed package, `git -C <repo> rev-parse HEAD` equals its `:pin`; `git -C <repo> rev-list --count HEAD` is 1 (shallow) unless the SHA fetch fell back; the log shows no fetch without a SHA. Then copy the tree-sitter grammars back and run the full smoke.
+- **Migration:** with a straight-era `.local` (the copy taken before call C), `bin/lite doom sync` removes `.local/straight/` and produces the same result as the fresh sync.
+- **Layout:** the layout test passes against the fresh tree.
+- Through the daemon: `(locate-library "transient")`, `"compat"`, `"eglot"`, `"project"`, `"seq"`, `"which-key"` and `"use-package"` point into the Emacs install; `(locate-library "magit")` and `"evil"` point under `.local/packages/build-31.1/`. `vertico-directory-enter` and `corfu-popupinfo-mode` are bound after `(require 'vertico-directory)` and `(require 'corfu-popupinfo)`. `(featurep 'straight)` is nil and `(fboundp 'straight-use-package)` is nil. `magit-version` is 4.7.1.
+- ghostel: in the main checkout after the user's re-sync (interactive), the first terminal downloads the module into `.local/etc/ghostel/` (`doom-data-dir`) and `M-1..9` still work there.
+- `grep -rn "straight" lisp bin modules tests config` returns only intentional hits (e.g. "straightforward", eglot's comment).
+- Startup time and package count compared with the baseline: the package count is the number of build dirs (41).
+
+### Decisions for the user
+1. **Config packages without pins** (pulsar, ecoin, gemit, s3-manager, podel; four are the user's own repos). **Recommended: pin them** at the HEADs above, and bump by editing the `:pin` (one rule for every package, matching "never fetched at HEAD"). Alternative: allow an explicit `:pin :head` for packages in `config/packages.el` only, fetched at the default branch's HEAD on every sync; the user's own packages update without editing pins, at the cost of unreproducible syncs.
+2. **Old `.local/straight/`**: **recommended: delete it automatically** on the first sync of the new backend, with a message (Migration). Alternative: leave it and print a warning telling the user to delete it; it wastes ~150 MB until then.
+3. **Dropped surface:** `doom sync -u/-U/--aot/-j/--gc`, `unpin!`, `package!` `:env`/`:freeze`/`:type`, the bump commands, `doom gc` regrafting and ELPA purge, and the package.el archive setup in `doom-emacs.el`. None has a caller in the fork or config; approving the plan approves dropping them. Bumping a package becomes: edit its `:pin`, run `bin/lite doom sync`.
 
 ## Verification (every phase)
 All commands run through `bin/lite` (see Workspace). stacea cannot press keys, so everything it runs is scripted; the interactive list is the user's optional check after merge.
