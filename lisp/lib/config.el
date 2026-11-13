@@ -94,10 +94,8 @@ Runs `doom-before-reload-hook' first, then `doom-after-reload-hook' afterwards."
       (with-doom-context 'reload
         (doom-run-hooks 'doom-before-reload-hook)
         (with-demoted-errors "PRIVATE CONFIG ERROR: %s"
-          (general-auto-unbind-keys)
           (unwind-protect
               (startup--load-user-init-file nil)
-            (general-auto-unbind-keys t)
             (doom-run-hooks 'doom-after-reload-hook)))
         (message "Config successfully reloaded!"))
     (user-error "Failed to reload your config")))

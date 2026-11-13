@@ -424,8 +424,9 @@ don't offer any/enough real value to users.")
 (use-package! evil-nerd-commenter
   :commands (evilnc-comment-operator
              evilnc-inner-comment
-             evilnc-outer-commenter)
-  :general ([remap comment-line] #'evilnc-comment-or-uncomment-lines))
+             evilnc-outer-commenter
+             evilnc-comment-or-uncomment-lines)
+  :init (define-key! [remap comment-line] #'evilnc-comment-or-uncomment-lines))
 
 
 (use-package! evil-snipe
