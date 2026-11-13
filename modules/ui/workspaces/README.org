@@ -51,7 +51,7 @@ can overcome this by using ~buffer-list~.
 A workspace is automatically created (and switched to) when you:
 
 - Create a new frame (with =make-frame=; bound to [[kbd:M-N]] by default).
-- Switch to a project using ~projectile-switch-project~.
+- Switch to a project using ~project-switch-project~.
 
 ** Session persistence
 By default, your session is autosaved when you quit Emacs (or disable

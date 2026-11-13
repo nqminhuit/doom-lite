@@ -13,7 +13,7 @@ If ARG (universal argument), runs `compile' from the current directory."
       (recompile)
     (call-interactively
      (if arg
-         #'projectile-compile-project
+         #'project-compile
        #'compile))))
 
 ;;;###autoload

@@ -223,14 +223,12 @@
   (setq dired-compress-directory-default-suffix ".zip")
   (setq dired-compress-files-alist '(("\\.zip\\'" . "zip %o -r --filesync %i"))))
 
-(with-eval-after-load 'projectile
-  ;; visiting a file no longer silently registers a new project.
-  (setq projectile-track-known-projects-automatically nil)
-  ;; Completely blacklist the Go module cache
-  (setq projectile-ignored-project-function
-        (lambda (project-root)
-          (string-prefix-p (expand-file-name "~/go/pkg/mod")
-                           (expand-file-name project-root)))))
+;; Completely blacklist the Go module cache
+(with-eval-after-load 'project
+  (add-to-list 'project-list-exclude
+               (lambda (pr)
+                 (string-prefix-p (expand-file-name "~/go/pkg/mod")
+                                  (expand-file-name (project-root pr))))))
 
 (with-eval-after-load 'org
   (setopt org-startup-folded 'fold))

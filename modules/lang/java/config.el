@@ -17,10 +17,6 @@ If the depth is 1, the first directory in src/java/net/lissner/game/MyClass.java
   is removed: java.net.lissner.game.
 If the depth is 2, the first two directories are removed: net.lissner.game.")
 
-(after! projectile
-  (add-to-list 'projectile-project-root-files "gradlew")
-  (add-to-list 'projectile-project-root-files "settings.gradle"))
-
 
 ;;
 ;;; Common packages

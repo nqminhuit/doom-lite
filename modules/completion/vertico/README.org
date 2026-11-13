@@ -92,9 +92,7 @@ due to Marginalia annotations.
 
 ** Jump-to navigation
 This module provides an interface to navigate within a project using
-[[pkg:projectile]]:
-
-[[asset:https://assets.doomemacs.org/completion/vertico/projectile.png]]
+=project.el=:
 
 | Keybind                              | Description                         |
 |--------------------------------------+-------------------------------------|

@@ -67,12 +67,11 @@ If PROJECT is nil, default to the current project.
 
 If no project is active, return all buffers."
   (let ((buffers (doom-buffer-list)))
-    (if-let* ((project-root
-               (if project (expand-file-name project)
-                 (doom-project-root))))
-        (cl-loop for buf in buffers
-                 if (projectile-project-buffer-p buf project-root)
-                 collect buf)
+    (if-let* ((pr (project-current nil (if project (expand-file-name project)
+                                         default-directory))))
+        (let ((proj-bufs (project-buffers pr)))
+          ;; Keep `buffers' order (recency); cl-intersection does not.
+          (cl-remove-if-not (lambda (b) (memq b proj-bufs)) buffers))
       buffers)))
 
 ;;;###autoload

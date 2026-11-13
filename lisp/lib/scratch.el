@@ -139,17 +139,16 @@ If passed the prefix ARG, do not restore the last scratch buffer.
 If PROJECT-P is non-nil, open a persistent scratch buffer associated with the
   current project."
   (interactive "P")
-  (dlet (projectile-enable-caching)
-    (funcall
-     (if same-window-p
-         #'switch-to-buffer
-       #'pop-to-buffer)
-     (doom-scratch-buffer
-      arg
-      (doom--scratch-buffer-initial-mode)
-      default-directory
-      (when project-p
-        (doom-project-name))))))
+  (funcall
+   (if same-window-p
+       #'switch-to-buffer
+     #'pop-to-buffer)
+   (doom-scratch-buffer
+    arg
+    (doom--scratch-buffer-initial-mode)
+    default-directory
+    (when project-p
+      (doom-project-name)))))
 
 ;;;###autoload
 (defun doom/switch-to-scratch-buffer (&optional arg project-p)

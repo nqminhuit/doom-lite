@@ -1,10 +1,5 @@
 ;;; lang/javascript/config.el -*- lexical-binding: t; -*-
 
-(after! projectile
-  (add-to-list 'projectile-project-root-files "package.json")
-  (add-to-list 'projectile-globally-ignored-directories "node_modules")
-  (add-to-list 'projectile-globally-ignored-directories "flow-typed"))
-
 
 ;;
 ;;; Major modes

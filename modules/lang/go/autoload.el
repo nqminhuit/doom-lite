@@ -117,11 +117,11 @@
 Will prompt for the project if you're not in one or if the prefix ARG is
 non-nil."
   (interactive "P")
-  (if-let*
-      ((proot
-        (dlet ((projectile-require-project-root 'prompt))
-          (projectile-ensure-project (unless arg (doom-project-root))))))
-      (+go--generate (file-truename proot) "./...")
+  (if-let* ((proot (or (and (not arg)
+                            (when-let* ((pr (project-current)))
+                              (project-root pr)))
+                       (project-prompt-project-dir))))
+      (+go--generate (file-truename (expand-file-name proot)) "./...")
     (user-error "Not in a valid project")))
 
 

@@ -26,8 +26,6 @@ This module provides Magit, an interface to the Git version control system.
 
 ** Hacks
 - [[package:magit]] has been modified to recognize =$XDG_CACHE_HOME/git/credential/socket=.
-- [[package:magit]] has been modified to invalidate the projectile cache when you check out
-  a new branch or commit.
 - [[package:magit]] has been modified to revert repo buffers (e.g. after changing branches)
   when you later switch to them, rather than all at once.
 - [[package:forge]] was modified to defer compilation of emacsql-sqlite until you try to use

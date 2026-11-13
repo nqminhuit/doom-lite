@@ -35,8 +35,6 @@ section below.
   Don't install or configure [[pkg:better-jumper]].
 - -general ::
   Don't install [[pkg:general]] and don't provide the [[fns:map!]] macro.
-- -projectile ::
-  Don't install or configure [[pkg:projectile]].
 - -smartparens ::
   Don't install or configure [[pkg:smartparens]].
 - -use-package ::
@@ -46,7 +44,6 @@ section below.
 ** Packages
 - [[package:better-jumper]] unless [[module:-better-jumper]]
 - [[package:general]] unless [[module:-general]]
-- [[package:projectile]] unless [[module:-projectile]]
 - [[package:smartparens]] unless [[module:-smartparens]]
 - [[package:use-package]] unless [[module:-use-package]]
 
@@ -88,7 +85,6 @@ released, this can't be changed.
 | [[fns:delq!]]                   | macro    | ~(cl-callf2 delq 'KEY ALIST)~ or ~(setf (alist-get 'KEY ALIST nil t) nil)~                        |
 | [[fns:pushnew!]]                | macro    | [[fns:add-to-list]] or [[fns:cl-pushnew]] in a loop                                                   |
 | [[fns:use-package!]]            | macro    | [[fns:use-package]]                                                                               |
-| [[fns:def-project-mode!]]       | macro    | (no alternative yet)                                                                          |
 | [[fns:map!]]                    | macro    | [[fns:define-key!]], [[fns:keymap-set]], [[fns:define-key]], [[cmd:global-set-key]], [[fns:evil-define-key]], etc |
 
 There are in-depth examples for some of these in =docs/examples.org= in this

@@ -652,7 +652,7 @@ These are side-by-side comparisons, showing how to bind keys with and without
 :END:
 #+begin_src emacs-lisp :eval no
 ;; Use after-call to load package before hook
-(use-package! projectile
+(use-package! magit
   :after-call (pre-command-hook after-find-file dired-before-readin-hook))
 
 ;; defer recentf packages one by one
