@@ -1,53 +1,9 @@
 ;; -*- no-byte-compile: t; -*-
 ;;; $DOOMDIR/packages.el
 
-;; To install a package with Doom you must declare them here and run 'doom sync'
-;; on the command line, then restart Emacs for the changes to take effect -- or
-;; use 'M-x doom/reload'.
-
-
-;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
-;(package! some-package)
-
-;; To install a package directly from a remote git repo, you must specify a
-;; `:recipe'. You'll find documentation on what `:recipe' accepts here:
-;; https://github.com/raxod502/straight.el#the-recipe-format
-;(package! another-package
-;  :recipe (:host github :repo "username/repo"))
-
-;; If the package you are trying to install does not contain a PACKAGENAME.el
-;; file, or is located in a subdirectory of the repo, you'll need to specify
-;; `:files' in the `:recipe':
-;(package! this-package
-;  :recipe (:host github :repo "username/repo"
-;           :files ("some-file.el" "src/lisp/*.el")))
-
-;; If you'd like to disable a package included with Doom, you can do so here
-;; with the `:disable' property:
-;(package! builtin-package :disable t)
-
-;; You can override the recipe of a built in package without having to specify
-;; all the properties for `:recipe'. These will inherit the rest of its recipe
-;; from Doom or MELPA/ELPA/Emacsmirror:
-;(package! builtin-package :recipe (:nonrecursive t))
-;(package! builtin-package-2 :recipe (:repo "myfork/package"))
-
-;; Specify a `:branch' to install a package from a particular branch or tag.
-;; This is required for some packages whose default branch isn't 'master' (which
-;; our package manager can't deal with; see raxod502/straight.el#279)
-;(package! builtin-package :recipe (:branch "develop"))
-
-;; Use `:pin' to specify a particular commit to install.
-;(package! builtin-package :pin "1a2b3c4d5e")
-
-
-;; Doom's packages are pinned to a specific commit and updated from release to
-;; release. The `unpin!' macro allows you to unpin single packages...
-;(unpin! pinned-package)
-;; ...or multiple packages
-;(unpin! pinned-package another-pinned-package)
-;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
-;(unpin! t)
+;; Declare packages here and run 'doom sync'. Every package needs a `:recipe'
+;; (`:host', `:repo', optional `:files') and a full-SHA `:pin'; bump a package
+;; by editing its `:pin'. Disable a module's package with `:disable t'.
 
 (package! groovy-mode :disable t)
 (package! android-mode :disable t)
@@ -59,11 +15,16 @@
 (package! evil-snipe :disable t);; experiment 10:59:33 2025-05-20
 (package! flymake-popon :disable t)
 
-(package! pulsar :recipe (:host github :repo "protesilaos/pulsar"))
-(package! ecoin :recipe (:host github :repo "nqminhuit/ecoin"))
-(package! gemit :recipe (:host github :repo "nqminhuit/gemit"))
-(package! s3-manager :recipe (:host github :repo "nqminhuit/s3-manager.el"))
+(package! pulsar :recipe (:host github :repo "protesilaos/pulsar")
+  :pin "83d53271a0ec2728ef36b45704d47bafd170e814")
+(package! ecoin :recipe (:host github :repo "nqminhuit/ecoin")
+  :pin "086ad6a2806466e8f8c09f8c217aec992092678b")
+(package! gemit :recipe (:host github :repo "nqminhuit/gemit")
+  :pin "1291108abbb1945884941d3f928f718485dcb29f")
+(package! s3-manager :recipe (:host github :repo "nqminhuit/s3-manager.el")
+  :pin "5abb3df5385138edc4d24d331700121b6e329527")
 ;; (package! ecim :recipe (:host github :repo "nqminhuit/ecim"))
-(package! podel :recipe (:host github :repo "nqminhuit/podel"))
+(package! podel :recipe (:host github :repo "nqminhuit/podel")
+  :pin "42e3db2078ab7dd3fadada2e3d84db89c7607bb8")
 
 ;; (package! capf-autosuggest)

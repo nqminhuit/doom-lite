@@ -2,7 +2,8 @@
 ;;; term/ghostel/packages.el
 
 (package! ghostel
-  :recipe (:host github :repo "dakra/ghostel")
+  :recipe (:host github :repo "dakra/ghostel"
+           :files (:defaults "etc" "src" "vendor" "build.zig" "build.zig.zon" "symbols.map"))
   :pin "a63db707e0d71e49eb4de95b198e288788eb92f8")
 
 (package! evil-ghostel

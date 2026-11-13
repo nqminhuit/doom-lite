@@ -7,8 +7,10 @@
 
 (defun kbt--path (rel) (expand-file-name rel kbt--root))
 
+(load (kbt--path "tests/packages-paths.el") nil t)
+
 (dolist (pkg '("evil" "goto-chg" "general"))
-  (let ((dir (kbt--path (concat ".local/straight/build-31.1/" pkg))))
+  (let ((dir (tpp-build-dir kbt--root pkg)))
     (when (file-directory-p dir) (add-to-list 'load-path dir))))
 
 (defvar doom-after-init-hook nil)

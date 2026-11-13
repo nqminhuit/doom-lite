@@ -213,13 +213,6 @@ Otherwise, `en/disable-command' (in novice.el.gz) is hardcoded to write them to
                       ;; compatibility fallbacks
                       "gnutls-cli -p %p %h")))
 
-;; DEPRECATED: Interactive sessions won't be able to interact with Straight
-;;   (or Elpaca) in the future, so this is temporary.
-(with-eval-after-load 'straight
-  (require 'doom-straight)
-  (doom-initialize-packages))
-
-
 ;;; ** Runtime optimizations
 
 ;; PERF: Disable bidirectional text scanning for a modest performance boost.
@@ -1529,23 +1522,6 @@ flush out with a couple RETs, which may execute the broken text in the buffer)."
     (defun doom-truly-disable-hl-line-h ()
       (unless hl-line-mode
         (kill-local-variable 'doom--hl-line-mode)))))
-
-
-;;;###package package
-;; Sure, Doom doesn't use package.el (nor recommend it), but if the user wants
-;; to, let's ensure it is configured correctly for them.
-(with-eval-after-load 'package
-  (setq package-user-dir (file-name-concat doom-local-dir "elpa/")
-        package-gnupghome-dir (expand-file-name "gpg" package-user-dir))
-  (let ((s (if (gnutls-available-p) "s" "")))
-    ;; I omit Marmalade because its packages are manually submitted rather than
-    ;; pulled, and so often out of date.
-    (add-to-list 'package-archives `("melpa" . ,(format "http%s://melpa.org/packages/" s)))
-    (add-to-list 'package-archives `("org"   . ,(format "http%s://orgmode.org/elpa/"   s))))
-  ;; Refresh package.el the first time you call `package-install', so it's still
-  ;; trivially usable. Remember to run 'doom sync' to purge them; they can
-  ;; conflict with packages installed via straight!
-  (add-transient-hook! 'package-install (package-refresh-contents)))
 
 
 ;;;###package paren

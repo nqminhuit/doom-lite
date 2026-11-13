@@ -5,8 +5,10 @@
 (defconst cmt--root
   (expand-file-name "../../" (file-name-directory (or load-file-name buffer-file-name))))
 
+(load (expand-file-name "tests/packages-paths.el" cmt--root) nil t)
+
 (dolist (pkg '("evil" "goto-chg" "evil-nerd-commenter"))
-  (let ((dir (expand-file-name (concat ".local/straight/build-31.1/" pkg) cmt--root)))
+  (let ((dir (tpp-build-dir cmt--root pkg)))
     (when (file-directory-p dir) (add-to-list 'load-path dir))))
 
 (defconst cmt--evil-p (require 'evil nil t))

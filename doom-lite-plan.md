@@ -75,7 +75,7 @@ What the wrapper does:
 
 Rules:
 - Never call `bin/doom`, `emacs` or `emacsclient` directly for fork work; use `bin/lite`. The exceptions are SETUP and P1 before the wrapper exists, where both variables are exported by hand (`EMACSDIR` = the worktree, `DOOMDIR` = its `config/`, never a live dir) and every bare `emacs` call gets `--init-directory "$EMACSDIR"`. Never run `doom upgrade` at all (it pulls upstream; P1 deletes it).
-- The first sync re-downloads ~80 packages into the workspace `.local` (79 build dirs, ~3.5 min at SETUP).
+- The first sync clones 41 packages from 38 shallow clones into the workspace `.local` (about 45 s in P11 call C).
 - The first sync does not install tree-sitter grammars. Without them, opening a Go or Java file asks "Missing tree-sitter grammars ... Install now?", which in a daemon blocks every client. After the first sync, copy them read-only from the live install: `mkdir -p .local/etc/tree-sitter && cp -p ~/.config/emacs/.local/etc/tree-sitter/*.so .local/etc/tree-sitter/`. `tests/smoke.sh` turns any prompt into an error so a check fails instead of hanging.
 - Known leak: five places in `config/` hardcode `/opt/minh/linux-config` (`config.el:58` eshell aliases, `minh/java/config.el:40`, `minh/utils/autoload.el:3,79,84`), so the test session reads those files (read-only) from the live tree. Harmless as long as phases don't change them; don't rewrite the paths.
 
@@ -83,7 +83,7 @@ Baseline (SETUP, saved next to this plan as `doom-lite-baseline.md`): init time,
 
 ## Cutover (after the last phase, user's call)
 - Point `~/.config/emacs` at the fork (swap dirs or re-clone).
-- If the live `.local` is reused rather than re-synced from scratch, delete the stale build dirs of packages that are now built in (P4: eglot, eldoc, flymake, jsonrpc, project, xref, seq, external-completion, transient, compat) from `.local/straight/build-31.1/`, then run `doom sync --rebuild`. straight still registers them as dependencies, so `doom gc` keeps them, and Doom puts registered build dirs on the `load-path` ahead of the built-ins.
+- The first `doom sync` on the fork replaces the live `.local/straight/` (and `.local/elpa/`) automatically (P11). The ghostel module is downloaded into `doom-data-dir` (`.local/etc/ghostel/`) on first use.
 - The live install needs the `markdown`, `markdown-inline`, `gomod` and `gowork` tree-sitter grammars (none are in the live `.local/etc/tree-sitter`): install them with `treesit-install-language-grammar` or `markdown-ts-mode-install-parsers` before first opening a `.md` file, or copy them from the fork's `.local/etc/tree-sitter`, which has all four. `go.mod`/`go.work` now map straight to `go-mod-ts-mode`/`go-work-ts-mode`, which prompt to install a missing grammar.
 - Delete `bin/lite` and switch `tests/smoke.sh` to plain `bin/doom`, `emacs` and a test socket; the wrapper's refusals would block the fork once it is the live install.
 - Copy `config/` back to linux-config's `configs/dotfiles/emacs/doom-emacs/` in one linux-config PR to `master`, so `~/.config/doom` picks it up. First diff it against linux-config `master`: any config change made live after `3ced698a` must be carried over, not overwritten.
@@ -328,7 +328,7 @@ For each drop: remove the `package!`, its `use-package!` block and bindings, and
 - **compat module:** delete the deprecated aliases and macros that have no callers (`init.el`, after a grep).
 - **Keep:** `doom.el`, `doom-lib.el`, `doom-modules.el`, `doom-emacs.el`, `lib/{files,text,ui,buffers,projects,config,help,debug,fonts,themes,scratch,sessions,process,system,git,strings}`, the CLI, and `doom env`.
 
-## P11 — straight → clone-at-pin backend (detailed plan; approved by the user 2026-11-13)
+## P11 — straight → clone-at-pin backend (detailed plan; approved by the user 2026-11-13; implemented in PR #14)
 Decided after S1 (`docs/handoff/S1.md`): no package.el, no package-vc, no recipe repos. `doom sync` keeps its name and flags it still needs, and gets a small backend of the fork's own: clone each package's repo at its pin, lay out a build dir per package, byte-compile in dependency order, generate autoloads, and let the generated profile init put the build dirs on the `load-path`. transient and the other P4 built-ins stay built in. ghostel's native module is download-only and lives outside the package tree.
 
 ### Inventory (2026-11-13, `master` at `0d16201`, synced tree copied from P10)
@@ -462,7 +462,7 @@ Every call ends with `tests/run.sh`, `bin/lite doom sync`, `bin/lite doom doctor
 - **Fresh `.local`:** in the P11 worktree, move `.local` aside, run `bin/lite doom sync`, and check: 38 repos and 41 build dirs; for every installed package, `git -C <repo> rev-parse HEAD` equals its `:pin`; `git -C <repo> rev-list --count HEAD` is 1 (shallow) unless the SHA fetch fell back; the log shows no fetch without a SHA. Then copy the tree-sitter grammars back and run the full smoke.
 - **Migration:** with a straight-era `.local` (the copy taken before call C), `bin/lite doom sync` removes `.local/straight/` and produces the same result as the fresh sync.
 - **Layout:** the layout test passes against the fresh tree.
-- Through the daemon: `(locate-library "transient")`, `"compat"`, `"eglot"`, `"project"`, `"seq"`, `"which-key"` and `"use-package"` point into the Emacs install; `(locate-library "magit")` and `"evil"` point under `.local/packages/build-31.1/`. `vertico-directory-enter` and `corfu-popupinfo-mode` are bound after `(require 'vertico-directory)` and `(require 'corfu-popupinfo)`. `(featurep 'straight)` is nil and `(fboundp 'straight-use-package)` is nil. `magit-version` is 4.7.1.
+- Through the daemon: `(locate-library "transient")`, `"compat"`, `"eglot"`, `"project"`, `"seq"`, `"which-key"` and `"use-package"` point into the Emacs install; `(locate-library "magit")` and `"evil"` point under `.local/packages/build-31.1/`. `vertico-directory-enter` and `corfu-popupinfo-mode` are bound after `(require 'vertico-directory)` and `(require 'corfu-popupinfo)`. `(featurep 'straight)` is nil and `(fboundp 'straight-use-package)` is nil. `magit-version` reports the pin's short hash (`659f899`), as under straight (magit computes it with `git describe`, which gives the short hash on shallow, tag-less clones).
 - ghostel: in the main checkout after the user's re-sync (interactive), the first terminal downloads the module into `.local/etc/ghostel/` (`doom-data-dir`) and `M-1..9` still work there.
 - `grep -rn "straight" lisp bin modules tests config` returns only intentional hits (e.g. "straightforward", eglot's comment).
 - Startup time and package count compared with the baseline: the package count is the number of build dirs (41).
@@ -502,7 +502,7 @@ Phase-specific checks:
 - **P6:** Project switch creates a named tab, `M-1..9` and `SPC TAB 1..9` switch tabs, `SPC b b` is project-scoped, and no tab bar is drawn.
 - **P8:** `SPC` leader works in magit, dired and ghostel buffers and types a space in insert state. which-key shows labels. `(featurep 'general)` is nil.
 - **P9:** every dropped package is absent from the build dir, and `(featurep ...)` is nil for each after the smoke pass. A `.md` file opens in `markdown-ts-mode`. `gcc` and visual `gc` comment and uncomment.
-- **P11:** On a fresh `.local`, `doom sync` clones every package at its pinned rev (`git rev-parse HEAD` equals the pin) and fetches nothing unpinned. `(locate-library "transient")` points into the Emacs install (built in since P4), and so do the other `:built-in t` packages. `vertico-directory-enter` and `corfu-popupinfo-mode` are bound. ghostel's module loads from `ghostel-module-directory`.
+- **P11:** see the Verification list in the P11 section.
 
 ## Open decisions
 None, and nothing is blocked.

@@ -193,8 +193,8 @@ Must have two arguments, one for session id and the other for log type.")
 (defvar doom-cli-log-backtrace-depth 12
   "How many frames of the backtrace to display in stdout.")
 
-(defvar doom-cli-log-straight-error-lines 16
-  "How many lines of straight.el errors to display in stdout.")
+(defvar doom-cli-log-package-error-lines 16
+  "How many lines of the package manager's git or compile output to display in stdout.")
 
 (defvar doom-cli-log-benchmark-threshold 5
   "How much execution time (in seconds) before benchmark is shown.
@@ -1017,30 +1017,24 @@ considered as well."
          (load-read-function #'read)
          (backtrace (doom-backtrace))
          (context (or context (make-doom-cli-context)))
-         (straight-error
-          (and (bound-and-true-p straight-process-buffer)
-               (or (member straight-process-buffer data)
-                   (string-match-p (regexp-quote straight-process-buffer)
-                                   (error-message-string data)))
-               (with-current-buffer (straight--process-buffer)
-                 (save-excursion
-                   (goto-char (point-max))
-                   (buffer-substring (if (re-search-backward "^\\[Return code: 0\\]$" nil t)
-                                         (pos-bol 2)
-                                       (point-min))
-                                     (point-max))))))
+         (package-error
+          (and (eq (car-safe data) 'doom-package-error)
+               (bound-and-true-p doom-packages--last-failure)))
          (error-file (doom-cli--output-file 'error context)))
     (cond
-     (straight-error
-      (print! (error "The package manager threw an error"))
-      (print! (error "Last %d lines of straight's error log:")
-              doom-cli-log-straight-error-lines)
-      (print-group! (print! "%s" straight-error))
-      (print! (warn "Wrote extended straight log to %s")
+     (package-error
+      (print! (error "The package manager threw an error: %s") (error-message-string data))
+      (print! (error "Last %d lines of the failing command's output:")
+              doom-cli-log-package-error-lines)
+      (print-group!
+        (print! "%s" (string-join (last (split-string package-error "\n")
+                                        doom-cli-log-package-error-lines)
+                                  "\n")))
+      (print! (warn "Wrote extended log to %s")
               (path (let ((coding-system-for-write 'utf-8-auto))
                       (with-file-modes #o600
                         (with-temp-file error-file
-                          (insert-buffer-substring (straight--process-buffer))))
+                          (insert package-error)))
                       error-file))))
      ((eq type 'error)
       (let* ((generic? (eq (car data) 'error))
