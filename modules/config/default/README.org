@@ -7,14 +7,12 @@
 This module provides a set of reasonable defaults, including:
 
 - A Spacemacs-inspired keybinding scheme (leader keys in =+evil-bindings.el=)
-- Custom =help-map= keys (~SPC h d m~ opens a module's README, ~doom/describe-package~, ~load-theme~ on [[kbd:C-h t]], ...)
+- Custom =help-map= keys (~SPC h d m~ opens a module's README, ~doom/describe-package~, ~load-theme~ on =C-h t=, ...)
 - Smarter =C-a= / =C-e= and RET variants
 
 ** Maintainers
-- [[github:hlissner]]
-- [[github:UndeadKernel]] (for vanilla keybinds)
-
-[[doom-contrib-maintainer:][Become a maintainer?]]
+- [[https://github.com/hlissner][hlissner]]
+- [[https://github.com/UndeadKernel][UndeadKernel]] (for vanilla keybinds)
 
 ** Module flags
 /This module has no flags./
@@ -26,22 +24,22 @@ This module provides a set of reasonable defaults, including:
 /No hacks documented for this module./
 
 * Installation
-[[id:01cffea4-3329-45e2-a892-95a384ab2338][Enable this module in your ~doom!~ block.]]
+Enable this module in your ~doom!~ block.
 
 /This module has no external requirements./
 
 * TODO Usage
 #+begin_quote wip
-This module has no usage documentation yet. [[doom-contrib-module:][Write some?]]
+This module has no usage documentation yet.
 #+end_quote
 
 * TODO Configuration
 #+begin_quote wip
-This module has no configuration documentation yet. [[doom-contrib-module:][Write some?]]
+This module has no configuration documentation yet.
 #+end_quote
 
 * Troubleshooting
-/There are no known problems with this module./ [[doom-report:][Report one?]]
+/There are no known problems with this module./
 
 * Frequently asked questions
-/This module has no FAQs yet./ [[doom-contrib-faq:][Ask one?]]
+/This module has no FAQs yet./

@@ -11,27 +11,25 @@ This module adds code navigation and documentation lookup tools to help you quic
 - Per-mode lookup handlers registered with ~set-lookup-handlers!~.
 
 ** Maintainers
-- [[github:hlissner]]
-
-[[doom-contrib-maintainer:][Become a maintainer?]]
+- [[https://github.com/hlissner][hlissner]]
 
 ** Module flags
 /This module has no flags./
 
 ** Packages
-/This module installs no packages. It remaps ~xref-find-definitions~ and ~xref-find-references~ to its own commands and shows xref results with ~consult-xref~ (from [[module::completion vertico]])./
+/This module installs no packages. It remaps ~xref-find-definitions~ and ~xref-find-references~ to its own commands and shows xref results with ~consult-xref~ (from =:completion vertico=)./
 
 ** Hacks
 /No hacks documented for this module./
 
 * Installation
-[[id:01cffea4-3329-45e2-a892-95a384ab2338][Enable this module in your ~doom!~ block.]]
+Enable this module in your ~doom!~ block.
 
-This module has one optional dependency: ~ripgrep~, as a last-resort fallback for jump-to-definition/find-references (through ~+vertico-file-search~ from [[module::completion vertico]]).
+This module has one optional dependency: ~ripgrep~, as a last-resort fallback for jump-to-definition/find-references (through ~+vertico-file-search~ from =:completion vertico=).
 
 * Usage
 ** Jump to definition
-Use ~+lookup/definition~ (bound to [[kbd:gd]] in normal mode) to jump to the definition of the symbol at point.
+Use ~+lookup/definition~ (bound to =gd= in normal mode) to jump to the definition of the symbol at point.
 
 This module provides a goto-definition implementation that will try the following sources before giving up:
 
@@ -43,22 +41,22 @@ This module provides a goto-definition implementation that will try the followin
 If there are multiple results, you will be prompted to select one.
 
 ** Find references
-Use ~+lookup/references~ (bound to [[kbd:gD]] in normal mode) to see a list of references for the symbol at point from throughout your project.
+Use ~+lookup/references~ (bound to =gD= in normal mode) to see a list of references for the symbol at point from throughout your project.
 
 Like ~+lookup/definition~, this tries a number of sources before giving up. It will try:
 
 1. Whatever ~:references~ function is registered for the current buffer with ~set-lookup-handlers!~.
-2. Any available [[pkg:xref]] backends.
+2. Any available =xref= backends.
 3. An ordinary project-wide text search with ripgrep.
 
 If there are multiple results, you will be prompted to select one.
 
 ** Other lookups
-- ~+lookup/implementations~ ([[kbd:gI]], [[kbd:SPC c i]]) and ~+lookup/type-definition~ ([[kbd:SPC c t]]) try the handlers registered for them.
-- ~+lookup/file~ ([[kbd:gf]]) opens the file (or bug reference) at point.
+- ~+lookup/implementations~ (=gI=, =SPC c i=) and ~+lookup/type-definition~ (=SPC c t=) try the handlers registered for them.
+- ~+lookup/file~ (=gf=) opens the file (or bug reference) at point.
 
 ** Look up documentation
-~+lookup/documentation~ (bound to [[kbd:K]] in normal mode) will open documentation for the symbol at point, using whatever ~:documentation~ function is registered for the current buffer with ~set-lookup-handlers!~ (see "Configuration" section).
+~+lookup/documentation~ (bound to =K= in normal mode) will open documentation for the symbol at point, using whatever ~:documentation~ function is registered for the current buffer with ~set-lookup-handlers!~ (see "Configuration" section).
 
 * Configuration
 ** Associating lookup handlers with major modes
@@ -79,7 +77,7 @@ Use ~set-lookup-handlers!~ to register lookup targets for MODES (a major or mino
 - ~:file FN~ ::
   Run when looking up the file for a symbol/string. Typically a file path. Used by ~+lookup/file~.
 - ~:xref-backend FN~ ::
-  Defines an [[pkg:xref]] backend, which implicitly provides ~:definition~ and ~:references~ handlers. If you specify them anyway, they will take precedence over the xref backend, however.
+  Defines an =xref= backend, which implicitly provides ~:definition~ and ~:references~ handlers. If you specify them anyway, they will take precedence over the xref backend, however.
 - ~:async BOOL~ ::
   Indicates that all supplied handlers are asynchronous.
 
@@ -97,7 +95,7 @@ E.g.
 #+end_src
 
 * Troubleshooting
-/There are no known problems with this module./ [[doom-report:][Report one?]]
+/There are no known problems with this module./
 
 * Frequently asked questions
-/This module has no FAQs yet./ [[doom-contrib-faq:][Ask one?]]
+/This module has no FAQs yet./

@@ -4,25 +4,25 @@
 #+since:    0.7
 
 * Description :unfold:
-This module adds [[https://golang.org][Go]] support through the built-in =go-ts-mode= (also =go-mod-ts-mode= and =go-work-ts-mode=), with LSP support via [[https://github.com/golang/tools/blob/master/gopls/README.md][gopls]] (see [[module::tools lsp]]).
+This module adds [[https://golang.org][Go]] support through the built-in =go-ts-mode= (also =go-mod-ts-mode= and =go-work-ts-mode=), with LSP support via [[https://github.com/golang/tools/blob/master/gopls/README.md][gopls]] (see =:tools lsp=).
 
 - Build, run and test commands bound under the local leader
 - Generate testing code (~go-gen-test~)
 
 ** Maintainers
-*This module needs a maintainer.* [[doom-contrib-maintainer:][Become a maintainer?]]
+*This module needs a maintainer.*
 
 ** Module flags
 /This module has no flags./
 
 ** Packages
-- [[package:go-gen-test]]
+- =go-gen-test=
 
 ** Hacks
 /No hacks documented for this module./
 
 * Installation
-[[id:01cffea4-3329-45e2-a892-95a384ab2338][Enable this module in your ~doom!~ block.]]
+Enable this module in your ~doom!~ block.
 
 This module requires Go and a valid =$GOPATH=. ~gotests~ (for generating test code) and ~gopls~ (for LSP) are optional; ~doom doctor~ warns when they are missing.
 
@@ -42,25 +42,25 @@ go install golang.org/x/tools/gopls@latest
 ** Keybinds
 | Keys                | Description                                           |
 |---------------------+-------------------------------------------------------|
-| [[kbd:<localleader> b c]]   | run ~$ go clean~                                        |
-| [[kbd:<localleader> b b]]   | run ~$ go build~                                        |
-| [[kbd:<localleader> b r]]   | run ~$ go run .~                                        |
-| [[kbd:<localleader> g f]]   | run ~go generate~ on the current file                 |
-| [[kbd:<localleader> g d]]   | run ~go generate~ in the current directory, recursively           |
-| [[kbd:<localleader> g a]]   | run ~go generate~ on the whole project                |
-| [[kbd:<localleader> t t]]   | rerun last test                                       |
-| [[kbd:<localleader> t a]]   | run all tests in project                              |
-| [[kbd:<localleader> t f]]   | run all tests in current file                         |
-| [[kbd:<localleader> t s]]   | run single test at point                              |
-| [[kbd:<localleader> t n]]   | run nested tests at point                             |
-| [[kbd:<localleader> t g]]   | Generate tests for all exported or selected functions |
-| [[kbd:<localleader> t G]]   | Generate tests for all functions                      |
-| [[kbd:<localleader> t e]]   | Generate tests for all exported functions             |
-| [[kbd:<localleader> t b s]] | go test.bench single                                  |
-| [[kbd:<localleader> t b a]] | go test.bench all                                     |
+| =<localleader> b c=   | run ~$ go clean~                                        |
+| =<localleader> b b=   | run ~$ go build~                                        |
+| =<localleader> b r=   | run ~$ go run .~                                        |
+| =<localleader> g f=   | run ~go generate~ on the current file                 |
+| =<localleader> g d=   | run ~go generate~ in the current directory, recursively           |
+| =<localleader> g a=   | run ~go generate~ on the whole project                |
+| =<localleader> t t=   | rerun last test                                       |
+| =<localleader> t a=   | run all tests in project                              |
+| =<localleader> t f=   | run all tests in current file                         |
+| =<localleader> t s=   | run single test at point                              |
+| =<localleader> t n=   | run nested tests at point                             |
+| =<localleader> t g=   | Generate tests for all exported or selected functions |
+| =<localleader> t G=   | Generate tests for all functions                      |
+| =<localleader> t e=   | Generate tests for all exported functions             |
+| =<localleader> t b s= | go test.bench single                                  |
+| =<localleader> t b a= | go test.bench all                                     |
 
 * Troubleshooting
-/There are no known problems with this module./ [[doom-report:][Report one?]]
+/There are no known problems with this module./
 
 * Frequently asked questions
-/This module has no FAQs yet./ [[doom-contrib-faq:][Ask one?]]
+/This module has no FAQs yet./

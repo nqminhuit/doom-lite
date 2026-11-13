@@ -13,14 +13,14 @@ Workspaces built on the built-in =tab-bar=. Each workspace is a tab holding a wi
 * Commands
 | Command                      | Key                | Description                         |
 |------------------------------+--------------------+-------------------------------------|
-| ~+workspace/display~         | [[kbd:SPC TAB TAB]]    | Show the workspaces in the echo area |
-| ~+workspace/switch-to~       | [[kbd:SPC TAB .]]      | Switch by name (or index with a prefix arg) |
-| ~+workspace/other~           | [[kbd:SPC TAB `]]      | Switch to the previous workspace    |
-| ~+workspace/new~             | [[kbd:SPC TAB n]]      | New workspace                       |
-| ~+workspace/new-named~       | [[kbd:SPC TAB N]]      | New workspace with a name           |
-| ~+workspace/kill~            | [[kbd:SPC TAB d]]      | Kill this workspace (never the last) |
-| ~+workspace/rename~          | [[kbd:SPC TAB r]]      | Rename this workspace               |
-| ~+workspace/switch-right~    | [[kbd:SPC TAB ]]]      | Next workspace (wraps)              |
-| ~+workspace/switch-left~     | [[kbd:SPC TAB []]      | Previous workspace (wraps)          |
-| ~+workspace/switch-to-N~     | [[kbd:SPC TAB 1..9]]   | Switch to the Nth workspace         |
-| ~+workspace/switch-to-final~ | [[kbd:SPC TAB 0]]      | Switch to the last workspace        |
+| ~+workspace/display~         | =SPC TAB TAB=    | Show the workspaces in the echo area |
+| ~+workspace/switch-to~       | =SPC TAB .=      | Switch by name (or index with a prefix arg) |
+| ~+workspace/other~           | =SPC TAB `=      | Switch to the previous workspace    |
+| ~+workspace/new~             | =SPC TAB n=      | New workspace                       |
+| ~+workspace/new-named~       | =SPC TAB N=      | New workspace with a name           |
+| ~+workspace/kill~            | =SPC TAB d=      | Kill this workspace (never the last) |
+| ~+workspace/rename~          | =SPC TAB r=      | Rename this workspace               |
+| ~+workspace/switch-right~    | =SPC TAB =]      | Next workspace (wraps)              |
+| ~+workspace/switch-left~     | =SPC TAB [=      | Previous workspace (wraps)          |
+| ~+workspace/switch-to-N~     | =SPC TAB 1..9=   | Switch to the Nth workspace         |
+| ~+workspace/switch-to-final~ | =SPC TAB 0=      | Switch to the last workspace        |

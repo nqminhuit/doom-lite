@@ -24,14 +24,12 @@ For what to use instead, see the Usage section below.
 ** Maintainers
 - @hlissner
 
-[[doom-contrib-maintainer:][Become a maintainer?]]
-
 ** Module flags
 - +keybinds ::
-  Define [[fns:map!]], [[fns:define-key!]], [[fns:undefine-key!]] and [[fns:define-localleader-key!]]. Always enabled.
+  Define ~map!~, ~define-key!~, ~undefine-key!~ and ~define-localleader-key!~. Always enabled.
 
 ** Packages
-- [[package:use-package]]
+- =use-package=
 
 ** Hacks
 /No hacks documented for this module./
@@ -42,7 +40,7 @@ released, this can't be changed.
 
 * Usage
 #+begin_quote wip
-/This module's configuration documentation is incomplete./ [[doom-contrib-module:][Complete it?]]
+/This module's configuration documentation is incomplete./
 #+end_quote
 
 | Syntax                      | Type     | What to use instead                                                                           |
@@ -51,16 +49,16 @@ released, this can't be changed.
 | IS-LINUX                    | var      | ~(featurep :system 'linux)~                                                                     |
 | IS-WINDOWS                  | var      | ~(featurep :system 'windows)~                                                                   |
 | IS-BSD                      | var      | ~(featurep :system 'bsd)~                                                                       |
-| [[fns:use-package!]]            | macro    | [[fns:use-package]]                                                                               |
-| [[fns:map!]]                    | macro    | [[fns:define-key!]], [[fns:keymap-set]], [[fns:define-key]], [[cmd:global-set-key]], [[fns:evil-define-key]], etc |
+| ~use-package!~            | macro    | ~use-package~                                                                               |
+| ~map!~                    | macro    | ~define-key!~, ~keymap-set~, ~define-key~, ~global-set-key~, ~evil-define-key~, etc |
 
 * TODO Configuration
 #+begin_quote wip
-This module has no configuration documentation yet. [[doom-contrib-module:][Write some?]]
+This module has no configuration documentation yet.
 #+end_quote
 
 * Troubleshooting
-/There are no known problems with this module./ [[doom-report:][Report one?]]
+/There are no known problems with this module./
 
 * Frequently asked questions
-/This module has no FAQs yet./ [[doom-suggest-faq:][Ask one?]]
+/This module has no FAQs yet./

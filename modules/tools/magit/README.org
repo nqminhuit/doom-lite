@@ -7,41 +7,39 @@
 This module provides Magit, an interface to the Git version control system.
 
 ** Maintainers
-- [[github:hlissner]]
-
-[[doom-contrib-maintainer:][Become a maintainer?]]
+- [[https://github.com/hlissner][hlissner]]
 
 ** Module flags
 /This module has no flags./
 
 ** Packages
-- [[package:magit]]
-- [[package:transient]] (built-in)
-- [[package:cond-let]]
+- =magit=
+- =transient= (built-in)
+- =cond-let=
 
-Evil keybindings come from =evil-collection-magit= ([[module::editor evil]]).
+Evil keybindings come from =evil-collection-magit= (=:editor evil=).
 
 ** Hacks
-- [[package:magit]] has been modified to revert repo buffers (e.g. after changing branches) when you later switch to them, rather than all at once (~+magit-auto-revert~).
+- =magit= has been modified to revert repo buffers (e.g. after changing branches) when you later switch to them, rather than all at once (~+magit-auto-revert~).
 - ~magit-uniquify-buffer-names~ is disabled so two projects with the same name don't share magit buffers.
 
 * Installation
-[[id:01cffea4-3329-45e2-a892-95a384ab2338][Enable this module in your ~doom!~ block.]]
+Enable this module in your ~doom!~ block.
 
 This module requires [[https://git-scm.com/][Git]].
 
 * TODO Usage
 #+begin_quote wip
-/This module's usage documentation is incomplete./ [[doom-contrib-module:][Complete it?]]
+/This module's usage documentation is incomplete./
 #+end_quote
 
-Start magit with [[kbd:<leader> g g]] (~M-x magit-status~).
+Start magit with =<leader> g g= (~M-x magit-status~).
 
 If you are new to Magit, see the [[https://github.com/magit/magit#getting-started][Getting Started]] section of its project readme.
 
 * TODO Configuration
 #+begin_quote wip
-/This module's configuration documentation is incomplete./ [[doom-contrib-module:][Complete it?]]
+/This module's configuration documentation is incomplete./
 #+end_quote
 
 ** Enable Gravatars
@@ -63,7 +61,7 @@ This is so for [[https://magit.vc/manual/magit/Performance.html][performance rea
 #+end_src
 
 * Troubleshooting
-/There are no known problems with this module./ [[doom-report:][Report one?]]
+/There are no known problems with this module./
 
 * Frequently asked questions
-/This module has no FAQs yet./ [[doom-contrib-faq:][Ask one?]]
+/This module has no FAQs yet./

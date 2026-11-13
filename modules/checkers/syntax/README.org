@@ -4,42 +4,41 @@
 #+since:    2.0.0
 
 * Description :unfold:
-This module provides syntax checking and error highlighting, powered by the built-in [[pkg:flymake]].
+This module provides syntax checking and error highlighting, powered by the built-in =flymake=.
 
 ** Maintainers
-/This module has no dedicated maintainers./ [[doom-contrib-maintainer:][Become a maintainer?]]
+/This module has no dedicated maintainers./
 
 ** Module flags
 /This module has no flags./
 
 ** Packages
-- [[package:flymake]]
-- [[package:flymake-popon]]
+- =flymake=
+- =flymake-popon=
 
 ** Hacks
 - The emacs-lisp flymake byte-compile checker only runs in project buffers (mitigates CVE-2024-53920).
 - ~next-error~ and ~previous-error~ are routed to flymake in buffers where it is active, and consult the current buffer first.
 
 * Installation
-[[id:01cffea4-3329-45e2-a892-95a384ab2338][Enable this module in your ~doom!~ block.]]
+Enable this module in your ~doom!~ block.
 
 This module has no direct requirements, but some languages may have their own requirements to fulfill before you get syntax checking in them.
 
 * TODO Usage
 #+begin_quote wip
-/This module's usage documentation is incomplete./ [[doom-contrib-module:][Complete it?]]
+/This module's usage documentation is incomplete./
 #+end_quote
 
 ~flymake-mode~ is enabled in ~prog-mode~ and ~text-mode~ buffers, and shows the diagnostic at point in a popup (~flymake-popon~). Pressing ESC re-runs the checker.
 
 | Keybind | Description     |
 |---------+-----------------|
-| [[kbd:SPC c x]] | List errors (~+default/diagnostics~) |
+| =SPC c x= | List errors (~+default/diagnostics~) |
 
 * Troubleshooting
-[[doom-report:][Report an issue?]]
 
 - Use ~M-x flymake-running-backends~ and ~M-x flymake-reporting-backends~ to see which backends are active in a buffer.
 
 * Frequently asked questions
-/This module has no FAQs yet./ [[doom-contrib-faq:][Ask one?]]
+/This module has no FAQs yet./

@@ -18,9 +18,7 @@ It includes:
 - Grammar recipes for many languages, and graceful fallback to the non-ts major mode when a grammar is missing.
 
 ** Maintainers
-- [[github:jeetelongname]]
-
-[[doom-contrib-maintainer:][Become a maintainer?]]
+- [[https://github.com/jeetelongname][jeetelongname]]
 
 ** Module flags
 /This module has no flags./
@@ -42,7 +40,7 @@ It includes:
   Doom module) configuration. They have been advised to suppress this behavior.
 
 * Installation
-[[id:01cffea4-3329-45e2-a892-95a384ab2338][Enable this module in your ~doom!~ block.]]
+Enable this module in your ~doom!~ block.
 
 This module has no direct requirements. The =:lang= modules remap their major modes to the ts-mode with ~set-tree-sitter!~. Any associated language grammars must be installed and compiled. When opening your first file for any tree-sitter-enabled language, you'll be prompted to install the associated grammars if they are missing.
 
@@ -72,7 +70,6 @@ it:
 #+end_src
 
 * Troubleshooting
-[[doom-report:][Report an issue?]]
 
 * Frequently asked questions
-/This module has no FAQs yet./ [[doom-contrib-faq:][Ask one?]]
+/This module has no FAQs yet./

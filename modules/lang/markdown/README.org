@@ -7,9 +7,7 @@
 This module provides Markdown support through the built-in =markdown-ts-mode= (Emacs 31+). It associates it with =.md=, =.markdown=, =.mkd=, =.mdown=, =.mkdn=, =.mdwn= and =README= files.
 
 ** Maintainers
-- [[github:hlissner]]
-
-[[doom-contrib-maintainer:][Become a maintainer?]]
+- [[https://github.com/hlissner][hlissner]]
 
 ** Module flags
 /This module has no flags./
@@ -21,12 +19,12 @@ This module provides Markdown support through the built-in =markdown-ts-mode= (E
 /No hacks documented for this module./
 
 * Installation
-[[id:01cffea4-3329-45e2-a892-95a384ab2338][Enable this module in your ~doom!~ block.]]
+Enable this module in your ~doom!~ block.
 
-The markdown tree-sitter grammar must be installed (see [[module::tools tree-sitter]]).
+The markdown tree-sitter grammar must be installed (see =:tools tree-sitter=).
 
 * Troubleshooting
-/There are no known problems with this module./ [[doom-report:][Report one?]]
+/There are no known problems with this module./
 
 * Frequently asked questions
-/This module has no FAQs yet./ [[doom-contrib-faq:][Ask one?]]
+/This module has no FAQs yet./

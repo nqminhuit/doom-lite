@@ -8,30 +8,28 @@ This module displays a diff of the current file (against HEAD) in the fringe.
 Supports Git, Svn, Hg, and Bzr.
 
 ** Maintainers
-- [[github:hlissner]]
-
-[[doom-contrib-maintainer:][Become a maintainer?]]
+- [[https://github.com/hlissner][hlissner]]
 
 ** Module flags
 /This module has no flags./
 
 ** Packages
-- [[package:diff-hl]]
+- =diff-hl=
 
 ** Hacks
 - The VC gutter will be updated when pressing ESC, leaving insert mode (evil
   users), or refocusing the frame or window where it is active.
 - The fringes that diff-hl define are replaced with a set of thin bars, moved to the outside of the margins (closest to the frame edge). This achieves a slicker look closer to git-gutter's appearance in VSCode or Sublime Text, but may look weird for themes that swap their faces' :foreground and :background (like modus-themes).
-- [[fns:diff-hl-revert-hunk]] displays a preview popup of the hunk being reverted.
+- ~diff-hl-revert-hunk~ displays a preview popup of the hunk being reverted.
   It takes up ~50% of the frame, by default, whether you're reverting 2 lines
   or 20. Since this isn't easily customized, it has been advised to shrink this
   popup to the side of its contents.
-- [[fns:diff-hl-revert-hunk]] will sometimes move the cursor to an unexpected
+- ~diff-hl-revert-hunk~ will sometimes move the cursor to an unexpected
   location (the bounds of hunks, is my guess), but this is not intuitive and
   often unexpected. Cursor movements have been suppressed for it.
 
 * Installation
-[[id:01cffea4-3329-45e2-a892-95a384ab2338][Enable this module in your ~doom!~ block.]]
+Enable this module in your ~doom!~ block.
 
 This module requires:
 
@@ -41,16 +39,16 @@ This module requires:
 
 * TODO Usage
 #+begin_quote wip
-This module has no usage documentation yet. [[doom-contrib-module:][Write some?]]
+This module has no usage documentation yet.
 #+end_quote
 
 * TODO Configuration
 #+begin_quote wip
-This module has no configuration documentation yet. [[doom-contrib-module:][Write some?]]
+This module has no configuration documentation yet.
 #+end_quote
 
 * Troubleshooting
-/There are no known problems with this module./ [[doom-report:][Report one?]]
+/There are no known problems with this module./
 
 * Frequently asked questions
-/This module has no FAQs yet./ [[doom-contrib-faq:][Ask one?]]
+/This module has no FAQs yet./

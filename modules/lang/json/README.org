@@ -7,7 +7,7 @@
 This module associates [[https://www.json.org/json-en.html][JSON]] files (=.json=, =.jsonc=, =.jshintrc=, =.jslintrc=) with the built-in =json-ts-mode=.
 
 ** Maintainers
-/This module has no dedicated maintainers./ [[doom-contrib-maintainer:][Become a maintainer?]]
+/This module has no dedicated maintainers./
 
 ** Module flags
 /This module has no flags./
@@ -19,10 +19,10 @@ This module associates [[https://www.json.org/json-en.html][JSON]] files (=.json
 /No hacks documented for this module./
 
 * Installation
-[[id:01cffea4-3329-45e2-a892-95a384ab2338][Enable this module in your ~doom!~ block.]]
+Enable this module in your ~doom!~ block.
 
 * Troubleshooting
-/There are no known problems with this module./ [[doom-report:][Report one?]]
+/There are no known problems with this module./
 
 * Frequently asked questions
-/This module has no FAQs yet./ [[doom-contrib-faq:][Ask one?]]
+/This module has no FAQs yet./
