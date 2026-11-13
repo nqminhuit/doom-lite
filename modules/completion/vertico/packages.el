@@ -1,14 +1,26 @@
 ;; -*- no-byte-compile: t; -*-
 ;;; completion/vertico/packages.el
 
-(package! vertico :pin "cd2eb6daff6a5a68a11740aa363729ec6f8702d3")
+(package! vertico
+  :recipe (:host github :repo "minad/vertico" :files (:defaults "extensions/vertico-*.el"))
+  :pin "cd2eb6daff6a5a68a11740aa363729ec6f8702d3")
 
-(package! orderless :pin "51f677f464424ce3c46e3deacb7709784795a03b")
+(package! orderless
+  :recipe (:host github :repo "oantolin/orderless")
+  :pin "51f677f464424ce3c46e3deacb7709784795a03b")
 
-(package! consult :pin "3a2441ddb08d9897eb266cda4935fa91a767e1d5")
-(package! consult-dir :pin "1497b46d6f48da2d884296a1297e5ace1e050eb5")
-(package! embark :pin "87e53827cf6659dcc4ac4e54be9af34aeca44f6e")
-(package! embark-consult :pin "87e53827cf6659dcc4ac4e54be9af34aeca44f6e")
+(package! consult
+  :recipe (:host github :repo "minad/consult")
+  :pin "3a2441ddb08d9897eb266cda4935fa91a767e1d5")
+(package! consult-dir
+  :recipe (:host github :repo "karthink/consult-dir")
+  :pin "1497b46d6f48da2d884296a1297e5ace1e050eb5")
+(package! embark
+  :recipe (:host github :repo "oantolin/embark" :files ("embark.el" "embark-org.el"))
+  :pin "87e53827cf6659dcc4ac4e54be9af34aeca44f6e")
+(package! embark-consult
+  :recipe (:host github :repo "oantolin/embark" :files ("embark-consult.el"))
+  :pin "87e53827cf6659dcc4ac4e54be9af34aeca44f6e")
 
 (package! marginalia :pin "d76d7e36185ab552240c14fb08f7abcbf9a2910c")
 

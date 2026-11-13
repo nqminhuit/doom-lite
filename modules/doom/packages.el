@@ -14,7 +14,9 @@
   :pin "1a6b4b29815ffa95d3545f65d32e5b3820e4e563")
 
 ;; doom-ui.el
-(package! nerd-icons :pin "17faac7977242b470732efd417d3bcc8eb5a830e")
+(package! nerd-icons
+  :recipe (:host github :repo "rainstormstudio/nerd-icons.el" :files (:defaults "data"))
+  :pin "17faac7977242b470732efd417d3bcc8eb5a830e")
 
 ;; doom-projects.el
 (package! project :built-in t)
