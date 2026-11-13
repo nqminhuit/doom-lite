@@ -13,6 +13,10 @@
     {
       "name": "CUT1",
       "start": "Read docs/handoff/CUT1.md first (Conductor brief), then plan and implement the linux-config PR from doom-lite-plan.md § Cutover in your own linux-config worktree, and report STATUS lines to doom-lite-conductor."
+    },
+    {
+      "name": "CUT2",
+      "start": "Read docs/handoff/CUT2.md first (Conductor brief), then plan and implement the fork PR from doom-lite-plan.md § Cutover in your own worktree, and report STATUS lines to doom-lite-conductor."
     }
   ]
 }
