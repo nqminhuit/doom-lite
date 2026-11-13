@@ -6,8 +6,10 @@
 (defconst autodef-test--root
   (expand-file-name "../../" (file-name-directory (or load-file-name buffer-file-name))))
 
+(load (expand-file-name "tests/config-dir.el" autodef-test--root) nil t)
+
 (defun autodef-test--files (&rest dirs)
-  "All .el files under DIRS (relative to the repo root)."
+  "All .el files under DIRS (relative to the repo root, or absolute)."
   (cl-loop for d in dirs
            append (directory-files-recursively
                    (expand-file-name d autodef-test--root) "\\.el\\'")))
@@ -16,9 +18,9 @@
   (with-temp-buffer (insert-file-contents file) (buffer-string)))
 
 (defun autodef-test--called-names ()
-  "Names of every `(set-NAME!' call in modules/ and config/."
+  "Names of every `(set-NAME!' call in the repo's modules/ and the config dir."
   (let (names)
-    (dolist (f (autodef-test--files "modules" "config"))
+    (dolist (f (autodef-test--files "modules" (tcd-config-dir)))
       (with-temp-buffer
         (insert-file-contents f)
         (goto-char (point-min))

@@ -9,7 +9,7 @@ run() {
   "$@" || failed+=("$*")
 }
 
-run tests/lite-test.sh
+run tests/smoke-guard-test.sh
 for f in tests/unit/*-tests.el; do
   run emacs --batch -Q -l "$f" -f ert-run-tests-batch-and-exit
 done

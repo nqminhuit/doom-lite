@@ -7,6 +7,7 @@
 (defconst help-test--root
   (expand-file-name "../../" (file-name-directory (or load-file-name buffer-file-name))))
 
+(load (expand-file-name "tests/config-dir.el" help-test--root) nil t)
 (load (expand-file-name "lisp/doom-lib.el" help-test--root) nil t)
 (load (expand-file-name "lisp/lib/help.el" help-test--root) nil t)
 
@@ -41,7 +42,7 @@
 
 (ert-deftest help/no-mentions-of-removed-docs ()
   (let (hits)
-    (dolist (d '("lisp" "modules" "config"))
+    (dolist (d (list "lisp" "modules" (tcd-config-dir)))
       (dolist (f (directory-files-recursively
                   (expand-file-name d help-test--root) "\\.el\\'"))
         (with-temp-buffer

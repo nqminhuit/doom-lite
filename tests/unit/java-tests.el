@@ -6,9 +6,8 @@
 (require 'cl-lib)
 (require 'eglot)
 
-(load (expand-file-name "../../config/modules/minh/java/config.el"
-                        (file-name-directory (or load-file-name buffer-file-name)))
-      nil t)
+(load (expand-file-name "../config-dir.el" (file-name-directory (or load-file-name buffer-file-name))) nil t)
+(load (expand-file-name "modules/minh/java/config.el" (tcd-config-dir)) nil t)
 
 (defun java-tests--data-dir (contact)
   (cadr (member "-data" contact)))

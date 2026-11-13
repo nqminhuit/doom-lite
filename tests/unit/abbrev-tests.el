@@ -3,9 +3,8 @@
 (require 'ert)
 (require 'cc-mode)
 
-(load (expand-file-name "../../config/modules/minh/abbrev/config.el"
-                        (file-name-directory (or load-file-name buffer-file-name)))
-      nil t)
+(load (expand-file-name "../config-dir.el" (file-name-directory (or load-file-name buffer-file-name))) nil t)
+(load (expand-file-name "modules/minh/abbrev/config.el" (tcd-config-dir)) nil t)
 
 (defun abbrev-tests--in-code-p (text)
   "Return `m/abbrev-in-code-p' with point at the `|' marker in TEXT."

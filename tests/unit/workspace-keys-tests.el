@@ -6,6 +6,8 @@
 (defconst wkt--root
   (expand-file-name "../.." (file-name-directory (or load-file-name buffer-file-name))))
 
+(load (expand-file-name "tests/config-dir.el" wkt--root) nil t)
+
 (defconst wkt--sym-re "\\(?:#'\\|'\\)\\(\\+workspaces?[/:-][^][ ()\"';#\n]*\\)")
 
 (defun wkt--read-all (rel)
@@ -106,7 +108,7 @@
          (defs (mapconcat #'wkt--slurp (wkt--files "modules/ui/workspaces") "\n"))
          (loop-p (string-match-p "\\+workspace/switch-to-%d" defs))
          (refs nil))
-    (dolist (file (append (wkt--files "modules") (wkt--files "lisp") (wkt--files "config")))
+    (dolist (file (append (wkt--files "modules") (wkt--files "lisp") (wkt--files (tcd-config-dir))))
       (unless (string-prefix-p module-dir file)
         (dolist (line (split-string (wkt--slurp file) "\n"))
           (unless (string-match-p "\\`[ \t]*;" line)

@@ -100,7 +100,7 @@
 
 (ert-deftest pl-test-installed-layout-matches-fixture ()
   (unless (pl-test--synced-p)
-    (ert-skip (format "%s not synced; run bin/lite doom sync" pl-test-build-root)))
+    (ert-skip (format "%s not synced; run EMACSDIR=<checkout>/ DOOMDIR=<config>/ bin/doom sync" pl-test-build-root)))
   (let ((want (plist-get (pl-test--read-fixture) :packages))
         (have (plist-get (pl-test--capture) :packages)))
     (should (equal (mapcar #'car have) (mapcar #'car want)))

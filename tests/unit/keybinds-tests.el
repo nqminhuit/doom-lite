@@ -8,6 +8,7 @@
 (defun kbt--path (rel) (expand-file-name rel kbt--root))
 
 (load (kbt--path "tests/packages-paths.el") nil t)
+(load (kbt--path "tests/config-dir.el") nil t)
 
 (dolist (pkg '("evil" "goto-chg" "general"))
   (let ((dir (tpp-build-dir kbt--root pkg)))
@@ -385,7 +386,7 @@
 (defun kbt--config-leader-form ()
   "The top-level `(:leader ...)' clause of the user's keybindings config, read as data."
   (with-temp-buffer
-    (insert-file-contents (kbt--path "config/modules/minh/keybindings/config.el"))
+    (insert-file-contents (expand-file-name "modules/minh/keybindings/config.el" (tcd-config-dir)))
     (let ((form (read (current-buffer))))
       (seq-find (lambda (f) (eq (car-safe f) :leader)) (cdr form)))))
 

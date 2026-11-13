@@ -7,8 +7,10 @@
 (defconst minh-autoload-test--root
   (expand-file-name "../../" (file-name-directory (or load-file-name buffer-file-name))))
 
+(load (expand-file-name "tests/config-dir.el" minh-autoload-test--root) nil t)
+
 (defun minh-autoload-test--files (regexp)
-  (directory-files-recursively (expand-file-name "config" minh-autoload-test--root) regexp))
+  (directory-files-recursively (tcd-config-dir) regexp))
 
 (defun minh-autoload-test--defuns ()
   "Every `defun' name in the minh autoload.el files."
