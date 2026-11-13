@@ -39,6 +39,12 @@
   "Return non-nil if NAME is the name of an existing workspace."
   (member name (+workspace-list-names)))
 
+(defun +workspace--rename-tab (name)
+  "Rename the current tab to NAME, silencing tab-bar's \"Renamed tab\" message."
+  (let ((inhibit-message t)
+        (message-log-max nil))
+    (tab-bar-rename-tab name)))
+
 (defun +workspace--generate-name ()
   "Return the first `#N' (N >= 1) that is not a workspace name."
   (let ((names (+workspace-list-names)) (n 1))
@@ -106,7 +112,7 @@
     (tab-bar-new-tab)
     (delete-other-windows)
     (switch-to-buffer (doom-fallback-buffer))
-    (tab-bar-rename-tab (or name (+workspace--generate-name)))
+    (+workspace--rename-tab (or name (+workspace--generate-name)))
     (+workspace/display)))
 
 ;;;###autoload
@@ -120,7 +126,7 @@
   "Rename the current workspace to NEW-NAME."
   (interactive (list (read-string "New workspace name: " (+workspace-current-name))))
   (let ((old (+workspace-current-name)))
-    (tab-bar-rename-tab new-name)
+    (+workspace--rename-tab new-name)
     (+workspace-message (format "Renamed '%s'->'%s'" old new-name) 'success)))
 
 ;;;###autoload
@@ -235,7 +241,7 @@
     (cond ((+workspace-exists-p name)
            (+workspace--select (cl-position name (+workspace-list-names) :test #'equal)))
           ((+workspaces--recyclable-p)
-           (tab-bar-rename-tab name))
+           (+workspace--rename-tab name))
           (t (+workspace/new name)))
     (setf (alist-get name +workspaces--project-roots nil nil #'equal) root)
     (with-current-buffer (doom-fallback-buffer)
@@ -261,4 +267,4 @@
   (with-selected-frame (or frame (selected-frame))
     (let ((tab (tab-bar--current-tab)))
       (unless (alist-get 'explicit-name tab)
-        (tab-bar-rename-tab +workspaces-main)))))
+        (+workspace--rename-tab +workspaces-main)))))

@@ -11,6 +11,14 @@
 ;;
 ;;; Flymake
 
+;; sh-script adds `sh-shellcheck-flymake' in the mode body; without the binary it
+;; errors on every check. Runs after the body (and covers `bash-ts-mode').
+(defun +syntax-drop-missing-shellcheck-h ()
+  "Remove the shellcheck flymake backend when shellcheck isn't installed."
+  (unless (executable-find sh-shellcheck-program)
+    (remove-hook 'flymake-diagnostic-functions #'sh-shellcheck-flymake t)))
+(add-hook 'sh-base-mode-hook #'+syntax-drop-missing-shellcheck-h)
+
 (use-package! flymake
   :defer t
   :init
