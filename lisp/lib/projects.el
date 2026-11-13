@@ -139,7 +139,7 @@ If DIR is not a project, it will be indexed (but not cached)."
          ;; Fall back to a transient project so only DIR's files are offered.
          (pr (or (project-current nil dir) (cons 'transient dir))))
     (condition-case _
-        (project-find-file-in nil (list dir) pr t)
+        (project-find-file-in nil (list dir) pr)
       ;; FIX: project.el throws errors if DIR is an empty directory,
       ;;   which is poor UX.
       (wrong-type-argument

@@ -69,7 +69,9 @@ If no project is active, return all buffers."
   (let ((buffers (doom-buffer-list)))
     (if-let* ((pr (project-current nil (if project (expand-file-name project)
                                          default-directory))))
-        (cl-intersection (project-buffers pr) buffers)
+        (let ((proj-bufs (project-buffers pr)))
+          ;; Keep `buffers' order (recency); cl-intersection does not.
+          (cl-remove-if-not (lambda (b) (memq b proj-bufs)) buffers))
       buffers)))
 
 ;;;###autoload

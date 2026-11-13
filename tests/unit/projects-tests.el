@@ -108,5 +108,19 @@
       (project-remember-project (project-current nil dir))
       (should-not (cl-some (lambda (r) (file-equal-p r dir)) (project-known-project-roots))))))
 
+(ert-deftest projects/find-file-respects-gitignore ()
+  (prt--with-fixture
+    (when prt--old (ert-skip "project.el only"))
+    (let ((root (prt--git-repo "repo")) offered)
+      (write-region "ignored.txt\n" nil (expand-file-name ".gitignore" root))
+      (write-region "" nil (expand-file-name "ignored.txt" root))
+      (write-region "" nil (expand-file-name "kept.txt" root))
+      (cl-letf (((symbol-function 'project--read-file-name)
+                 (lambda (_pr _prompt all-files &rest _) (setq offered all-files) "")))
+        (should-error (doom-project-find-file root) :type 'user-error))
+      (let ((names (mapcar #'file-name-nondirectory offered)))
+        (should (member "kept.txt" names))
+        (should-not (member "ignored.txt" names))))))
+
 (provide 'projects-tests)
 ;;; projects-tests.el ends here
