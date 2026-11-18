@@ -6,7 +6,7 @@
 Workspaces built on the built-in =tab-bar=. Each workspace is a tab holding a window layout.
 
 - The tab bar itself is hidden; =SPC TAB TAB= (or any switch command) lists the tabs in the echo area.
-- Tabs are per-frame. There is no buffer isolation: the buffer list is global, and =SPC b b= is scoped to the current project instead.
+- Tabs are per-frame. There is no buffer isolation: the buffer list is global, =SPC b b= is scoped to the current project instead, and =SPC b O= kills only the current workspace's buffers (with a prefix arg: all buffers).
 - Switching project (=project-switch-project=) creates or reuses a workspace named after the project; an untouched =main= workspace is renamed instead.
 - Nothing is persisted per workspace. Use =SPC TAB R= to restore the last desktop session.
 
@@ -24,3 +24,4 @@ Workspaces built on the built-in =tab-bar=. Each workspace is a tab holding a wi
 | ~+workspace/switch-left~     | =SPC TAB [=    | Previous workspace (wraps)                  |
 | ~+workspace/switch-to-N~     | =SPC TAB 1..9= | Switch to the Nth workspace                 |
 | ~+workspace/switch-to-final~ | =SPC TAB 0=    | Switch to the last workspace                |
+| ~+workspace/kill-other-buffers~ | =SPC b O=   | Kill other buffers of this workspace (prefix arg: all) |

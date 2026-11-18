@@ -222,7 +222,10 @@
        :desc "Delete bookmark"             "M"   #'bookmark-delete
        :desc "Next buffer"                 "n"   #'next-buffer
        :desc "New empty buffer"            "N"   #'evil-buffer-new
-       :desc "Kill other buffers"          "O"   #'doom/kill-other-buffers
+       (:when (modulep! :ui workspaces)
+        :desc "Kill other buffers" "O" #'+workspace/kill-other-buffers)
+       (:unless (modulep! :ui workspaces)
+        :desc "Kill other buffers" "O" #'doom/kill-other-buffers)
        :desc "Previous buffer"             "p"   #'previous-buffer
        :desc "Revert buffer"               "r"   #'revert-buffer
        :desc "Rename buffer"               "R"   #'rename-buffer

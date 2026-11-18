@@ -259,6 +259,49 @@
 
 
 ;;
+;;; Buffers
+
+(defun +workspace--root ()
+  "Return the project root of the current workspace, or nil."
+  ;; Not every tab has a recorded root (`+workspace/new', renamed tabs), hence the fallback.
+  (if-let* ((root (alist-get (+workspace-current-name) +workspaces--project-roots nil nil #'equal)))
+      root
+    (when-let* ((pr (project-current)))
+      (file-name-as-directory (expand-file-name (project-root pr))))))
+
+(defun +workspace--root-buffers (root)
+  "Return the buffers of the project at ROOT, in `buffer-list' order."
+  (when-let* ((pr (project-current nil root)))
+    (let ((proj-bufs (project-buffers pr)))
+      (cl-remove-if-not (lambda (b) (memq b proj-bufs)) (buffer-list)))))
+
+;;;###autoload
+(defun +workspace-buffer-list ()
+  "Return the buffers belonging to the current workspace, most recent first.
+Without a project root, that is every buffer not owned by another workspace."
+  (if-let* ((root (+workspace--root)))
+      (+workspace--root-buffers root)
+    (let ((current (+workspace-current-name))
+          others)
+      (pcase-dolist (`(,name . ,other-root) +workspaces--project-roots)
+        (when (and (not (equal name current)) (+workspace-exists-p name))
+          (setq others (append (+workspace--root-buffers other-root) others))))
+      (cl-remove-if (lambda (b) (memq b others)) (buffer-list)))))
+
+;;;###autoload
+(defun +workspace/kill-other-buffers (&optional all)
+  "Kill the other buffers of the current workspace.
+With prefix arg ALL, kill the other buffers of every workspace."
+  (interactive "P")
+  (if all
+      (doom/kill-other-buffers (delq (current-buffer) (doom-buffer-list)) t)
+    (let ((buffers (delq (current-buffer) (+workspace-buffer-list))))
+      (mapc #'doom-kill-buffer-and-windows buffers)
+      (message "Killed %d other buffers"
+               (- (length buffers) (length (cl-remove-if-not #'buffer-live-p buffers)))))))
+
+
+;;
 ;;; Hooks
 
 ;;;###autoload
