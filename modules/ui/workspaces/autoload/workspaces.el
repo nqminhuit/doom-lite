@@ -300,6 +300,25 @@ With prefix arg ALL, kill the other buffers of every workspace."
       (message "Killed %d other buffers"
                (- (length buffers) (length (cl-remove-if-not #'buffer-live-p buffers)))))))
 
+;;;###autoload
+(defun +workspace/kill-all-buffers (&optional all)
+  "Kill the current workspace's buffers and close its other windows.
+With prefix arg ALL, kill every buffer of every workspace."
+  (interactive "P")
+  (if all
+      (doom/kill-all-buffers (doom-buffer-list) t)
+    (let ((buffers (+workspace-buffer-list)))
+      (if (null buffers)
+          (message "No buffers to kill")
+        ;; Only offer to save buffers about to be killed, not other workspaces'.
+        (save-some-buffers nil (lambda () (memq (current-buffer) buffers)))
+        (delete-other-windows)
+        (when (memq (current-buffer) buffers)
+          (switch-to-buffer (doom-fallback-buffer)))
+        (mapc #'kill-buffer buffers)
+        (message "Killed %d buffers"
+                 (- (length buffers) (length (cl-remove-if-not #'buffer-live-p buffers))))))))
+
 
 ;;
 ;;; Hooks

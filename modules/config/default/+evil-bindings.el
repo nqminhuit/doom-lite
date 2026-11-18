@@ -216,7 +216,10 @@
        :desc "Kill buffer"                 "d"   #'kill-current-buffer
        :desc "ibuffer"                     "i"   #'ibuffer
        :desc "Kill buffer"                 "k"   #'kill-current-buffer
-       :desc "Kill all buffers"            "K"   #'doom/kill-all-buffers
+       (:when (modulep! :ui workspaces)
+        :desc "Kill all buffers" "K" #'+workspace/kill-all-buffers)
+       (:unless (modulep! :ui workspaces)
+        :desc "Kill all buffers" "K" #'doom/kill-all-buffers)
        :desc "Switch to last buffer"       "l"   #'evil-switch-to-windows-last-buffer
        :desc "Set bookmark"                "m"   #'bookmark-set
        :desc "Delete bookmark"             "M"   #'bookmark-delete

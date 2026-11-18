@@ -6,22 +6,23 @@
 Workspaces built on the built-in =tab-bar=. Each workspace is a tab holding a window layout.
 
 - The tab bar itself is hidden; =SPC TAB TAB= (or any switch command) lists the tabs in the echo area.
-- Tabs are per-frame. There is no buffer isolation: the buffer list is global, =SPC b b= is scoped to the current project instead, and =SPC b O= kills only the current workspace's buffers (with a prefix arg: all buffers).
+- Tabs are per-frame. There is no buffer isolation: the buffer list is global, =SPC b b= is scoped to the current project instead, and =SPC b O= / =SPC b K= kill only the current workspace's buffers (with a prefix arg: all buffers).
 - Switching project (=project-switch-project=) creates or reuses a workspace named after the project; an untouched =main= workspace is renamed instead.
 - Nothing is persisted per workspace. Use =SPC TAB R= to restore the last desktop session.
 
 * Commands
-| Command                      | Key            | Description                                 |
-|------------------------------+----------------+---------------------------------------------|
-| ~+workspace/display~         | =SPC TAB TAB=  | Show the workspaces in the echo area        |
-| ~+workspace/switch-to~       | =SPC TAB .=    | Switch by name (or index with a prefix arg) |
-| ~+workspace/other~           | =SPC TAB `=    | Switch to the previous workspace            |
-| ~+workspace/new~             | =SPC TAB n=    | New workspace                               |
-| ~+workspace/new-named~       | =SPC TAB N=    | New workspace with a name                   |
-| ~+workspace/kill~            | =SPC TAB d=    | Kill this workspace (never the last)        |
-| ~+workspace/rename~          | =SPC TAB r=    | Rename this workspace                       |
-| ~+workspace/switch-right~    | =SPC TAB =]    | Next workspace (wraps)                      |
-| ~+workspace/switch-left~     | =SPC TAB [=    | Previous workspace (wraps)                  |
-| ~+workspace/switch-to-N~     | =SPC TAB 1..9= | Switch to the Nth workspace                 |
-| ~+workspace/switch-to-final~ | =SPC TAB 0=    | Switch to the last workspace                |
-| ~+workspace/kill-other-buffers~ | =SPC b O=   | Kill other buffers of this workspace (prefix arg: all) |
+| Command                         | Key            | Description                                            |
+|---------------------------------+----------------+--------------------------------------------------------|
+| ~+workspace/display~            | =SPC TAB TAB=  | Show the workspaces in the echo area                   |
+| ~+workspace/switch-to~          | =SPC TAB .=    | Switch by name (or index with a prefix arg)            |
+| ~+workspace/other~              | =SPC TAB `=    | Switch to the previous workspace                       |
+| ~+workspace/new~                | =SPC TAB n=    | New workspace                                          |
+| ~+workspace/new-named~          | =SPC TAB N=    | New workspace with a name                              |
+| ~+workspace/kill~               | =SPC TAB d=    | Kill this workspace (never the last)                   |
+| ~+workspace/rename~             | =SPC TAB r=    | Rename this workspace                                  |
+| ~+workspace/switch-right~       | =SPC TAB =]    | Next workspace (wraps)                                 |
+| ~+workspace/switch-left~        | =SPC TAB [=    | Previous workspace (wraps)                             |
+| ~+workspace/switch-to-N~        | =SPC TAB 1..9= | Switch to the Nth workspace                            |
+| ~+workspace/switch-to-final~    | =SPC TAB 0=    | Switch to the last workspace                           |
+| ~+workspace/kill-other-buffers~ | =SPC b O=      | Kill other buffers of this workspace (prefix arg: all) |
+| ~+workspace/kill-all-buffers~   | =SPC b K=      | Kill all buffers of this workspace (prefix arg: all)   |

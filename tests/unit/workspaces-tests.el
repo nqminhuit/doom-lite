@@ -244,3 +244,16 @@ Binds a-bufs and b-bufs (current buffer is the first of a-bufs)."
     (should (buffer-live-p (car a-bufs)))
     (should-not (buffer-live-p (cadr a-bufs)))
     (should (cl-notany #'buffer-live-p b-bufs))))
+
+(ert-deftest workspaces/kill-all-buffers-scoped-to-workspace ()
+  (wst--with-two-projects
+    (let ((current-prefix-arg nil))
+      (call-interactively #'+workspace/kill-all-buffers))
+    (should (cl-notany #'buffer-live-p a-bufs))
+    (should (cl-every #'buffer-live-p b-bufs))))
+
+(ert-deftest workspaces/kill-all-buffers-prefix-kills-all ()
+  (wst--with-two-projects
+    (let ((current-prefix-arg '(4)))
+      (call-interactively #'+workspace/kill-all-buffers))
+    (should (cl-notany #'buffer-live-p (append a-bufs b-bufs)))))
