@@ -169,3 +169,78 @@
     (+workspace/new "other")
     (+workspace/rename "other2")
     (should-not (wst--messages-have-renamed-p))))
+
+
+;;
+;;; Buffer scoping
+
+(defun wst--visit (root &rest names)
+  "Visit files NAMES under ROOT and return their buffers."
+  (mapcar (lambda (n)
+            (let ((f (expand-file-name n root)))
+              (write-region "" nil f)
+              (find-file-noselect f)))
+          names))
+
+(defmacro wst--with-two-projects (&rest body)
+  "Run BODY with workspaces a and b, each owning two file buffers; a is current.
+Binds a-bufs and b-bufs (current buffer is the first of a-bufs)."
+  (declare (indent 0))
+  `(wst--with-fixture
+     (let* ((a (wst--repo "a")) (b (wst--repo "b")) a-bufs b-bufs)
+       (+workspaces-switch-to-project-h a)
+       (setq a-bufs (wst--visit a "1.txt" "2.txt"))
+       (+workspaces-switch-to-project-h b)
+       (setq b-bufs (wst--visit b "1.txt" "2.txt"))
+       (+workspaces-switch-to-project-h a)
+       (switch-to-buffer (car a-bufs))
+       (unwind-protect (progn ,@body)
+         (mapc #'kill-buffer (cl-remove-if-not #'buffer-live-p (append a-bufs b-bufs)))))))
+
+(ert-deftest workspaces/kill-other-buffers-scoped-to-workspace ()
+  (wst--with-two-projects
+    (let ((current-prefix-arg nil))
+      (call-interactively #'+workspace/kill-other-buffers))
+    (should (buffer-live-p (car a-bufs)))
+    (should-not (buffer-live-p (cadr a-bufs)))
+    (should (cl-every #'buffer-live-p b-bufs))))
+
+(ert-deftest workspaces/kill-other-buffers-tab-root-wins ()
+  (wst--with-two-projects
+    ;; Visiting a file of project B inside tab A must still scope to A.
+    (switch-to-buffer (car b-bufs))
+    (let ((current-prefix-arg nil))
+      (call-interactively #'+workspace/kill-other-buffers))
+    (should (buffer-live-p (car b-bufs)))
+    (should (buffer-live-p (cadr b-bufs)))
+    (should (cl-notany #'buffer-live-p a-bufs))))
+
+(ert-deftest workspaces/kill-other-buffers-no-root-tab ()
+  (wst--with-fixture
+    (let* ((b (wst--repo "b"))
+           (loose (expand-file-name "loose" wst--base))
+           b-bufs loose-bufs)
+      (make-directory loose t)
+      (+workspaces-switch-to-project-h b)
+      (setq b-bufs (wst--visit b "1.txt"))
+      (+workspace/new)
+      (let ((default-directory (file-name-as-directory loose)))
+        (setq loose-bufs (wst--visit loose "x.txt" "y.txt"))
+        (switch-to-buffer (car loose-bufs))
+        (unwind-protect
+            (progn
+              (should-not (+workspace--root))
+              (let ((current-prefix-arg nil))
+                (call-interactively #'+workspace/kill-other-buffers))
+              (should (buffer-live-p (car loose-bufs)))
+              (should-not (buffer-live-p (cadr loose-bufs)))
+              (should (cl-every #'buffer-live-p b-bufs)))
+          (mapc #'kill-buffer (cl-remove-if-not #'buffer-live-p (append b-bufs loose-bufs))))))))
+
+(ert-deftest workspaces/kill-other-buffers-prefix-kills-all ()
+  (wst--with-two-projects
+    (let ((current-prefix-arg '(4)))
+      (call-interactively #'+workspace/kill-other-buffers))
+    (should (buffer-live-p (car a-bufs)))
+    (should-not (buffer-live-p (cadr a-bufs)))
+    (should (cl-notany #'buffer-live-p b-bufs))))
