@@ -1,0 +1,30 @@
+#!/usr/bin/env doomscript
+;;; bin/doom-upgrade --- pull doom-lite and sync -*- lexical-binding: t; mode: emacs-lisp -*-
+;;; Commentary:
+;;; Code:
+
+(defcli! upgrade
+    ((nobuild? ("-B") "Don't rebuild packages when hostname or Emacs version has changed"))
+  "Update doom-lite from its git remote, then sync.
+
+The equivalent of:
+
+    $ git -C $EMACSDIR pull --ff-only
+    $ doom sync
+
+Aborts if the checkout has uncommitted changes to tracked files."
+  (let ((default-directory doom-emacs-dir))
+    (unless (file-exists-p ".git")
+      (user-error "%s is not a git checkout" (abbreviate-file-name doom-emacs-dir)))
+    (unless (sh? git diff --quiet HEAD)
+      (user-error "Uncommitted changes in %s; commit or stash them first"
+                  (abbreviate-file-name doom-emacs-dir)))
+    (print! (start "Pulling %s...") (path doom-emacs-dir))
+    (print-group!
+      (unless (sh! git pull --ff-only)
+        (user-error "git pull failed; resolve it in %s, then run doom sync"
+                    (abbreviate-file-name doom-emacs-dir))))
+    ;; Sync in a fresh process so it runs the code just pulled.
+    (exit! "doom" "sync" (if nobuild? "-B"))))
+
+;;; doom-upgrade ends here

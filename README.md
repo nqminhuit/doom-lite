@@ -1,6 +1,6 @@
 # doom-lite
 
-A personal hard fork of Doom Emacs for Emacs 31. Only the modules I use are vendored under `modules/`, and the upstream tie is cut: there is no `doom upgrade`, updates come from `git pull`.
+A personal hard fork of Doom Emacs for Emacs 31. Only the modules I use are vendored under `modules/`, and the upstream tie is cut: updates come from this fork's git remote (`doom upgrade`).
 
 ## Requirements
 
@@ -84,14 +84,13 @@ For an explicit checkout, use `bin/doom sync` with `EMACSDIR` and `DOOMDIR` set 
 
 ## Update
 
-For the default Doom Lite installation:
+For the default Doom Lite installation, with Doom Lite selected:
 
 ```bash
-git -C ~/.config/doom-lite pull
-~/.config/emacs/bin/doom sync
+~/.config/emacs/bin/doom upgrade
 ```
 
-Run this with Doom Lite selected, then restart Emacs. For a separate checkout, run `git pull` there and `bin/doom sync` with its explicit paths. Configuration updates are managed separately in linux-config. There is no `doom upgrade`.
+This runs `git pull --ff-only` in `$EMACSDIR`, then `doom sync`. It aborts if the checkout has uncommitted changes to tracked files or can't fast-forward. Restart Emacs afterwards. For a separate checkout, run `bin/doom upgrade` with its explicit paths. Configuration updates are managed separately in linux-config.
 
 ## Tests
 
