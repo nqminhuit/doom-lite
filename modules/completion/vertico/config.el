@@ -129,6 +129,11 @@
   (consult-customize
    consult-theme
    :preview-key '("C-SPC" :debounce 0.5 any))
+  ;; Auto-previewing a multi-line kill taller than a short window (e.g. a magit
+  ;; commit buffer under vertico) loops redisplay forever on Emacs 31.1.
+  (consult-customize
+   consult-yank-pop consult-yank-from-kill-ring consult-yank-replace
+   :preview-key "C-SPC")
 
   (defadvice! +vertico--consult-recentf-a (&rest _args)
     "`consult-recent-file' needs to have `recentf-mode' on to work correctly.
