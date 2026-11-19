@@ -238,7 +238,8 @@ Does nothing if the dir is already a repo, so later edits stay uncommitted."
   (pbt--with-env
     (let ((a (pbt--commit "a")))
       (pbt--write pbt--module-file (pbt--decl 'a a))
-      (pbt--bump nil t)
+      ;; nil tells the CLI there is nothing to sync.
+      (should-not (pbt--bump nil t))
       (should (string-match-p pbt-up-to-date (pbt--output))))))
 
 (ert-deftest pbt-unknown-package-is-an-error ()

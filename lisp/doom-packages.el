@@ -1117,7 +1117,7 @@ Does not sync."
     (pcase-dolist (`(,repo . ,msg) failed)
       (print! (warn "Could not resolve %s, skipping: %s") repo msg))
     (if (null updates)
-        (print! (success "All pins are current"))
+        (progn (print! (success "All pins are current")) nil)
       (doom-packages--check-clean
        (delete-dups (apply #'append (mapcar (lambda (up) (plist-get up :files)) updates))))
       (dolist (up updates)
