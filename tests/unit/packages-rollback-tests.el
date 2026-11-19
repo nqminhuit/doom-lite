@@ -40,7 +40,8 @@
       (should-not (file-exists-p (doom-packages--rollback-file)))
       (should (string-match-p (format "%s -> %s" (substring a2 0 7) (substring pbt-old 0 7))
                               (pbt--output)))
-      (should (string-match-p "outside" (pbt--output))))))
+      (should (string-match-p "Reverts" (pbt--output)))
+      (should (equal (pbt--git (concat pbt--root "emacs/") "log" "-1" "--format=%s") "Revert \"Bump a\"")))))
 
 (ert-deftest prt-edited-file-refuses ()
   (prt--with-env
@@ -71,8 +72,56 @@
     (let ((first (doom-packages--rollback-read)))
       (pbt--commit "a")
       (pbt--bump nil t)
-      (should-not (equal (plist-get first :files)
-                         (plist-get (doom-packages--rollback-read) :files))))))
+      (should-not (equal (plist-get first :commits)
+                         (plist-get (doom-packages--rollback-read) :commits))))))
+
+(ert-deftest prt-rollback-pushes-revert-of-pushed-bump ()
+  (prt--with-env
+    (let ((emacs (concat pbt--root "emacs/")) (cfg (concat pbt--root "cfg/")))
+      (prt--bump-two-files)
+      (should (prt--rollback t))
+      (should (equal (pbt--remote-head emacs) (pbt--head emacs)))
+      (should (equal (pbt--git cfg "log" "-1" "--format=%s") "Revert \"Bump b\""))
+      (should-not (equal (pbt--remote-head cfg) (pbt--head cfg))))))
+
+(ert-deftest prt-rollback-refuses-when-commit-left-history ()
+  (prt--with-env
+    (prt--bump-two-files)
+    (pbt--git (concat pbt--root "emacs/") "reset" "--hard" "--quiet" "HEAD~1")
+    (should-error (prt--rollback t) :type 'user-error)
+    (should (file-exists-p (doom-packages--rollback-file)))))
+
+(defun prt--conflict-case (repo)
+  "Rollback must abort without leaving reverts when REPO has a later conflicting commit."
+  (prt--with-env
+    (prt--bump-two-files)
+    (let* ((dir (concat pbt--root repo "/"))
+           (file (concat dir (if (equal repo "emacs") "mod-packages.el" "user-packages.el")))
+           (heads (mapcar (lambda (r) (pbt--head (concat pbt--root r "/"))) '("emacs" "cfg"))))
+      (pbt--write file (replace-regexp-in-string "\"[0-9a-f]\\{40\\}\"" (format "\"%s\"" (make-string 40 ?3))
+                                                 (pbt--slurp file)))
+      (pbt--git dir "commit" "--quiet" "-am" "later")
+      (setq heads (mapcar (lambda (r) (pbt--head (concat pbt--root r "/"))) '("emacs" "cfg")))
+      (should-error (prt--rollback t) :type 'user-error)
+      (should (equal heads (mapcar (lambda (r) (pbt--head (concat pbt--root r "/"))) '("emacs" "cfg"))))
+      (dolist (r '("emacs" "cfg"))
+        (should (equal (pbt--git (concat pbt--root r "/") "status" "--porcelain") ""))
+        (should-not (file-exists-p (concat pbt--root r "/.git/REVERT_HEAD"))))
+      (should (file-exists-p (doom-packages--rollback-file))))))
+
+(ert-deftest prt-revert-conflict-in-emacs-repo-aborts-cleanly () (prt--conflict-case "emacs"))
+(ert-deftest prt-revert-conflict-in-cfg-repo-aborts-cleanly () (prt--conflict-case "cfg"))
+
+(ert-deftest prt-old-byte-level-record-still-rolls-back ()
+  (prt--with-env
+    (let ((a2 (pbt--commit "a")))
+      (pbt--write pbt--module-file (pbt--decl 'a))
+      (let* ((before (pbt--slurp pbt--module-file))
+             (originals (list (cons pbt--module-file (doom-packages--file-bytes pbt--module-file)))))
+        (doom-packages--rewrite-pin 'a pbt-old a2)
+        (doom-packages--record-bump (list (list :repo 'a :packages '(a) :old pbt-old :new a2)) originals)
+        (should (prt--rollback t))
+        (should (equal (pbt--slurp pbt--module-file) before))))))
 
 ;;; doom up
 

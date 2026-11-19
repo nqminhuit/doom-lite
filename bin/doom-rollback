@@ -8,8 +8,9 @@
 (defcli! rollback ()
   "Undo the last 'doom bump' or 'doom up', then sync.
 
-Shows what will be rolled back and asks first. Refuses if the files a bump
-wrote were edited since, or if doom-lite moved or has uncommitted changes since
+Shows what will be rolled back and asks first. A bump is undone by reverting
+its commit (pushing the revert if the bump was pushed). Refuses if that commit
+left the history, if its files have uncommitted changes, or if doom-lite moved or has uncommitted changes since
 'doom up'. Only the most recent change can be undone."
   (when (doom-packages-rollback (get! :suppress-prompts?))
     (exit! "doom" "sync"))

@@ -97,8 +97,9 @@
   "Run BODY with module and user packages.el files in temp dirs."
   (declare (indent 0))
   `(let* ((pbt--root (file-name-as-directory (make-temp-file "pbt" t)))
-          (pbt--module-file (concat pbt--root "mod-packages.el"))
-          (pbt--user-file (concat pbt--root "user-packages.el"))
+          (pbt--module-file (concat pbt--root "emacs/mod-packages.el"))
+          (pbt--user-file (concat pbt--root "cfg/user-packages.el"))
+          (process-environment (append pbt-git-env process-environment))
           (doom-emacs-dir (concat pbt--root "emacs/"))
           (doom-packages-dir (concat pbt--root "pk/"))
           (doom-packages-host-urls
@@ -115,7 +116,26 @@
        (delete-directory pbt--root t))))
 
 (defun pbt--write (file text)
+  (make-directory (file-name-directory file) t)
   (with-temp-file file (insert text)))
+
+(defun pbt--remote-of (dir) (concat (directory-file-name dir) "-remote.git"))
+
+(defun pbt--prepare (file)
+  "Make FILE's dir a git repo with a bare remote and everything committed and pushed.
+Does nothing if the dir is already a repo, so later edits stay uncommitted."
+  (when (file-exists-p file)
+    (let ((dir (file-name-directory file)))
+      (unless (file-directory-p (concat dir ".git"))
+        (pbt--git dir "init" "--quiet" "-b" "main")
+        (pbt--git dir "init" "--quiet" "--bare" (pbt--remote-of dir))
+        (pbt--git dir "remote" "add" "origin" (pbt--remote-of dir))
+        (pbt--git dir "add" "-A")
+        (pbt--git dir "commit" "--quiet" "-m" "base")
+        (pbt--git dir "push" "--quiet" "-u" "origin" "main")))))
+
+(defun pbt--head (dir) (pbt--git dir "rev-parse" "HEAD"))
+(defun pbt--remote-head (dir) (pbt--git (pbt--remote-of dir) "rev-parse" "main"))
 
 (defun pbt--slurp (file)
   (with-temp-buffer (insert-file-contents file) (buffer-string)))
@@ -129,6 +149,8 @@
 (defun pbt--pin (name) (plist-get (cdr (assq name doom-packages)) :pin))
 
 (defun pbt--bump (&optional names answer)
+  (pbt--prepare pbt--module-file)
+  (pbt--prepare pbt--user-file)
   (cl-letf (((symbol-function 'y-or-n-p) (lambda (&rest _) answer)))
     (doom-packages-bump names)))
 
@@ -146,7 +168,7 @@
         (should (string-match-p (regexp-quote (substring a2 0 7)) (pbt--output)))
         (should (string-match-p "1 of 2 repos have updates" (pbt--output)))
         (should (string-match-p "github.com/o/a/compare/" (pbt--output)))
-        (should (string-match-p "Bumped 1 repos; syncing" (pbt--output)))
+        (should (string-match-p "Bumped 1 repos, committed" (pbt--output)))
         (ignore a)))))
 
 (ert-deftest pbt-shared-repo-moves-together ()
@@ -178,7 +200,7 @@
         (should (equal (pbt--slurp pbt--module-file) module-before))
         (should (string-match-p new (pbt--slurp pbt--user-file)))
         (should (equal (pbt--pin 'a) new))
-        (should (string-match-p "outside" (pbt--output)))))))
+        (should (string-match-p "not pushed" (pbt--output)))))))
 
 (ert-deftest pbt-version-comment-handling ()
   (pbt--with-env
@@ -244,3 +266,73 @@
         (should (equal (pbt--slurp pbt--user-file) user-before))
         (should-not (equal (pbt--slurp pbt--module-file) before))
         (should (string-match-p (format "\"%s\"" pbt-old) (pbt--slurp pbt--module-file)))))))
+
+
+;;; Committing
+
+(defun pbt--two-repos ()
+  "Declare a in the emacs repo and c in the cfg repo; return (A2 C2)."
+  (let ((a2 (pbt--commit "a")) (c2 (pbt--commit "c")))
+    (pbt--write pbt--module-file (pbt--decl 'a))
+    (pbt--write pbt--user-file (pbt--decl 'c))
+    (list a2 c2)))
+
+(ert-deftest pbt-commits-only-pin-files-and-pushes-doom-lite-only ()
+  (pbt--with-env
+    (let ((doom-state-dir (concat pbt--root "state/")) (emacs (concat pbt--root "emacs/"))
+          (cfg (concat pbt--root "cfg/")))
+      (pbt--two-repos)
+      (pbt--write (concat emacs "other.txt") "1\n")
+      (pbt--prepare pbt--module-file)
+      (pbt--prepare pbt--user-file)
+      (pbt--write (concat emacs "other.txt") "2\n")
+      (let ((cfg-remote (pbt--remote-head cfg)))
+        (should (pbt--bump nil t))
+        (should (equal (pbt--git emacs "status" "--short") "M other.txt"))
+        (should (equal (pbt--git emacs "log" "-1" "--format=%s") "Bump a"))
+        (should (string-match-p "\\`- a: 1111111 -> [0-9a-f]\\{7\\}\\'" (pbt--git emacs "log" "-1" "--format=%b")))
+        (should (equal (pbt--remote-head emacs) (pbt--head emacs)))
+        (should (equal (pbt--git cfg "log" "-1" "--format=%s") "Bump c"))
+        (should (equal (pbt--remote-head cfg) cfg-remote))
+        (should-not (equal (pbt--head cfg) cfg-remote))
+        (should (string-match-p "(not pushed)" (pbt--output)))
+        (let ((commits (plist-get (doom-packages--rollback-read) :commits)))
+          (should (= 2 (length commits)))
+          (dolist (c commits)
+            (should (eq (plist-get c :pushed) (file-equal-p (plist-get c :dir) emacs))))
+          (should-not (plist-get (doom-packages--rollback-read) :files)))))))
+
+(ert-deftest pbt-multi-package-subject ()
+  (pbt--with-env
+    (let ((doom-state-dir (concat pbt--root "state/")))
+      (pbt--commit "a") (pbt--commit "b")
+      (pbt--write pbt--module-file (concat (pbt--decl 'a) (pbt--decl 'b)))
+      (pbt--bump nil t)
+      (should (equal (pbt--git (concat pbt--root "emacs/") "log" "-1" "--format=%s") "Bump 2 packages"))
+      (should (= 2 (length (split-string (pbt--git (concat pbt--root "emacs/") "log" "-1" "--format=%b") "\n" t)))))))
+
+(ert-deftest pbt-dirty-pin-file-refuses ()
+  (pbt--with-env
+    (let ((doom-state-dir (concat pbt--root "state/")))
+      (pbt--two-repos)
+      (pbt--prepare pbt--module-file)
+      (pbt--prepare pbt--user-file)
+      (pbt--write pbt--user-file (concat (pbt--slurp pbt--user-file) ";; wip\n"))
+      (let ((module (pbt--slurp pbt--module-file)) (user (pbt--slurp pbt--user-file)))
+        (should-error (pbt--bump nil t) :type 'user-error)
+        (should (equal (pbt--slurp pbt--module-file) module))
+        (should (equal (pbt--slurp pbt--user-file) user))
+        (should-not (file-exists-p (doom-packages--rollback-file)))))))
+
+(ert-deftest pbt-push-failure-warns-and-keeps-commit ()
+  (pbt--with-env
+    (let ((doom-state-dir (concat pbt--root "state/")) (emacs (concat pbt--root "emacs/")))
+      (pbt--commit "a")
+      (pbt--write pbt--module-file (pbt--decl 'a))
+      (pbt--prepare pbt--module-file)
+      (pbt--git emacs "remote" "set-url" "origin" (concat pbt--root "missing.git"))
+      (should (pbt--bump nil t))
+      (should (equal (pbt--git emacs "log" "-1" "--format=%s") "Bump a"))
+      (should (string-match-p "git push failed" (pbt--output)))
+      (should (string-match-p "run git push" (pbt--output)))
+      (should-not (plist-get (car (plist-get (doom-packages--rollback-read) :commits)) :pushed)))))

@@ -98,13 +98,13 @@ This runs `git pull --ff-only` in `$EMACSDIR`, then `doom sync`. It aborts if th
 bin/doom bump [PACKAGE...]
 ```
 
-This looks up the newest upstream commit of each pinned package (the `:branch` of its recipe, if it has one), lists the repos that moved with a compare link each, asks for confirmation, then rewrites the `:pin` in the `packages.el` that sets it, then runs `doom sync`. Pass package names to check only their repos; packages sharing a repo always move together.
+This looks up the newest upstream commit of each pinned package (the `:branch` of its recipe, if it has one), lists the repos that moved with a compare link each, asks for confirmation, then rewrites the `:pin` in the `packages.el` that sets it, commits the change, and runs `doom sync`. Pass package names to check only their repos; packages sharing a repo always move together.
 
 - Answer `n` to only see the list.
 - `-!` skips the confirmation.
 - A trailing version comment on the pin line (for example `; 4.7.1`) is dropped, since it goes stale.
 - It does not commit: restart Emacs, test, then commit. Pins edited in `$DOOMDIR` must be committed in that repo.
-- Something broke? `doom rollback` (below) undoes it.
+- Restart Emacs and test. Something broke? `doom rollback` (below) undoes it.
 
 ## Rolling back
 
@@ -114,7 +114,7 @@ bin/doom rollback
 
 This undoes the last `doom bump` or `doom up` (only the most recent one is remembered, in `rollback.eld` under the Doom state dir), shows what it will undo, asks for confirmation (`-!` skips it), then runs `doom sync`.
 
-- After a bump it restores the exact original `packages.el` files. It refuses if any of them was edited since.
+- After a bump it reverts the bump commit(s) with `git revert`, and pushes the revert if the bump was pushed. It refuses if a commit is no longer in the history or its files have uncommitted changes, and if a revert conflicts it undoes any revert already made and keeps the record. A bump recorded by an older version, before bumps were committed, restores the original `packages.el` bytes instead.
 - After `doom up` it resets the checkout to where it was before the pull and lists the commits and pin changes that go away. It refuses if the checkout moved on or has uncommitted changes. The next `doom up` pulls those commits again until they are reverted upstream.
 - With nothing recorded it prints `Nothing to roll back`.
 

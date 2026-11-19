@@ -25,7 +25,9 @@
     "^GPG_AGENT_INFO$"
     ;; Internal Doom envvars
     "^DEBUG$" "^INSECURE$" "^\\(EMACS\\|DOOM\\(LOCAL\\)?\\)DIR$"
-    "^DOOM\\(PATH\\|PROFILE\\)$" "^__")
+    "^DOOM\\(PATH\\|PROFILE\\)$" "^__"
+    ;; Claude Code session vars (incl. a messaging token) must not leak into Emacs.
+    "^CLAUDECODE$" "^CLAUDE_CODE_" "^CLAUDE_PID$" "^CLAUDE_EFFORT$")
   "Environment variables to omit from envvar files.
 
 Each string is a regexp, matched against variable names."

@@ -11,9 +11,10 @@
 
 Resolves the newest commit of each package's repo (its :branch, if the recipe
 has one), lists what changed with compare links, asks for confirmation, rewrites
-the :pin in the packages.el that sets it, then runs 'doom sync'. If PACKAGES are
-given, only their repos are checked. Does not commit; test, then commit. Undo
-with 'doom rollback'."
+the :pin in the packages.el that sets it, commits the change (and pushes
+doom-lite), then runs 'doom sync'. If PACKAGES are given, only their repos are
+checked. The packages.el files must be committed and clean first. Undo with
+'doom rollback'."
   (when (doom-packages-bump (mapcar #'intern packages) (get! :suppress-prompts?))
     ;; Sync in a fresh process so it reads the rewritten pins.
     (exit! "doom" "sync"))
