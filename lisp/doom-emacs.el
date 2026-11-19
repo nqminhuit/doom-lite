@@ -246,6 +246,10 @@ Otherwise, `en/disable-command' (in novice.el.gz) is hardcoded to write them to
 ;; receiving input, which should help a little with scrolling performance.
 (setq redisplay-skip-fontification-on-input t)
 
+;; Abort a window whose redisplay runs away instead of freezing Emacs (C-g
+;; can't interrupt redisplay).
+(setq max-redisplay-ticks 1000000)
+
 ;; PGTK builds only: there's a timeout that adds latency to frame operations,
 ;; like `make-frame-invisible', which Emacs frequently calls without a guard
 ;; because it's inexpensive in non-PGTK builds. Lowering the timeout from the
