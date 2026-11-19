@@ -7,4 +7,4 @@
 
 (package! git-modes
   :recipe (:host github :repo "magit/git-modes")
-  :pin "f291a4cc4a8b02a25d5cf93b4ab6af29e6f060d9") ; v1.5.0
+  :pin "f8a453725586c8225e47afca4c8cbc2c5585bf33")

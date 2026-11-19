@@ -4,9 +4,9 @@
 (package! ghostel
   :recipe (:host github :repo "dakra/ghostel"
            :files (:defaults "etc" "src" "vendor" "build.zig" "build.zig.zon" "symbols.map"))
-  :pin "a63db707e0d71e49eb4de95b198e288788eb92f8")
+  :pin "4af9560818534dd97902f045acd0f9e44fb14525")
 
 (package! evil-ghostel
   :recipe (:host github :repo "dakra/ghostel"
            :files ("extensions/evil-ghostel/*.el"))
-  :pin "a63db707e0d71e49eb4de95b198e288788eb92f8")
+  :pin "4af9560818534dd97902f045acd0f9e44fb14525")

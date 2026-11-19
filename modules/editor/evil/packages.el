@@ -3,7 +3,7 @@
 
 (package! evil
   :recipe (:host github :repo "emacs-evil/evil" :files (:defaults (:exclude "evil-test-helpers.el")))
-  :pin "6a3e1ddd04ac504a016590940d0af2a3361b9efd")
+  :pin "76e094309f615594ced89afa7b32c2051715b402")
 ;; goto-chg: dependency of evil
 (package! goto-chg
   :recipe (:host github :repo "emacs-evil/goto-chg")
@@ -44,7 +44,7 @@
   :pin "82e8a7b4213aed140f6eb5f2cc33a09bb5587166")
 (package! evil-visualstar
   :recipe (:host github :repo "bling/evil-visualstar")
-  :pin "06c053d8f7381f91c53311b1234872ca96ced752")
+  :pin "2b804e317700896116e88ae751df4a36ac8c3934")
 (package! exato :pin "aee7af7b7a0e7551478f453d1de7d5b9cb2e06c4")
 (package! evil-quick-diff
   :recipe (:host github :repo "rgrinberg/evil-quick-diff")
@@ -52,4 +52,4 @@
 
 (package! evil-collection
   :recipe (:host github :repo "emacs-evil/evil-collection" :files (:defaults "modes"))
-  :pin "fa8da0ebba4bbf2a84a78183420d8303179ef427")
+  :pin "e3f70c513585086ad83e245829e1de8f72f2de26")

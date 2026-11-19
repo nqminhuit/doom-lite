@@ -3,10 +3,10 @@
 
 (package! corfu
   :recipe (:host github :repo "minad/corfu" :files (:defaults "extensions/corfu-*.el"))
-  :pin "c68f993d2df82bfab8a973c6f1af047dc3543093")
+  :pin "15fed49c97bf6b2436641714ae15bbd2f3e37b77")
 (package! cape
   :recipe (:host github :repo "minad/cape")
-  :pin "f0135abaf95a22b9fb2c951751a5d0733ce61bbd")
+  :pin "50bc6187daf9af9df1a802fcbbd91fe4b952fc69")
 (package! nerd-icons-corfu
   :recipe (:host github :repo "LuigiPiucco/nerd-icons-corfu")
-  :pin "e1197d6c1db673f4ec7ee20cb2c4297f479420e7")
+  :pin "9b089b31a810328d9b740b35a19eb796eb7a2d8a")

@@ -3,15 +3,15 @@
 
 (package! vertico
   :recipe (:host github :repo "minad/vertico" :files (:defaults "extensions/vertico-*.el"))
-  :pin "cd2eb6daff6a5a68a11740aa363729ec6f8702d3")
+  :pin "c60d80215d19b4b36c0ba49599b6815ed35f2ac1")
 
 (package! orderless
   :recipe (:host github :repo "oantolin/orderless")
-  :pin "51f677f464424ce3c46e3deacb7709784795a03b")
+  :pin "e271a8ec938929b726331236cf56d1c44571122e")
 
 (package! consult
   :recipe (:host github :repo "minad/consult")
-  :pin "3a2441ddb08d9897eb266cda4935fa91a767e1d5")
+  :pin "a64569f377b8bc0f62e1d2ae0f3ee48ba4a7cc1c")
 (package! consult-dir
   :recipe (:host github :repo "karthink/consult-dir")
   :pin "1497b46d6f48da2d884296a1297e5ace1e050eb5")

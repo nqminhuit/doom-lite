@@ -8,7 +8,7 @@
 (package! transient :built-in t) ; Emacs 31.1 ships 0.13.3; magit needs 0.13
 (package! cond-let
   :recipe (:host github :repo "tarsius/cond-let")
-  :pin "09292a77001434f59ab55c775dec2b98cb18d028") ; 1.1.5
+  :pin "b992b54d3958c1f76abb05ecd6f60c645aefd647")
 
 ;; llama: dependency of magit
 (package! llama
@@ -21,9 +21,9 @@
 ;; magit-section: dependency of magit, built from magit's repo
 (package! magit-section
   :recipe (:host github :repo "magit/magit" :files ("lisp/magit-section.el"))
-  :pin "659f89955cf60fe3d4326d881c412df06c69680d")
+  :pin "5e21bac5304c931cccbe16073758e2c464e40298")
 
 (package! magit
   :recipe (:host github :repo "magit/magit"
            :files ("lisp/magit*.el" "lisp/git-*.el" (:exclude "lisp/magit-section.el")))
-  :pin "659f89955cf60fe3d4326d881c412df06c69680d") ; 4.7.1
+  :pin "5e21bac5304c931cccbe16073758e2c464e40298")
