@@ -88,7 +88,7 @@ Three commands, run from a terminal with Doom Lite selected (`~/.config/emacs/bi
 
 | Command | What it does |
 |---|---|
-| `doom up` | Pulls doom-lite (`git pull --ff-only`), then syncs. |
+| `doom up` | Pulls doom-lite (`git pull --ff-only`), then syncs if anything was pulled. |
 | `doom bump [PACKAGE...]` | Moves package pins to their upstream head, commits and pushes, then syncs. |
 | `doom rollback` | Undoes whichever of the two ran last, then syncs. |
 

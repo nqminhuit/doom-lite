@@ -7,7 +7,7 @@
 
 (defcli! upgrade
     ((nobuild? ("-B") "Don't rebuild packages when hostname or Emacs version has changed"))
-  "Update doom-lite from its git remote, then sync.
+  "Update doom-lite from its git remote, then sync if anything was pulled.
 
 The equivalent of:
 
@@ -27,9 +27,13 @@ Records the pull so 'doom rollback' can undo it. Aborts if the checkout has unco
         (unless (sh! git pull --ff-only)
           (user-error "git pull failed; resolve it in %s, then run doom sync"
                       (abbreviate-file-name doom-emacs-dir))))
-      ;; Lets 'doom rollback' undo the pull; skipped if nothing was pulled.
-      (doom-packages-record-up doom-emacs-dir from (doom-packages--checkout-head doom-emacs-dir)))
-    ;; Sync in a fresh process so it runs the code just pulled.
-    (exit! "doom" "sync" (if nobuild? "-B"))))
+      (let ((to (doom-packages--checkout-head doom-emacs-dir)))
+        (if (equal from to)
+            (print! (success "Nothing new; skipping sync"))
+          ;; Lets 'doom rollback' undo the pull.
+          (doom-packages-record-up doom-emacs-dir from to)
+          ;; Sync in a fresh process so it runs the code just pulled.
+          (exit! "doom" "sync" (if nobuild? "-B")))))
+    t))
 
 ;;; doom-upgrade ends here
