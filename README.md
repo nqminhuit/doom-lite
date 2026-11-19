@@ -82,6 +82,8 @@ After changing module declarations or package declarations, run `doom sync` usin
 
 For an explicit checkout, use `bin/doom sync` with `EMACSDIR` and `DOOMDIR` set as above.
 
+Every sync also rewrites the envvars file Emacs loads at startup from the environment of the shell running it, so run Doom commands from your own terminal. Claude Code session variables (`CLAUDECODE`, `CLAUDE_CODE_*`, `CLAUDE_PID`, `CLAUDE_EFFORT`) are always left out.
+
 ## Updating
 
 Three commands, run from a terminal with Doom Lite selected (`~/.config/emacs/bin/doom`, or `bin/doom` with explicit paths for a separate checkout):
@@ -92,17 +94,21 @@ Three commands, run from a terminal with Doom Lite selected (`~/.config/emacs/bi
 | `doom bump [PACKAGE...]` | Moves package pins to their upstream head, commits and pushes, then syncs. |
 | `doom rollback` | Undoes whichever of the two ran last, then syncs. |
 
-Each one shows what it will change and asks first; `-!` skips the question. Restart Emacs afterwards. Configuration updates are managed separately in linux-config.
+`doom bump` and `doom rollback` show what they will change and ask first; `-!` skips the question (needed when there is no terminal to answer it, e.g. from a script). Restart Emacs after anything that synced. Configuration updates are managed separately in linux-config.
 
 ### doom up
 
-Refuses if the checkout has uncommitted changes or can't fast-forward.
+- With nothing new to pull it prints `Nothing new; skipping sync` and stops.
+- Otherwise it records the pull for `doom rollback`, then syncs.
+- Refuses if the checkout has uncommitted changes or can't fast-forward.
 
 ### doom bump
 
 - Checks each pinned package's upstream (the recipe's `:branch`, if set) and lists the repos that moved, with a compare link each. Pass package names to check only those; packages sharing a repo move together.
 - On `y` it rewrites the `:pin`s, commits only those `packages.el` files (one commit per repo), pushes doom-lite, and syncs. Pins in `$DOOMDIR` are committed in that repo but not pushed.
+- With every pin current it prints `All pins are current` and stops, without syncing.
 - Refuses if a `packages.el` it would edit has uncommitted changes.
+- Pushing needs write access to the remote (the installed checkout uses SSH). If the push fails it warns and keeps the commit local; push it yourself later.
 - A trailing version comment on the pin line (for example `; 4.7.1`) is dropped, since it goes stale.
 
 ### doom rollback
