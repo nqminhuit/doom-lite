@@ -1024,10 +1024,10 @@ Returns (UPDATES TOTAL FAILED). UPDATES is a list of plists with :repo, :package
     (abbreviate-file-name file)))
 
 ;;;###autoload
-(defun doom-packages-bump (&optional names dry-run? yes?)
+(defun doom-packages-bump (&optional names yes?)
   "Move the pins of NAMES (default: all installed packages) to upstream HEAD.
-Shows what would change and asks first, unless YES? is non-nil. With DRY-RUN?,
-only show it. Does not sync or commit."
+Shows what would change and asks first, unless YES? is non-nil.
+Does not sync or commit."
   (doom-packages--require-git)
   (doom-initialize-packages)
   (pcase-let ((`(,updates ,total ,failed) (doom-packages--bump-plan names)))
@@ -1043,8 +1043,7 @@ only show it. Does not sync or commit."
                 (mapconcat #'doom-packages--short-path (plist-get up :files) ", "))
         (print-group! (print! "%s" (plist-get up :url))))
       (print! "%d of %d repos have updates" (length updates) total)
-      (when (and (not dry-run?)
-                 (or yes? (y-or-n-p (format! "  %s" "Bump them?"))))
+      (when (or yes? (y-or-n-p (format! "  %s" "Bump them?")))
         (let (files)
           (dolist (up updates)
             (dolist (name (plist-get up :packages))

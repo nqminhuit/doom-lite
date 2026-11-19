@@ -95,12 +95,12 @@ This runs `git pull --ff-only` in `$EMACSDIR`, then `doom sync`. It aborts if th
 ## Bumping packages
 
 ```bash
-bin/doom bump [-n] [PACKAGE...]
+bin/doom bump [PACKAGE...]
 ```
 
 This looks up the newest upstream commit of each pinned package (the `:branch` of its recipe, if it has one), lists the repos that moved with a compare link each, asks for confirmation, then rewrites the `:pin` in the `packages.el` that sets it. Pass package names to check only their repos; packages sharing a repo always move together.
 
-- `-n`/`--dry-run` only prints the list.
+- Answer `n` to only see the list.
 - `-!` skips the confirmation.
 - A trailing version comment on the pin line (for example `; 4.7.1`) is dropped, since it goes stale.
 - It does not sync or commit: run `doom sync`, test, then commit. Pins edited in `$DOOMDIR` must be committed in that repo.

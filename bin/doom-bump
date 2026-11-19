@@ -6,8 +6,7 @@
 (require 'doom-packages)
 
 (defcli! bump
-    ((dry-run? ("-n" "--dry-run") "Only show what would be bumped")
-     &args packages)
+    (&args packages)
   "Bump the :pin of packages to their upstream HEAD.
 
 Resolves the newest commit of each package's repo (its :branch, if the recipe
@@ -15,7 +14,7 @@ has one), lists what changed with compare links, asks for confirmation, then
 rewrites the :pin in the packages.el that sets it. If PACKAGES are given, only
 their repos are checked. Does not sync or commit; run 'doom sync', test, then
 commit."
-  (doom-packages-bump (mapcar #'intern packages) dry-run? (get! :suppress-prompts?))
+  (doom-packages-bump (mapcar #'intern packages) (get! :suppress-prompts?))
   t)
 
 ;;; doom-bump ends here

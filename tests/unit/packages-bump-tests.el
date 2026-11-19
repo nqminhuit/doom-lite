@@ -126,9 +126,9 @@
 
 (defun pbt--pin (name) (plist-get (cdr (assq name doom-packages)) :pin))
 
-(defun pbt--bump (&optional names dry-run? answer)
+(defun pbt--bump (&optional names answer)
   (cl-letf (((symbol-function 'y-or-n-p) (lambda (&rest _) answer)))
-    (doom-packages-bump names dry-run?)))
+    (doom-packages-bump names)))
 
 
 ;;; Tests
@@ -138,7 +138,7 @@
     (let ((a (pbt--commit "a")) (b (pbt--commit "b")))
       (pbt--write pbt--module-file (concat (pbt--decl 'a pbt-old) (pbt--decl 'b b)))
       (let ((a2 (pbt--commit "a")))
-        (pbt--bump nil nil t)
+        (pbt--bump nil t)
         (should (equal (pbt--pin 'a) a2))
         (should (equal (pbt--pin 'b) b))
         (should (string-match-p (regexp-quote (substring a2 0 7)) (pbt--output)))
@@ -153,7 +153,7 @@
       (pbt--write pbt--module-file
                   (concat "(package! one\n  :recipe (:host github :repo \"o/shared\")\n  :pin \"" pbt-old "\")\n"
                           "(package! two\n  :recipe (:host github :repo \"o/shared\" :files (\"two.el\"))\n  :pin \"" pbt-old "\")\n"))
-      (pbt--bump '(one) nil t)
+      (pbt--bump '(one) t)
       (should (equal (pbt--pin 'one) new))
       (should (equal (pbt--pin 'two) new)))))
 
@@ -163,7 +163,7 @@
     (let ((feature (pbt--commit "br" "feat")))
       (pbt--write pbt--module-file
                   (concat "(package! br\n  :recipe (:host github :repo \"o/br\" :branch \"feat\")\n  :pin \"" pbt-old "\")\n"))
-      (pbt--bump nil nil t)
+      (pbt--bump nil t)
       (should (equal (pbt--pin 'br) feature)))))
 
 (ert-deftest pbt-user-override-is-rewritten-in-user-file ()
@@ -172,7 +172,7 @@
       (pbt--write pbt--module-file (pbt--decl 'a pbt-old))
       (pbt--write pbt--user-file (format "(package! a :pin \"%s\")\n" pbt-old))
       (let ((module-before (pbt--slurp pbt--module-file)))
-        (pbt--bump nil nil t)
+        (pbt--bump nil t)
         (should (equal (pbt--slurp pbt--module-file) module-before))
         (should (string-match-p new (pbt--slurp pbt--user-file)))
         (should (equal (pbt--pin 'a) new))
@@ -185,21 +185,19 @@
       (pbt--write pbt--module-file
                   (concat (pbt--decl 'a pbt-old " ; 4.7.1")
                           (pbt--decl 'b pbt-old " ; keep me")))
-      (pbt--bump nil nil t)
+      (pbt--bump nil t)
       (let ((text (pbt--slurp pbt--module-file)))
         (should (string-match-p (format ":pin \"%s\")\n" new) text))
         (should-not (string-match-p "4\\.7\\.1" text))
         (should (string-match-p "; keep me" text))))))
 
-(ert-deftest pbt-dry-run-and-no-write-nothing ()
+(ert-deftest pbt-answering-no-writes-nothing ()
   (pbt--with-env
     (pbt--commit "a")
     (pbt--write pbt--module-file (pbt--decl 'a pbt-old))
     (let ((before (pbt--slurp pbt--module-file)))
-      (pbt--bump nil t)
-      (should (equal (pbt--slurp pbt--module-file) before))
+      (pbt--bump nil nil)
       (should (string-match-p "1 of 1 repos" (pbt--output)))
-      (pbt--bump nil nil nil)
       (should (equal (pbt--slurp pbt--module-file) before))
       (should-not (string-match-p "Bumped" (pbt--output))))))
 
@@ -207,7 +205,7 @@
   (pbt--with-env
     (let ((new (pbt--commit "a")))
       (pbt--write pbt--module-file (concat (pbt--decl 'a pbt-old) (pbt--decl 'gone pbt-old)))
-      (pbt--bump nil nil t)
+      (pbt--bump nil t)
       (should (equal (pbt--pin 'a) new))
       (should (equal (pbt--pin 'gone) pbt-old))
       (should (string-match-p "Could not resolve gone" (pbt--output))))))
@@ -216,13 +214,13 @@
   (pbt--with-env
     (let ((a (pbt--commit "a")))
       (pbt--write pbt--module-file (pbt--decl 'a a))
-      (pbt--bump nil nil t)
+      (pbt--bump nil t)
       (should (string-match-p pbt-up-to-date (pbt--output))))))
 
 (ert-deftest pbt-unknown-package-is-an-error ()
   (pbt--with-env
     (pbt--write pbt--module-file (pbt--decl 'a))
-    (should-error (pbt--bump '(nope) nil t) :type 'user-error)))
+    (should-error (pbt--bump '(nope) t) :type 'user-error)))
 
 (ert-deftest pbt-unrewritable-pin-skips-its-repo-only ()
   (pbt--with-env
@@ -236,7 +234,7 @@
                           (substring pbt-old 0 20) (substring pbt-old 20)))
       (let ((before (pbt--slurp pbt--module-file))
             (user-before (pbt--slurp pbt--user-file)))
-        (pbt--bump nil nil t)
+        (pbt--bump nil t)
         (should (equal (pbt--pin 'a) new))
         (should (equal (pbt--pin 'one) pbt-old))
         (should (equal (pbt--pin 'two) pbt-old))
