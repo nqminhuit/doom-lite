@@ -3,6 +3,8 @@
 ;;; Commentary:
 ;;; Code:
 
+(require 'doom-packages)
+
 (defcli! upgrade
     ((nobuild? ("-B") "Don't rebuild packages when hostname or Emacs version has changed"))
   "Update doom-lite from its git remote, then sync.
@@ -12,7 +14,7 @@ The equivalent of:
     $ git -C $EMACSDIR pull --ff-only
     $ doom sync
 
-Aborts if the checkout has uncommitted changes to tracked files."
+Records the pull so 'doom rollback' can undo it. Aborts if the checkout has uncommitted changes to tracked files."
   (let ((default-directory doom-emacs-dir))
     (unless (file-exists-p ".git")
       (user-error "%s is not a git checkout" (abbreviate-file-name doom-emacs-dir)))
@@ -20,10 +22,13 @@ Aborts if the checkout has uncommitted changes to tracked files."
       (user-error "Uncommitted changes in %s; commit or stash them first"
                   (abbreviate-file-name doom-emacs-dir)))
     (print! (start "Pulling %s...") (path doom-emacs-dir))
-    (print-group!
-      (unless (sh! git pull --ff-only)
-        (user-error "git pull failed; resolve it in %s, then run doom sync"
-                    (abbreviate-file-name doom-emacs-dir))))
+    (let ((from (doom-packages--checkout-head doom-emacs-dir)))
+      (print-group!
+        (unless (sh! git pull --ff-only)
+          (user-error "git pull failed; resolve it in %s, then run doom sync"
+                      (abbreviate-file-name doom-emacs-dir))))
+      ;; Lets 'doom rollback' undo the pull; skipped if nothing was pulled.
+      (doom-packages-record-up doom-emacs-dir from (doom-packages--checkout-head doom-emacs-dir)))
     ;; Sync in a fresh process so it runs the code just pulled.
     (exit! "doom" "sync" (if nobuild? "-B"))))
 

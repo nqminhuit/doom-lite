@@ -1027,7 +1027,7 @@ Returns (UPDATES TOTAL FAILED). UPDATES is a list of plists with :repo, :package
 (defun doom-packages-bump (&optional names yes?)
   "Move the pins of NAMES (default: all installed packages) to upstream HEAD.
 Shows what would change and asks first, unless YES? is non-nil.
-Does not sync or commit."
+Returns non-nil if it wrote pins. Does not sync or commit."
   (doom-packages--require-git)
   (doom-initialize-packages)
   (pcase-let ((`(,updates ,total ,failed) (doom-packages--bump-plan names)))
@@ -1044,22 +1044,224 @@ Does not sync or commit."
         (print-group! (print! "%s" (plist-get up :url))))
       (print! "%d of %d repos have updates" (length updates) total)
       (when (or yes? (y-or-n-p (format! "  %s" "Bump them?")))
-        (let (files)
-          (dolist (up updates)
-            (dolist (name (plist-get up :packages))
-              (cl-pushnew (doom-packages--rewrite-pin name (plist-get up :old) (plist-get up :new))
-                          files :test #'equal)))
+        (let ((files (delete-dups (apply #'append (mapcar (lambda (up) (plist-get up :files)) updates))))
+              (originals nil))
+          (dolist (file files)
+            (push (cons file (doom-packages--file-bytes file)) originals))
+          ;; Record even if a later rewrite fails: some files may already be written.
+          (unwind-protect
+              (dolist (up updates)
+                (dolist (name (plist-get up :packages))
+                  (doom-packages--rewrite-pin name (plist-get up :old) (plist-get up :new))))
+            (doom-packages--record-bump updates originals))
           (doom-initialize-packages t)
           (dolist (up updates)
             (dolist (name (plist-get up :packages))
               (unless (equal (downcase (or (doom-package-get name :pin) "")) (plist-get up :new))
                 (user-error "%s's :pin did not change to %s after rewriting; check its declaration"
                             name (plist-get up :new)))))
-          (print! (success "Bumped %d repos. Next: doom sync, test, then commit.") (length updates))
+          (print! (success "Bumped %d repos; syncing...") (length updates))
+          (print! "Restart Emacs and test. If something broke: doom rollback. When happy, commit the pin changes.")
           (when-let* ((outside (cl-remove-if (lambda (f) (file-in-directory-p f doom-emacs-dir)) files)))
             (print! (warn "Pins in %s are outside %s; commit them in that config repo.")
                     (mapconcat #'doom-packages--short-path outside ", ")
-                    (doom-packages--short-path doom-emacs-dir))))))))
+                    (doom-packages--short-path doom-emacs-dir)))
+          t)))))
+
+;;; ** Rollback
+
+(defconst doom-packages--rollback-header "Last change: doom %s at %s")
+
+(defun doom-packages--rollback-file ()
+  (expand-file-name "rollback.eld" doom-state-dir))
+
+(defun doom-packages--file-bytes (file)
+  "FILE's raw contents, base64-encoded so they survive printing byte for byte."
+  (with-temp-buffer
+    (set-buffer-multibyte nil)
+    (insert-file-contents-literally file)
+    (base64-encode-string (buffer-string) t)))
+
+(defun doom-packages--bytes-hash (b64)
+  (secure-hash 'sha1 (base64-decode-string b64)))
+
+(defun doom-packages--rollback-save (record)
+  "Replace the undo record with RECORD (written to a temp file, then renamed)."
+  (let ((file (doom-packages--rollback-file))
+        (print-length nil) (print-level nil) (print-circle nil)
+        (coding-system-for-write 'utf-8-unix))
+    (make-directory (file-name-directory file) t)
+    (let ((tmp (make-temp-file (concat file "."))))
+      (with-temp-file tmp (prin1 record (current-buffer)))
+      (rename-file tmp file t))))
+
+(defun doom-packages--rollback-read ()
+  "The undo record, or nil if there is none."
+  (let ((file (doom-packages--rollback-file)))
+    (when (file-exists-p file)
+      (let ((coding-system-for-read 'utf-8-unix))
+        (with-temp-buffer
+          (insert-file-contents file)
+          (read (current-buffer)))))))
+
+(defun doom-packages--record-bump (updates originals)
+  "Save an undo record for UPDATES; ORIGINALS maps files to their pre-bump bytes."
+  (let (files)
+    (pcase-dolist (`(,file . ,before) originals)
+      (let ((after (doom-packages--file-bytes file)))
+        (unless (equal before after)
+          (push (list file :before before :after-hash (doom-packages--bytes-hash after)) files))))
+    (when files
+      (doom-packages--rollback-save
+       (list :type 'bump :time (format-time-string "%FT%T%z")
+             :repos (mapcar (lambda (up)
+                              (list (plist-get up :repo)
+                                    :packages (plist-get up :packages)
+                                    :old (plist-get up :old) :new (plist-get up :new)))
+                            updates)
+             :files (nreverse files))))))
+
+(defun doom-packages--checkout-head (dir)
+  "The commit HEAD points at in the checkout DIR."
+  (let ((result (doom-packages--git dir "rev-parse" "HEAD")))
+    (unless (zerop (car result))
+      (user-error "Cannot read HEAD of %s" (abbreviate-file-name dir)))
+    (cdr result)))
+
+;;;###autoload
+(defun doom-packages-record-up (dir from to)
+  "Save an undo record for a pull in DIR that moved HEAD from FROM to TO.
+Does nothing if HEAD did not move, so an earlier record stays."
+  (unless (equal from to)
+    (doom-packages--rollback-save
+     (list :type 'up :time (format-time-string "%FT%T%z") :dir dir :from from :to to))))
+
+(defun doom-packages--rollback-preflight (record)
+  "Signal a `user-error' unless RECORD can still be undone safely."
+  (pcase (plist-get record :type)
+    ('bump
+     (let ((edited (cl-remove-if
+                    (lambda (entry)
+                      (and (file-exists-p (car entry))
+                           (equal (doom-packages--bytes-hash (doom-packages--file-bytes (car entry)))
+                                  (plist-get (cdr entry) :after-hash))))
+                    (plist-get record :files))))
+       (when edited
+         (user-error "%s changed since the bump; rolling back would overwrite those edits"
+                     (mapconcat (lambda (e) (doom-packages--short-path (car e))) edited ", ")))))
+    ('up
+     (let ((dir (plist-get record :dir)))
+       (unless (file-directory-p dir)
+         (user-error "%s no longer exists" (abbreviate-file-name dir)))
+       (let ((head (doom-packages--checkout-head dir)))
+         (unless (equal head (plist-get record :to))
+           (user-error "%s is at %s, not %s where doom up left it; roll back by hand"
+                       (abbreviate-file-name dir)
+                       (doom-packages--abbrev head) (doom-packages--abbrev (plist-get record :to)))))
+       (unless (zerop (car (doom-packages--git dir "diff" "--quiet" "HEAD")))
+         (user-error "Uncommitted changes in %s; commit or stash them first" (abbreviate-file-name dir)))))
+    (type (user-error "Unknown rollback record type %S" type))))
+
+(defun doom-packages--pins-in (text)
+  "Alist of (PACKAGE . PIN) for the `package!' forms of TEXT that set a literal :pin."
+  (let (pins)
+    (with-temp-buffer
+      (insert text)
+      (with-syntax-table emacs-lisp-mode-syntax-table
+        (goto-char (point-min))
+        (while (search-forward "(package!" nil t)
+          (let ((ppss (save-excursion (syntax-ppss))))
+            (unless (or (nth 3 ppss) (nth 4 ppss))
+              (goto-char (match-beginning 0))
+              (let ((beg (point))
+                    (form (condition-case nil (read (current-buffer))
+                            (error (goto-char (1+ (point))) nil))))
+                (when (consp form)
+                  (let ((pin (plist-get (cddr form) :pin)))
+                    (when (and (symbolp (cadr form)) (stringp pin))
+                      (setf (alist-get (cadr form) pins) pin))))
+                (ignore beg)))))))
+    pins))
+
+(defun doom-packages--pin-changes (dir from to)
+  "Lines like \"NAME: OLD7 -> NEW7\" for pins that differ between FROM and TO in DIR."
+  (let ((names (cdr (doom-packages--git dir "diff" "--name-only" from to "--" "*packages.el")))
+        lines)
+    (dolist (path (split-string names "\n" t))
+      (let ((old (doom-packages--pins-in (cdr (doom-packages--git dir "show" (format "%s:%s" from path)))))
+            (new (doom-packages--pins-in (cdr (doom-packages--git dir "show" (format "%s:%s" to path))))))
+        (pcase-dolist (`(,name . ,pin) new)
+          (let ((was (cdr (assq name old))))
+            (unless (equal was pin)
+              (push (format "%s: %s -> %s" name
+                            (if was (doom-packages--abbrev was) "(none)")
+                            (doom-packages--abbrev pin))
+                    lines))))))
+    (nreverse lines)))
+
+(defun doom-packages--rollback-describe (record)
+  "Print what undoing RECORD will do."
+  (print! "%s" (format doom-packages--rollback-header
+                       (if (eq (plist-get record :type) 'bump) "bump" "up")
+                       (plist-get record :time)))
+  (pcase (plist-get record :type)
+    ('bump
+     (pcase-dolist (`(,_repo . ,plist) (plist-get record :repos))
+       (print! (item "%s: %s -> %s")
+               (mapconcat #'symbol-name (plist-get plist :packages) ", ")
+               (doom-packages--abbrev (plist-get plist :new))
+               (doom-packages--abbrev (plist-get plist :old))))
+     (let ((files (mapcar #'car (plist-get record :files))))
+       (print! "Files restored: %s" (mapconcat #'doom-packages--short-path files ", "))
+       (when-let* ((outside (cl-remove-if (lambda (f) (file-in-directory-p f doom-emacs-dir)) files)))
+         (print! (warn "%s is outside %s") (mapconcat #'doom-packages--short-path outside ", ")
+                 (doom-packages--short-path doom-emacs-dir)))))
+    ('up
+     (let ((dir (plist-get record :dir))
+           (from (plist-get record :from))
+           (to (plist-get record :to)))
+       (print! "doom-lite goes back from %s to %s" (doom-packages--abbrev to) (doom-packages--abbrev from))
+       (print! "Commits undone:")
+       (print-group!
+         (dolist (line (split-string (cdr (doom-packages--git dir "log" "--oneline" (format "%s..%s" from to))) "\n" t))
+           (print! "%s" line)))
+       (when-let* ((pins (doom-packages--pin-changes dir from to)))
+         (print! "Pin changes undone:")
+         (print-group!
+           (dolist (line pins) (print! "%s" line))))
+       (print! "The next doom up pulls these commits again until they're reverted on master.")))))
+
+(defun doom-packages--rollback-apply (record)
+  (pcase (plist-get record :type)
+    ('bump
+     (pcase-dolist (`(,file . ,plist) (plist-get record :files))
+       (let ((coding-system-for-write 'no-conversion))
+         (with-temp-buffer
+           (set-buffer-multibyte nil)
+           (insert (base64-decode-string (plist-get plist :before)))
+           (write-region nil nil file nil 'silent)))))
+    ('up
+     (let ((result (doom-packages--git (plist-get record :dir) "reset" "--hard" (plist-get record :from))))
+       (unless (zerop (car result))
+         (user-error "git reset failed: %s" (cdr result)))))))
+
+;;;###autoload
+(defun doom-packages-rollback (&optional yes?)
+  "Undo the last `doom bump' or `doom up' after showing it and asking, unless YES?.
+Returns non-nil if it rolled back (the caller then syncs)."
+  (doom-packages--require-git)
+  (let ((record (doom-packages--rollback-read)))
+    (if (null record)
+        (progn (print! "Nothing to roll back") nil)
+      (doom-packages--rollback-preflight record)
+      (doom-packages--rollback-describe record)
+      (when (or yes? (y-or-n-p (format! "  %s" "Roll back?")))
+        (doom-packages--rollback-apply record)
+        (delete-file (doom-packages--rollback-file))
+        (print! (success "Rolled back; syncing..."))
+        (when (eq (plist-get record :type) 'bump)
+          (print! "Pins restored; if you had committed the bump, the restored files now show as changes."))
+        t))))
 
 ;;
 ;;; * Module DSL

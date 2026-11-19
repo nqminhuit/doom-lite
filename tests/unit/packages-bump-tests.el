@@ -15,12 +15,14 @@
 (defvar doom--system-windows-p nil)
 (defvar doom-local-dir (file-name-as-directory (make-temp-file "pbt-local" t)))
 (defvar doom-module-load-path nil)
+(defvar doom-state-dir (file-name-as-directory (make-temp-file "pbt-state" t)))
 
 (add-hook 'kill-emacs-hook
           (lambda ()
             (delete-directory doom-user-dir t)
             (delete-directory doom-data-dir t)
-            (delete-directory doom-local-dir t)))
+            (delete-directory doom-local-dir t)
+            (delete-directory doom-state-dir t)))
 
 (defvar pbt-output nil "Lines the CLI output macros printed, newest first.")
 ;; Stand-ins for the CLI macros: (print! (kind FMT) ARGS...) or (print! FMT ARGS...).
@@ -144,7 +146,7 @@
         (should (string-match-p (regexp-quote (substring a2 0 7)) (pbt--output)))
         (should (string-match-p "1 of 2 repos have updates" (pbt--output)))
         (should (string-match-p "github.com/o/a/compare/" (pbt--output)))
-        (should (string-match-p "Bumped 1 repos" (pbt--output)))
+        (should (string-match-p "Bumped 1 repos; syncing" (pbt--output)))
         (ignore a)))))
 
 (ert-deftest pbt-shared-repo-moves-together ()

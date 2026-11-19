@@ -1,0 +1,18 @@
+#!/usr/bin/env doomscript
+;;; bin/doom-rollback --- undo the last doom bump or doom up -*- lexical-binding: t; mode: emacs-lisp -*-
+;;; Commentary:
+;;; Code:
+
+(require 'doom-packages)
+
+(defcli! rollback ()
+  "Undo the last 'doom bump' or 'doom up', then sync.
+
+Shows what will be rolled back and asks first. Refuses if the files a bump
+wrote were edited since, or if doom-lite moved or has uncommitted changes since
+'doom up'. Only the most recent change can be undone."
+  (when (doom-packages-rollback (get! :suppress-prompts?))
+    (exit! "doom" "sync"))
+  t)
+
+;;; doom-rollback ends here

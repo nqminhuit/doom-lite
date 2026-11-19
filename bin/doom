@@ -330,7 +330,6 @@ SEE ALSO:
   (defcli-stub! module)
   (defcli-stub! nuke)
   (defcli-stub! package)
-  (defcli-stub! rollback)
 
   (defcli! run ()
     "Project-local tasks (for build pipelines, CI/CD, etc).

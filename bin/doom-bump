@@ -10,11 +10,13 @@
   "Bump the :pin of packages to their upstream HEAD.
 
 Resolves the newest commit of each package's repo (its :branch, if the recipe
-has one), lists what changed with compare links, asks for confirmation, then
-rewrites the :pin in the packages.el that sets it. If PACKAGES are given, only
-their repos are checked. Does not sync or commit; run 'doom sync', test, then
-commit."
-  (doom-packages-bump (mapcar #'intern packages) (get! :suppress-prompts?))
+has one), lists what changed with compare links, asks for confirmation, rewrites
+the :pin in the packages.el that sets it, then runs 'doom sync'. If PACKAGES are
+given, only their repos are checked. Does not commit; test, then commit. Undo
+with 'doom rollback'."
+  (when (doom-packages-bump (mapcar #'intern packages) (get! :suppress-prompts?))
+    ;; Sync in a fresh process so it reads the rewritten pins.
+    (exit! "doom" "sync"))
   t)
 
 ;;; doom-bump ends here
