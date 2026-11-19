@@ -83,7 +83,7 @@
                 (`(package! ,name . ,plist)
                  (let ((old (cdr (assq name alist))))
                    (cl-loop for (k v) on plist by #'cddr
-                            do (when (or (eq k :pin) v) (setq old (plist-put old k v))))
+                            do (when (or (eq k :pin) v) (setq old (plist-put old k (if (eq k :pin) (eval v) v)))))
                    (setf (alist-get name alist) (plist-put old :declared-in file))))))
           (end-of-file nil))))
     (nreverse alist)))
@@ -223,3 +223,24 @@
   (pbt--with-env
     (pbt--write pbt--module-file (pbt--decl 'a))
     (should-error (pbt--bump '(nope) nil t) :type 'user-error)))
+
+(ert-deftest pbt-unrewritable-pin-skips-its-repo-only ()
+  (pbt--with-env
+    (let ((new (pbt--commit "a")))
+      (pbt--commit "shared")
+      (pbt--write pbt--module-file
+                  (concat (pbt--decl 'a pbt-old)
+                          (format "(package! one\n  :recipe (:host github :repo \"o/shared\")\n  :pin \"%s\")\n" pbt-old)))
+      (pbt--write pbt--user-file
+                  (format "(package! two\n  :recipe (:host github :repo \"o/shared\")\n  :pin (concat \"%s\" \"%s\"))\n"
+                          (substring pbt-old 0 20) (substring pbt-old 20)))
+      (let ((before (pbt--slurp pbt--module-file))
+            (user-before (pbt--slurp pbt--user-file)))
+        (pbt--bump nil nil t)
+        (should (equal (pbt--pin 'a) new))
+        (should (equal (pbt--pin 'one) pbt-old))
+        (should (equal (pbt--pin 'two) pbt-old))
+        (should (string-match-p "Could not resolve shared.*not a literal" (pbt--output)))
+        (should (equal (pbt--slurp pbt--user-file) user-before))
+        (should-not (equal (pbt--slurp pbt--module-file) before))
+        (should (string-match-p (format "\"%s\"" pbt-old) (pbt--slurp pbt--module-file)))))))

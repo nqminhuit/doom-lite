@@ -959,10 +959,22 @@ Also drops a trailing version comment on the pin's line, which would go stale."
         (write-region nil nil file nil 'silent)))
     file))
 
+(defun doom-packages--check-pin-form (package old)
+  "Return the file setting PACKAGE's pin, or signal a `user-error' if OLD can't be rewritten there."
+  (pcase-let ((`(,file ,beg ,end) (or (doom-packages--find-pin-form package)
+                                      (user-error "cannot find where %s sets its :pin" package))))
+    (with-temp-buffer
+      (insert-file-contents file)
+      (let ((case-fold-search t))
+        (goto-char beg)
+        (unless (search-forward (format "\"%s\"" old) end t)
+          (user-error "the :pin of %s in %s is not a literal string" package file))))
+    file))
+
 (defun doom-packages--bump-plan (names)
   "Resolve upstream commits for the repos of NAMES (all installed if nil).
 Returns (UPDATES TOTAL FAILED). UPDATES is a list of plists with :repo, :packages,
-:old, :new and :url; FAILED is an alist of (REPO . MESSAGE)."
+:old, :new, :files and :url; FAILED is an alist of (REPO . MESSAGE)."
   (let* ((installed (doom-packages--installed))
          (names (progn (dolist (name names)
                          (unless (memq name installed)
@@ -981,17 +993,24 @@ Returns (UPDATES TOTAL FAILED). UPDATES is a list of plists with :repo, :package
                           (if branch (format "refs/heads/%s" branch) "HEAD"))))
                 repos))
          (resolved (doom-packages--ls-remote-all info))
-         updates failed)
+         updates failed files)
     (dolist (repo repos)
       (pcase-let* ((plist (cdr repo))
                    (`(,sha . ,err) (cdr (assoc (car repo) resolved)))
                    (first (car (plist-get plist :packages)))
                    (recipe (doom-package-recipe first)))
         (cond ((null sha) (push (cons (car repo) err) failed))
-              ((not (equal sha (plist-get plist :pin)))
+              ((equal sha (plist-get plist :pin)))
+              ((condition-case e
+                   (progn (setq files (mapcar (lambda (p) (doom-packages--check-pin-form p (plist-get plist :pin)))
+                                              (plist-get plist :packages)))
+                          nil)
+                 (user-error (push (cons (car repo) (cadr e)) failed) t)))
+              (t
                (push (list :repo (car repo)
                            :packages (plist-get plist :packages)
                            :old (plist-get plist :pin) :new sha
+                           :files (delete-dups files)
                            :url (format "https://%s/%s/compare/%s...%s"
                                         (if (eq (plist-get recipe :host) 'codeberg)
                                             "codeberg.org" "github.com")
@@ -1021,8 +1040,7 @@ only show it. Does not sync or commit."
                 (mapconcat #'symbol-name (plist-get up :packages) ", ")
                 (doom-packages--abbrev (plist-get up :old))
                 (doom-packages--abbrev (plist-get up :new))
-                (doom-packages--short-path
-                 (car (doom-packages--find-pin-form (car (plist-get up :packages))))))
+                (mapconcat #'doom-packages--short-path (plist-get up :files) ", "))
         (print-group! (print! "%s" (plist-get up :url))))
       (print! "%d of %d repos have updates" (length updates) total)
       (when (and (not dry-run?)
