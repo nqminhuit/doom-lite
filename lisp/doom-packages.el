@@ -206,15 +206,21 @@ PLIST has :remote, :pin and :packages."
 
 ;;; ** Git
 
+(defmacro doom-packages--with-git-env (&rest body)
+  "Run BODY with user and system git config ignored and git prompts disabled."
+  (declare (indent 0))
+  `(with-environment-variables
+       (("GIT_CONFIG" nil)
+        ("GIT_CONFIG_NOSYSTEM" "1")
+        ("GIT_CONFIG_GLOBAL" (or (getenv "DOOMGITCONFIG") "/dev/null"))
+        ("GIT_TERMINAL_PROMPT" "0"))
+     ,@body))
+
 (defun doom-packages--git (dir &rest args)
   "Run git ARGS in DIR with user and system git config ignored.
 Returns (STATUS . OUTPUT)."
   (let ((default-directory (file-name-as-directory dir)))
-    (with-environment-variables
-        (("GIT_CONFIG" nil)
-         ("GIT_CONFIG_NOSYSTEM" "1")
-         ("GIT_CONFIG_GLOBAL" (or (getenv "DOOMGITCONFIG") "/dev/null"))
-         ("GIT_TERMINAL_PROMPT" "0"))
+    (doom-packages--with-git-env
       (with-temp-buffer
         (let ((status (apply #'call-process "git" nil t nil args)))
           (doom-log "packages:git: git %s -> %s" (string-join args " ") status)
@@ -855,6 +861,188 @@ Includes build dirs of other Emacs versions. Returns the number of dirs deleted.
                    (doom-packages--read-state))))
     (length dirs)))
 
+
+;;; ** Bumping pins
+
+(defconst doom-packages--bump-jobs 8
+  "How many `git ls-remote' processes `doom-packages-bump' runs at once.")
+
+(defconst doom-packages--version-comment-re ";+ *v?[0-9]+\\(\\.[0-9]+\\)+"
+  "A trailing comment that records a package's version, which a bump makes stale.")
+
+(defun doom-packages--ls-remote-all (jobs)
+  "Run (KEY REMOTE REF) JOBS in parallel; return an alist of (KEY SHA . ERROR).
+SHA is nil, with ERROR set, if REF could not be resolved."
+  (let ((queue (copy-sequence jobs))
+        (running 0)
+        results)
+    (cl-labels
+        ((finish (key ref buf status)
+           (let* ((out (with-current-buffer buf (buffer-string)))
+                  (sha (and (eq status 0)
+                            (cl-loop for line in (split-string out "\n" t)
+                                     for (id name) = (split-string line "\t")
+                                     if (and (equal name ref) (string-match-p "\\`[0-9a-f]\\{40\\}\\'" id))
+                                     return (downcase id)))))
+             (kill-buffer buf)
+             (push (cons key (cons sha (unless sha
+                                         (if (eq status 0)
+                                             (format "%s not found" ref)
+                                           (string-trim out)))))
+                   results)
+             (cl-decf running)
+             (start-next)))
+         (start-next ()
+           (while (and queue (< running doom-packages--bump-jobs))
+             (pcase-let* ((`(,key ,remote ,ref) (pop queue))
+                          (buf (generate-new-buffer " *doom-ls-remote*")))
+               (cl-incf running)
+               (doom-packages--with-git-env
+                 (make-process
+                  :name "doom-ls-remote" :buffer buf :noquery t
+                  :connection-type 'pipe
+                  :command (list "git" "ls-remote" remote ref)
+                  :sentinel (lambda (proc _event)
+                              (unless (process-live-p proc)
+                                (finish key ref buf (process-exit-status proc))))))))))
+      (start-next)
+      (while (> running 0)
+        (accept-process-output nil 0.05)))
+    results))
+
+(defun doom-packages--package-files ()
+  "The packages.el files `doom-package-list' reads, in load order."
+  (cl-loop for key in (doom-module-list)
+           for file = (or (doom-module-expand-path key doom-module-packages-file)
+                          (doom-module-locate-path key doom-module-packages-file))
+           if (and file (file-exists-p file)) collect file))
+
+(defun doom-packages--find-pin-form (package)
+  "Return (FILE BEG END) of the last `package!' form of PACKAGE that sets :pin."
+  (let (found)
+    (dolist (file (doom-packages--package-files))
+      (with-temp-buffer
+        (insert-file-contents file)
+        (with-syntax-table emacs-lisp-mode-syntax-table
+          (while (search-forward "(package!" nil t)
+            (let ((ppss (save-excursion (syntax-ppss))))
+              (unless (or (nth 3 ppss) (nth 4 ppss))
+                (goto-char (match-beginning 0))
+                (let* ((beg (point))
+                       (form (condition-case nil (read (current-buffer))
+                               (error (goto-char (1+ beg)) nil))))
+                  (when (and (consp form)
+                             (eq (car-safe (cdr form)) package)
+                             (plist-member (cddr form) :pin))
+                    (setq found (list file beg (point)))))))))))
+    found))
+
+(defun doom-packages--rewrite-pin (package old new)
+  "Replace PACKAGE's pin OLD with NEW in the file that sets it; return that file.
+Also drops a trailing version comment on the pin's line, which would go stale."
+  (pcase-let ((`(,file ,beg ,end) (or (doom-packages--find-pin-form package)
+                                      (user-error "Cannot find where %s sets its :pin" package))))
+    (let ((coding-system-for-read 'utf-8-unix)
+          (coding-system-for-write 'utf-8-unix)
+          (case-fold-search t))
+      (with-temp-buffer
+        (insert-file-contents file)
+        (with-syntax-table emacs-lisp-mode-syntax-table
+          (goto-char beg)
+          (unless (search-forward (format "\"%s\"" old) end t)
+            (user-error "%s's :pin in %s is not the literal %s" package file old))
+          (replace-match (format "\"%s\"" new) t t)
+          (when (re-search-forward (concat "[ \t]*\\(" doom-packages--version-comment-re "\\)")
+                                   (line-end-position) t)
+            (when (nth 4 (syntax-ppss (1+ (match-beginning 1))))
+              (delete-region (match-beginning 0) (line-end-position)))))
+        (write-region nil nil file nil 'silent)))
+    file))
+
+(defun doom-packages--bump-plan (names)
+  "Resolve upstream commits for the repos of NAMES (all installed if nil).
+Returns (UPDATES TOTAL FAILED). UPDATES is a list of plists with :repo, :packages,
+:old, :new and :url; FAILED is an alist of (REPO . MESSAGE)."
+  (let* ((installed (doom-packages--installed))
+         (names (progn (dolist (name names)
+                         (unless (memq name installed)
+                           (user-error "%s is not an installed package" name)))
+                       names))
+         (repos (cl-remove-if-not
+                 (lambda (repo) (or (null names)
+                                    (cl-intersection names (plist-get (cdr repo) :packages))))
+                 (doom-packages--repos)))
+         (info (mapcar
+                (lambda (repo)
+                  (let* ((plist (cdr repo))
+                         (recipes (mapcar (lambda (p) (doom-package-get p :recipe)) (plist-get plist :packages)))
+                         (branch (cl-some (lambda (r) (plist-get r :branch)) recipes)))
+                    (list (car repo) (plist-get plist :remote)
+                          (if branch (format "refs/heads/%s" branch) "HEAD"))))
+                repos))
+         (resolved (doom-packages--ls-remote-all info))
+         updates failed)
+    (dolist (repo repos)
+      (pcase-let* ((plist (cdr repo))
+                   (`(,sha . ,err) (cdr (assoc (car repo) resolved)))
+                   (first (car (plist-get plist :packages)))
+                   (recipe (doom-package-recipe first)))
+        (cond ((null sha) (push (cons (car repo) err) failed))
+              ((not (equal sha (plist-get plist :pin)))
+               (push (list :repo (car repo)
+                           :packages (plist-get plist :packages)
+                           :old (plist-get plist :pin) :new sha
+                           :url (format "https://%s/%s/compare/%s...%s"
+                                        (if (eq (plist-get recipe :host) 'codeberg)
+                                            "codeberg.org" "github.com")
+                                        (plist-get recipe :repo) (plist-get plist :pin) sha))
+                     updates)))))
+    (list (nreverse updates) (length repos) (nreverse failed))))
+
+(defun doom-packages--short-path (file)
+  (if (file-in-directory-p file doom-emacs-dir)
+      (file-relative-name file doom-emacs-dir)
+    (abbreviate-file-name file)))
+
+;;;###autoload
+(defun doom-packages-bump (&optional names dry-run? yes?)
+  "Move the pins of NAMES (default: all installed packages) to upstream HEAD.
+Shows what would change and asks first, unless YES? is non-nil. With DRY-RUN?,
+only show it. Does not sync or commit."
+  (doom-packages--require-git)
+  (doom-initialize-packages)
+  (pcase-let ((`(,updates ,total ,failed) (doom-packages--bump-plan names)))
+    (pcase-dolist (`(,repo . ,msg) failed)
+      (print! (warn "Could not resolve %s, skipping: %s") repo msg))
+    (if (null updates)
+        (print! (success "All pins are current"))
+      (dolist (up updates)
+        (print! (item "%s: %s -> %s (%s)")
+                (mapconcat #'symbol-name (plist-get up :packages) ", ")
+                (doom-packages--abbrev (plist-get up :old))
+                (doom-packages--abbrev (plist-get up :new))
+                (doom-packages--short-path
+                 (car (doom-packages--find-pin-form (car (plist-get up :packages))))))
+        (print-group! (print! "%s" (plist-get up :url))))
+      (print! "%d of %d repos have updates" (length updates) total)
+      (when (and (not dry-run?)
+                 (or yes? (y-or-n-p (format! "  %s" "Bump them?"))))
+        (let (files)
+          (dolist (up updates)
+            (dolist (name (plist-get up :packages))
+              (cl-pushnew (doom-packages--rewrite-pin name (plist-get up :old) (plist-get up :new))
+                          files :test #'equal)))
+          (doom-initialize-packages t)
+          (dolist (up updates)
+            (dolist (name (plist-get up :packages))
+              (unless (equal (downcase (or (doom-package-get name :pin) "")) (plist-get up :new))
+                (user-error "%s's :pin did not change to %s after rewriting; check its declaration"
+                            name (plist-get up :new)))))
+          (print! (success "Bumped %d repos. Next: doom sync, test, then commit.") (length updates))
+          (when-let* ((outside (cl-remove-if (lambda (f) (file-in-directory-p f doom-emacs-dir)) files)))
+            (print! (warn "Pins in %s are outside %s; commit them in that config repo.")
+                    (mapconcat #'doom-packages--short-path outside ", ")
+                    (doom-packages--short-path doom-emacs-dir))))))))
 
 ;;
 ;;; * Module DSL
