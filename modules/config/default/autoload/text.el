@@ -52,6 +52,21 @@
     (error "Couldn't find filename in current buffer")))
 
 ;;;###autoload
+(defun +default/yank-path-at-point ()
+  "Copy the absolute path of the file at point, or of the current buffer.
+In dired, the entry at point wins; otherwise the buffer's file or directory."
+  (interactive)
+  (if-let* ((path (or (and (derived-mode-p 'dired-mode)
+                           (dired-get-filename nil t))
+                      (buffer-file-name (buffer-base-buffer))
+                      (bound-and-true-p list-buffers-directory)
+                      default-directory)))
+      (let ((path (expand-file-name path)))
+        (kill-new path)
+        (message "Copied path: %s" path))
+    (user-error "No path at point or in current buffer")))
+
+;;;###autoload
 (defun +default/yank-buffer-path-relative-to-project (&optional include-root)
   "Copy the current buffer's path to the kill ring.
 With non-nil prefix INCLUDE-ROOT, also include the project's root."
