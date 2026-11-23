@@ -6,7 +6,7 @@
 ;; doom-ui.el
 (package! nerd-icons
   :recipe (:host github :repo "rainstormstudio/nerd-icons.el" :files (:defaults "data"))
-  :pin "87ae84981ddeb4446586ba65cb30cec6e6ccfdb0")
+  :pin "9e184d8e05891a5b0444e65acb3a1bdb24eab3b1")
 
 ;; doom-projects.el
 (package! project :built-in t)

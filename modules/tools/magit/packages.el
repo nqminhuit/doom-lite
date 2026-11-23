@@ -21,9 +21,9 @@
 ;; magit-section: dependency of magit, built from magit's repo
 (package! magit-section
   :recipe (:host github :repo "magit/magit" :files ("lisp/magit-section.el"))
-  :pin "5e21bac5304c931cccbe16073758e2c464e40298")
+  :pin "7a05d472033fdb1786640e6571d2601d98d90b60")
 
 (package! magit
   :recipe (:host github :repo "magit/magit"
            :files ("lisp/magit*.el" "lisp/git-*.el" (:exclude "lisp/magit-section.el")))
-  :pin "5e21bac5304c931cccbe16073758e2c464e40298")
+  :pin "7a05d472033fdb1786640e6571d2601d98d90b60")
