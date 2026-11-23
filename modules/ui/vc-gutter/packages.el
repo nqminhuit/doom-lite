@@ -3,4 +3,4 @@
 
 (package! diff-hl
   :recipe (:host github :repo "dgutov/diff-hl")
-  :pin "b0c04cf21a02351958f3b6fe40e0b28b1515b9bb")
+  :pin "768b8f16943a85e096930ac0b5982ef681fcef30")
