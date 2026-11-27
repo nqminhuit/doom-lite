@@ -1162,9 +1162,7 @@ Both MODES and VARS can be a single symbol or a list thereof.
 
 Note that it's not necessary to register indent variables if they end in
 MODE-ts-mode-indent-offset, MODE-indent-offset, MODE-indent-level,
-MODE-tab-width, or MODE-basic-offset. It is also not necessary if you have
-`dtrt-indent' installed and a variable association exists in
-`dtrt-indent-hook-mapping-list'."
+MODE-tab-width, or MODE-basic-offset."
   (let ((vars (ensure-list vars)))
     (if (eq modes t)
         (put 'tab-width 'indent-vars vars)
@@ -1197,9 +1195,6 @@ with `set-indent-vars!'."
   "Try to auto-detect the indent variables for major MODE."
   (unless (eq mode 'fundamental-mode)
     (or (get mode 'indent-vars)
-        (when (boundp 'dtrt-indent-hook-mapping-list)
-          (ensure-list
-           (nth 2 (assq major-mode dtrt-indent-hook-mapping-list))))
         ;; HACK: Best guess for modes that don't have registered indent
         ;;   variables. This handles the majority of them. `set-indent-vars!'
         ;;   is necessary for everything else.
@@ -1642,13 +1637,7 @@ and whether the line count of the buffer exceeds that matching entry in
   ;; wide buffers.
   (cl-callf append so-long-minor-modes
     '(eldoc-mode
-      ws-butler-mode
-      auto-composition-mode
-      undo-tree-mode
-      highlight-indent-guides-mode
-      hl-fill-column-mode
-      ;; These are redundant on Emacs 29+
-      flycheck-mode)))
+      auto-composition-mode)))
 
 
 ;;;###package transient

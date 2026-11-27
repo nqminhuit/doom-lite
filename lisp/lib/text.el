@@ -294,8 +294,6 @@ This relies on several heuristics to work. If "
              current-prefix-arg
            (read-number "New indent size: "))))
   (doom-set-indent width)
-  (when (bound-and-true-p dtrt-indent-original-indent)
-    (setq dtrt-indent-original-indent nil))
   (message "Changed buffer's indent-size to %d" width))
 
 ;;;###autoload
