@@ -12,6 +12,7 @@
   '("lisp/lib/sandbox.el" "lisp/lib/store.el" "lisp/lib/plist.el"
     "modules/doom/cli" "bin/org-capture" "bin/doom.ps1" "bin/doom.sh" "profiles"
     "bin/doom-make" "lisp/cli/make" "bin/doom-profile" "lisp/cli/autoloads.el"
+    "static/init.example.el" "static/config.example.el" "static/packages.example.el"
     "lisp/lib/git.el" "modules/editor/evil/autoload/embrace.el"))
 
 (defconst core-trims-test--compat-symbols

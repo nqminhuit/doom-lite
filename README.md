@@ -9,7 +9,7 @@ A personal hard fork of Doom Emacs for Emacs 31. Only the modules I use are vend
 - A linux-config checkout containing `configs/dotfiles/emacs/doom-lite/`. The examples below assume it lives at `/opt/minh/linux-config`.
 - External tools required by your enabled modules. Run `doom doctor` after installation to check for missing dependencies; `ripgrep` and `fd` are recommended for searching.
 
-The core lives in this repository; the personal configuration lives in linux-config, not here. Only the vendored modules under `modules/` are available—do not assume every module listed in the upstream config template is supported.
+The core lives in this repository; the personal configuration lives in linux-config, not here. Only the vendored modules under `modules/` are available.
 
 ## Install as your default Emacs
 
