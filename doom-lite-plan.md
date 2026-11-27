@@ -85,7 +85,7 @@ Design (user-approved 2026-11-13): upstream Doom and doom-lite stay installed si
 
 Facts this relies on (verified 2026-11-13):
 - Each install keeps its own `.local`, so switching never re-syncs or rebuilds packages.
-- `~/.local/share/doom/profiles.el` is only read with `--profile`, which is unused; it plays no part in switching.
+- `~/.local/share/doom/profiles.el` is only read by upstream Doom's `--profile`; doom-lite has no named profiles and never reads it.
 - Doom's scripts resolve the `~/.config/emacs` symlink, so `~/.config/emacs/bin/doom` works on whichever install is active.
 - Config edits made in one config don't carry to the other. After cutover `doom-emacs/` is frozen; edits go to `doom-lite/` only, and anything wanted in upstream too has to be copied by hand.
 - `~/.config/doom` is a real directory today (per-file links into `doom-emacs/`, a real `custom.el`, and dangling `cli.el` and `snippets` links), so it is converted once to a symlink (step 3).

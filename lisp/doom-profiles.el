@@ -5,49 +5,6 @@
 ;;
 ;;; * Variables
 
-(defvar doom-profiles-generated-dir doom-data-dir
-  "Where generated profiles are kept.
-
-Profile directories are in the format {data-profiles-dir}/$NAME/@/$VERSION, for
-example: '~/.local/share/doom/_/@/0/'")
-
-(defvar doom-profile-load-path
-  (if-let* ((path (getenv-internal "DOOMPROFILELOADPATH")))
-      (mapcar #'doom-path (split-string-and-unquote path path-separator))
-    (let ((config-dir (or (getenv "XDG_CONFIG_HOME") "~/.config")))
-      `(,(expand-file-name "doom-profiles.el" config-dir)
-        ,(expand-file-name "~/.doom-profiles.el")
-        ;; $DOOMSDIR
-        ,(expand-file-name "doom/profiles.el" config-dir)
-        ,(expand-file-name "~/.doom.d/profiles.el")
-        ,(expand-file-name "doom/profiles/" config-dir)
-        ;; $EMACSDIR
-        ,(expand-file-name "emacs/profiles.el" config-dir)
-        ,(expand-file-name "~/.emacs.d/profiles.el")
-        ,(expand-file-name "emacs/profiles/" config-dir))))
-  "A list of profile config files or directories that house implicit profiles.
-
-`doom-profiles-initialize' loads and merges all profiles defined in the above
-files/directories, then writes a profile load script to
-`doom-profile-load-file'.
-
-Can be changed externally by setting $DOOMPROFILELOADPATH to a colon-delimited
-list of paths or profile config files (semi-colon delimited on Windows).")
-
-(defvar doom-profile-load-file
-  ;; REVIEW: Derive from `doom-data-dir' in v3
-  (expand-file-name
-   (or (getenv-internal "DOOMPROFILELOADFILE")
-       (file-name-concat (if doom--system-windows-p "doomemacs/data" "doom")
-                         "profiles.el"))
-   (or (if doom--system-windows-p
-           (getenv-internal "LOCALAPPDATA"))
-       (getenv-internal "XDG_DATA_HOME")
-       "~/.local/share"))
-  "Where Doom writes its interactive profile loader script.
-
-Can be changed externally by setting $DOOMPROFILELOADFILE.")
-
 (defvar doom-profile-init-dir-name "init.d"
   "The subdirectory of `doom-profile-dir'.")
 
@@ -72,12 +29,6 @@ following suffixes have special behaviors:
 
 These functions are executed in the context of the
 `doom-profile-dir'/`doom-profile-init-dir-name' directory.")
-
-
-;;
-;;; * Bootstrappers
-
-;; (defun doom-profile-initialize (profile &optional project-dir nocache?))
 
 
 ;;
@@ -149,200 +100,12 @@ with the corresponding one from the fallback key."
                            (type-of profile) profile)))))))
 
 ;;;###autoload
-(defun copy-doom-profile (profile &optional ref deep?)
-  "Return a copy of PROFILE at REF.
-
-If REF is t, use the next available REF for PROFILE.
-If REF is :last, use the last known, built ref of PROFILE.
-If REF is any other string, set PROFILE's REF to it.
-
-If DEEP is non-nil, produce a deep copy of PROFILE. Otherwise, a barebones,
-uninitialized copy of PROFILE is returned."
-  (let ((p (doom-copy profile deep?)))
-    (when ref
-      (setf (doom-profile-ref p)
-            (if (memq ref '(t :last))
-                (cdr (doom-profile-key nil t))  ; refs are ornamental until v3
-              ref)))
-    p))
-
-;; (defun doom-profile-get (profile-name &optional property null-value)
-;;   "Return PROFILE-NAME's PROFILE, otherwise its PROPERTY, otherwise NULL-VALUE."
-;;   (when (stringp profile-name)
-;;     (setq profile-name (intern profile-name)))
-;;   (if-let* ((profile (assq profile-name (doom-profiles))))
-;;       (if property
-;;           (if-let* ((propval (assq property (cdr profile))))
-;;               (cdr propval)
-;;             null-value)
-;;         profile)
-;;     null-value))
-
-;;;###autoload
 (defun doom-profile->id (profile)
   "Return a NAME@VERSION id string from PROFILE.
 
 See `doom-profile-key' for possible values of PROFILE."
   (cl-destructuring-bind (name . ref) (doom-profile-key profile)
     (format "%s@%s" name ref)))
-
-
-;;; ** Profile load file
-
-(defun doom-profiles-bootloadable-p ()
-  "Return non-nil if `doom-emacs-dir' can be a bootloader.
-
-This means it must be deployed to $XDG_CONFIG_HOME/emacs or $HOME/.emacs.d. Doom
-cannot bootload from an arbitrary location."
-  (with-memoization (get 'doom 'bootloader)
-    (or (file-equal-p doom-emacs-dir "~/.emacs.d")
-        (file-equal-p
-         doom-emacs-dir (expand-file-name
-                         "emacs/" (or (getenv "XDG_CONFIG_HOME")
-                                      "~/.config"))))))
-
-(defun doom-profiles-read (&rest paths)
-  "TODO"
-  (let ((key (doom-profile-key t))
-        profiles)
-    (dolist (path (delq nil (flatten-list paths)))
-      (cond
-       ((file-directory-p path)
-        (setq path (file-truename path))
-        (dolist (subdir (doom-files-in path :depth 0 :match "/[^.][^/]+$" :type 'dirs :map #'file-name-base))
-          (if (equal subdir (car key))
-              (signal 'doom-profile-error (list (file-name-concat path subdir) "Implicit profile has invalid name"))
-            (unless (string-prefix-p "_" subdir)
-              (cl-pushnew
-               (cons (intern subdir)
-                     (let* ((val (abbreviate-file-name (file-name-as-directory subdir)))
-                            (val (if (file-name-absolute-p val)
-                                     `(,val)
-                                   `(,(abbreviate-file-name path) ,val))))
-                       (cons `(user-emacs-directory :path ,@val)
-                             (doom-config `(,(doom-path path subdir) profile)))))
-               profiles
-               :test #'eq
-               :key #'car)))))
-       ((file-exists-p path)
-        (dolist (profile (car (doom-file-read path :by 'read*)))
-          (if (eq (symbol-name (car profile)) (car key))
-              (signal 'doom-profile-error (list path "Profile has invalid name: _"))
-            (unless (string-prefix-p "_" (symbol-name (car profile)))
-              (cl-pushnew profile profiles
-                          :test #'eq
-                          :key #'car)))))))
-    (nreverse profiles)))
-
-(defun doom-profiles-write-load-file (profiles &optional file)
-  "Generate an elisp loader for PROFILES at FILE."
-  (unless file
-    (setq file doom-profile-load-file))
-  (doom-file-write
-   file `(";; -*- lexical-binding: t; tab-width: 8; -*-\n"
-          ";; Updated: " ,(format-time-string "%Y-%m-%d %H:%M:%S") "\n"
-          ";; Generated by 'doom profile sync' or 'doom sync'.\n"
-          ";; DO NOT EDIT THIS BY HAND!\n"
-          ,(format "%S" (doom-version))
-          (pcase (intern (getenv-internal "DOOMPROFILE"))
-            ,@(cl-loop
-               for (profile-name . bindings) in profiles
-               for deferred?
-               = (seq-find (fn! (and (memq (car-safe (cdr %)) '(:prepend :prepend? :append :append?))
-                                     (not (stringp (car-safe %)))))
-                           bindings)
-               collect
-               `(',profile-name
-                 (let ,(if deferred? '(--deferred-vars--))
-                   ,@(cl-loop
-                      for (var . val) in bindings
-                      collect
-                      (pcase (car-safe val)
-                        (:path
-                         `(,(if (stringp var) 'setenv 'setq)
-                           ,var ,(cl-loop with form = `(expand-file-name ,(cadr val) user-emacs-directory)
-                                          for dir in (cddr val)
-                                          do (setq form `(expand-file-name ,dir ,form))
-                                          finally return form)))
-                        (:eval
-                         (if (eq var '_)
-                             (macroexp-progn (cdr val))
-                           `(,(if (stringp var) 'setenv 'setq)
-                             ,var ,(macroexp-progn (cdr val)))))
-                        (:plist
-                         `(,(if (stringp var) 'setenv 'setq)
-                           ,var ',(if (stringp var)
-                                      (prin1-to-string (cadr val))
-                                    (cadr val))))
-                        ((or :prepend :prepend?)
-                         (if (stringp var)
-                             `(setenv ,var (concat ,val (getenv ,var)))
-                           (setq deferred? t)
-                           `(push (cons ',var
-                                        (lambda ()
-                                          (dolist (item (list ,@(cdr val)))
-                                            ,(if (eq (car val) :append?)
-                                                 `(add-to-list ',var item)
-                                               `(push item ,var)))))
-                                  --deferred-vars--)))
-                        ((or :append :append?)
-                         (if (stringp var)
-                             `(setenv ,var (concat (getenv ,var) ,val))
-                           (setq deferred? t)
-                           `(push (cons ',var
-                                        (lambda ()
-                                          (dolist (item (list ,@(cdr val)))
-                                            ,(if (eq (car val) :append?)
-                                                 `(add-to-list ',var item 'append)
-                                               `(set ',var (append ,var (list item)))))))
-                                  --deferred-vars--)))
-                        (_ `(,(if (stringp var) 'setenv 'setq) ,var ',val))))
-                   ,@(when deferred?
-                       `((defun --doom-profile-set-deferred-vars-- (_)
-                           (dolist (var --deferred-vars--)
-                             (when (boundp (car var))
-                               (funcall (cdr var))
-                               (setq --deferred-vars-- (delete var --deferred-vars--))))
-                           (unless --deferred-vars--
-                             (remove-hook 'after-load-functions #'--doom-profile-set-deferred-vars--)
-                             (unintern '--doom-profile-set-deferred-vars-- obarray)))
-                         (add-hook 'after-load-functions #'--doom-profile-set-deferred-vars--)
-                         (--doom-profile-set-deferred-vars-- nil)))))))
-          ;; `user-emacs-directory' requires that it end in a directory
-          ;; separator, but users may forget this in their profile configs.
-          (setq user-emacs-directory (file-name-as-directory user-emacs-directory)))
-   :mode (cons #o600 #o700)
-   :printfn #'prin1)
-  (print-group!
-    (or (let ((byte-compile-debug t)
-              (byte-compile-warnings (if init-file-debug byte-compile-warnings))
-              (byte-compile-dest-file-function
-               (lambda (_) (format "%s.elc" (file-name-sans-extension file)))))
-          (byte-compile-file file))
-        ;; Do it again? So the errors/warnings are visible?
-        ;; (let ((byte-compile-warnings t))
-        ;;   (byte-compile-file file))
-        (signal 'doom-profile-error (list file "Failed to byte-compile bootstrap file")))))
-
-(defun doom-profiles-autodetect (&optional _internal?)
-  "Return all known profiles as a nested alist.
-
-This reads all profile configs and directories in `doom-profile-load-path', then
-caches them in `doom--profiles'. If RELOAD? is non-nil, refresh the cache."
-  (doom-profiles-read doom-profile-load-path
-                      ;; TODO: Add in v3
-                      ;; (if internal? doom-profiles-generated-dir)
-                      ))
-
-(defun doom-profiles-outdated-p ()
-  "Return non-nil if files in `doom-profile-load-file' are outdated."
-  (cl-loop for path in doom-profile-load-path
-           when (string-suffix-p path ".el")
-           if (or (not (file-exists-p doom-profile-load-file))
-                  (file-newer-than-file-p path doom-profile-load-file)
-                  (not (equal (doom-file-read doom-profile-load-file :by 'read)
-                              (doom-version))))
-           return t))
 
 
 ;;; ** Profile Generators

@@ -11,7 +11,7 @@
 (defconst core-trims-test--deleted
   '("lisp/lib/sandbox.el" "lisp/lib/store.el" "lisp/lib/plist.el"
     "modules/doom/cli" "bin/org-capture" "bin/doom.ps1" "bin/doom.sh" "profiles"
-    "bin/doom-make" "lisp/cli/make"))
+    "bin/doom-make" "lisp/cli/make" "bin/doom-profile"))
 
 (defconst core-trims-test--compat-symbols
   '("MODULES" "NATIVECOMP" "doom-private-dir" "doom-etc-dir" "dynamic-modules"
@@ -55,6 +55,28 @@
                                            (match-string 1 line)))))
                   (push (cons rel line) hits))))
             (forward-line 1)))))
+    (should-not hits)))
+
+(defconst core-trims-test--profile-names
+  '("doom--noprofile" "doom-profiles-read" "doom-profiles-write-load-file"
+    "doom-profiles-bootloadable-p" "doom-profile-load-file" "DOOMPROFILELOADFILE"
+    "DOOMPROFILELOADPATH" "\"--profile\"")
+  "Named-profile support that doom-lite removed; only the built-in profile remains.")
+
+(ert-deftest core-trims/no-named-profile-support ()
+  (let ((files (cons (expand-file-name "early-init.el" core-trims-test--root)
+                     (cl-loop for d in '("lisp" "bin")
+                              append (directory-files-recursively
+                                      (expand-file-name d core-trims-test--root)
+                                      "\\`[^.]"))))
+        hits)
+    (dolist (f files)
+      (with-temp-buffer
+        (insert-file-contents f)
+        (dolist (name core-trims-test--profile-names)
+          (goto-char (point-min))
+          (when (search-forward name nil t)
+            (push (cons (file-relative-name f core-trims-test--root) name) hits)))))
     (should-not hits)))
 
 ;;; core-trims-tests.el ends here

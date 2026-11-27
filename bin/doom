@@ -145,26 +145,6 @@ ENVIRONMENT VARIABLES:
     A colon-delimited list of directories where Doom's CLI searches for doom-*
     executables when invoking an unrecognized command.
 
-  `$DOOMPROFILE'
-    Which Doom profile to activate (default: \"_@0\"). The `--profile' option
-    also sets this variable.
-
-  `$DOOMPROFILELOADFILE'
-    Doom generates a profile loader script on 'doom sync' or 'doom profile
-    sync'. By default, this file is written to and loaded from
-    $EMACSDIR/profiles/load.el. Set this envvar to change that. Note that this
-    envvar must be in scope for both interactive and non-interactive sessions
-    for it to be effective. This is especially useful for folks on Nix/Guix, who
-    have deployed Doom to a read-only directory.
-
-    Note: this file *must* end with a .el extension. It will be byte-compiled
-    after it is generated.
-
-  `$DOOMPROFILELOADPATH'
-    A colon-delimited (semi-colon on Windows) list of profile config files or
-    directories under which Doom will search for implicit profiles. See
-    `var:doom-profile-load-path' for its default value.
-
 EXIT CODES:
   0        Successful run
   1        No error occurred, but the command couldn't complete
@@ -189,7 +169,6 @@ SEE ALSO:
      (doomdir  ("--doomdir" dir)  "Use Doom config living in `DIR' (e.g. ~/.doom.d)")
      (emacsdir ("--emacsdir" dir) "Use Doom install living in `DIR' (e.g. ~/.emacs.d)")
      (pager    ("--pager" cmd)    "Pager command to use for large output")
-     (profile  ("--profile" name) "Use profile named NAME")
      (bench?   ("--benchmark")    "Always display the benchmark")
      &flags
      (color?   ("--color") "Whether or not to show ANSI color codes")
@@ -226,7 +205,6 @@ SEE ALSO:
     (setf (doom-cli-context-suppress-prompts-p context) t))
   ;; For these settings to take full effect, the script must be restarted:
   (when (or debug?
-            profile
             emacsdir
             doomdir)
     (let (omit)
@@ -235,9 +213,6 @@ SEE ALSO:
         (setq init-file-debug t)
         (push "--debug" omit)
         (push "-D" omit))
-      (when profile
-        (setenv "DOOMPROFILE" profile)
-        (push "--profile=" omit))
       (when emacsdir
         (setenv "EMACSDIR" emacsdir)
         (push "--emacsdir=" omit))
@@ -319,7 +294,6 @@ SEE ALSO:
     (load! "doom-sync"))
 
   (defcli-alias! s sync)
-  (defcli-alias! pf profile)
   (defcli-alias! up upgrade)
   (defcli-alias! doc doctor)
 

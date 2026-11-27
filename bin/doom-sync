@@ -69,9 +69,6 @@ files have gone stale."
     (unless (> (doom-cli-context-step context) 0)
       (print! (item "Using Emacs %s @ %s") emacs-version (path invocation-directory invocation-name)))
 
-    (when (and (doom-profiles-bootloadable-p)
-               doom--noprofile)
-      (call! '(profile sync "--all")))
 
     (let ((env-file
            (doom-profile-dir t doom-profile-init-dir-name "05-doom-env.load.el")))

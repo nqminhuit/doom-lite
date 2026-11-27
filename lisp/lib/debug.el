@@ -255,7 +255,6 @@ ready to be pasted in a bug report on github."
                              (format "EMACSDIR=%s" (symlink-path doom-emacs-dir))
                              (format "EMACS=%s" (expand-file-name invocation-name invocation-directory)))))
         (doom . ,(list (doom-version)
-                       (format "PROFILE=%s" (doom-profile->id (doom-profile-key doom-profile t)))
                        (if (file-exists-p! ".git" doom-emacs-dir)
                            (sh "git" "log" "-1" "--format=%D %h %ci")
                          "[no repo]")

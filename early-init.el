@@ -8,8 +8,6 @@
 ;; This file, in summary:
 ;; - Determines where `user-emacs-directory' is by:
 ;;   - Processing `--init-directory DIR' (backported from Emacs 29),
-;;   - Processing `--profile NAME' (see
-;;     `https://docs.doomemacs.org/-/developers' or docs/developers.org),
 ;;   - Or assume that it's the directory this file lives in.
 ;; - Deploy all of Doom's hackiest startup optimizations.
 ;; - Bootstraps Doom and prepares it for interactive or non-interactive
@@ -277,11 +275,9 @@
   (let (;; Unset `command-line-args' in interactive sessions, to ensure upstream
         ;; switches aren't misinterpreted.
         (command-line-args (unless noninteractive command-line-args))
-        ;; Avoid using `command-switch-alist' to process --profile (and
-        ;; --init-directory) because it is processed too late to change
-        ;; `user-emacs-directory' in time.
-        (profile (or (cadr (member "--profile" command-line-args))
-                     (getenv-internal "DOOMPROFILE")))
+        ;; Avoid using `command-switch-alist' to process --init-directory
+        ;; because it is processed too late to change `user-emacs-directory' in
+        ;; time.
         ;; Backports --init-directory from Emacs 29.
         (init-dir (or (cadr (member "--init-directory" command-line-args))
                       (getenv-internal "EMACSDIR"))))
@@ -295,27 +291,7 @@
                 (file-name-directory (file-truename load-file-name))))
       (setq user-emacs-directory (expand-file-name init-dir))
       ;; Prevent "invalid option" errors later.
-      (push (cons "--init-directory" (lambda (_) (pop argv))) command-switch-alist))
-
-    (when profile
-      ;; Running 'doom sync' or 'doom profile sync --all' (re)generates a light
-      ;; profile loader in $XDG_DATA_HOME/doom/profiles.el (or
-      ;; $DOOMPROFILELOADFILE), after reading `doom-profile-load-path'. This
-      ;; loader requires `$DOOMPROFILE' be set.
-      (setenv "DOOMPROFILE" profile)
-      (or (load (let ((windows? (memq system-type '(ms-dos windows-nt cygwin))))
-                  (expand-file-name
-                   (or (getenv-internal "DOOMPROFILELOADFILE")
-                       (concat (if windows? "doomemacs/data/" "doom/")
-                               "profiles.el"))
-                   (or (if windows? (getenv-internal "LOCALAPPDATA"))
-                       (getenv-internal "XDG_DATA_HOME")
-                       "~/.local/share")))
-                'noerror (not init-file-debug))
-          (user-error "Profiles not initialized yet; run 'doom sync' first"))
-
-      ;; Prevent "invalid option" errors later.
-      (push (cons "--profile" (lambda (_) (pop argv))) command-switch-alist)))
+      (push (cons "--init-directory" (lambda (_) (pop argv))) command-switch-alist)))
 
   ;; PERF: When `load'ing or `require'ing files, each permutation of
   ;;   `load-suffixes' and `load-file-rep-suffixes' (then `load-suffixes' +
@@ -364,7 +340,7 @@
       ;; loads the profile's init file, if it's available. In interactive
       ;; session, a missing profile is an error state, in a non-interactive one,
       ;; it's not (and left to the consumer to deal with).
-      (doom-initialize (getenv "DOOMPROFILE") (not noninteractive))
+      (doom-initialize (not noninteractive))
     ;; If we're here, the user wants to load another config/profile (that may or
     ;; may not be a Doom config).
     (load user-init-file 'noerror (not init-file-debug) nil 'must-suffix)))

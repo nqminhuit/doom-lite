@@ -355,9 +355,7 @@ TRIGGER-HOOK is a list of quoted hooks and/or sharp-quoted functions."
       (setq profile (doom--profile profile))
       (doom--dir (file-name-concat
                   (symbol-value (cdr var))
-                  ;; DEPRECATED: Temporary backwards compatibility cludge.
-                  (unless (and doom--noprofile
-                               (equal profile doom--profile-default))
+                  (unless (equal profile doom--profile-default)
                     (car profile)))
                  segments))
     (format "Return a local PROFILE path from SEGMENTS after `%s'.
@@ -373,9 +371,7 @@ PROFILE can either be a profile key (cons cell), a `doom-profile' struct, or `t'
   (setq profile (doom--profile profile))
   (doom--dir (file-name-concat
               doom-data-dir
-              ;; DEPRECATED: Temporary backwards compatibility cludge.
-              (unless (and doom--noprofile
-                           (equal profile doom--profile-default))
+              (unless (equal profile doom--profile-default)
                 (car profile)))
              segments))
 
@@ -385,9 +381,7 @@ PROFILE can either be a profile key (cons cell), a `doom-profile' struct, or `t'
 See `doom-profile-dir' for possible values for PROFILE."
   (setq profile (doom--profile profile))
   (apply #'doom-profile-dir profile "@"
-         ;; DEPRECATED: Temporary backwards compatibility cludge.
-         (unless (and doom--noprofile
-                      (equal profile doom--profile-default))
+         (unless (equal profile doom--profile-default)
            (cdr profile))
          segments))
 
@@ -738,19 +732,8 @@ keybind (as if this keybind never existed)."
   `(;;,(lambda (type version alist) (list version body))
     ,(lambda (type version alist)
        (pcase type
-         ('profiles
-          (setq alist
-                (mapcar (lambda (p)
-                          (cons (car p)
-                                (doom-config--normalize 'profile version (cdr p))))
-                        (alist-get 'profiles alist))))
          ('project
-          (setf (alist-get 'profiles alist)
-                (mapcar (lambda (p)
-                          (cons (car p)
-                                (doom-config--normalize 'profile version (cdr p))))
-                        (alist-get 'profiles alist))
-                (alist-get 'modules alist)
+          (setf (alist-get 'modules alist)
                 (mapcar (lambda (m)
                           (cons (car m)
                                 (doom-config--normalize 'module version (cdr m))))
@@ -760,9 +743,8 @@ keybind (as if this keybind never existed)."
 
 Each function takes three arguments: TYPE VERSION ALIST, and must return
 (VERSION ALIST) to pass to the next function or t/nil (which are ignored). TYPE
-is one of `project', `module', `modules', `profile', or `profiles',
-corresponding to each rcfile that Doom recognizes (e.g. .doom, .doommodule,
-.doommodules, etc).
+is one of `project', `module', or `modules', corresponding to each rcfile that
+Doom recognizes (e.g. .doom, .doommodule, .doommodules).
 
 The primary purpose of functions in this list is to resolve inter-version
 incompatibilities introduced in future versions of Doom.")
@@ -788,16 +770,12 @@ TYPE is a symbol representing one of Doom's dotfiles. It must be one of:
   `project'  = .doom
   `module'   = .doommodule
   `modules'  = .doommodules
-  `profile'  = .doomprofile
-  `profiles' = .doomprofiles
 
 Throws `doom-core-error' if TYPE is not a valid type. See `doom-config--alist'
 for possible values of TYPE."
   (or (plist-get '(project  ".doom"
                    module   ".doommodule"
-                   modules  ".doommodules"
-                   profile  ".doomprofile"
-                   profiles ".doomprofiles")
+                   modules  ".doommodules")
                  type)
       (signal 'doom-core-error `(invalid-config-type ,type))))
 
