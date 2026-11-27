@@ -42,7 +42,7 @@ recompile. Run this whenever you:
   3. Add, remove, or modify autoloaded functions in module autoloaded files,
   4. Update Doom manually (e.g. with git),
   5. Move your Doom config (either $EMACSDIR or $DOOMDIR) to a new location.
-  6. Up or downgrade Emacs itself (e.g. 29.1 -> 29.4).
+  6. Up or downgrade Emacs itself (e.g. 31.1 -> 31.2).
 
 Sync'ing ensures that unneeded packages are removed, every package is checked
 out at its pin and built, autoloads files are up-to-date, and no byte-compiled

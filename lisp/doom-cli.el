@@ -2535,7 +2535,7 @@ OPTIONS:
 (defcli! (:root :version)
     ((short? ("-s" "--short"))
      &context _)
-  "Show versions of Emacs, Doom core, and installed module sources.
+  "Show versions of Emacs and Doom core.
 
 OPTIONS:
   -s, --short

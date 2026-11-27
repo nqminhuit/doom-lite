@@ -96,9 +96,6 @@ Change `$DOOMDIR' with the `--doomdir' option, e.g.
       (when (file-exists-p "~/.emacs")
         (print! (warn "~/.emacs file detected. Delete it or Emacs won't load Doom correctly!")))
 
-      ;; Ensure module sources are initialized
-      (or (sh? git submodule update -f --init --recursive)
-          (error "Failed to update submodules"))
       (put! :installing? t)
       (exit! "doom" "sync" (if (eq envfile? :yes) "--env")))))
 

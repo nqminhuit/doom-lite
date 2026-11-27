@@ -10,7 +10,8 @@
 
 (defconst core-trims-test--deleted
   '("lisp/lib/sandbox.el" "lisp/lib/store.el" "lisp/lib/plist.el"
-    "modules/doom/cli" "bin/org-capture" "bin/doom.ps1" "bin/doom.sh" "profiles"))
+    "modules/doom/cli" "bin/org-capture" "bin/doom.ps1" "bin/doom.sh" "profiles"
+    "bin/doom-make" "lisp/cli/make"))
 
 (defconst core-trims-test--compat-symbols
   '("MODULES" "NATIVECOMP" "doom-private-dir" "doom-etc-dir" "dynamic-modules"

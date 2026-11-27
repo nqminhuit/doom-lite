@@ -116,7 +116,7 @@
 (defcli! doom (&args _command)
   "A command line interface to Doom Emacs.
 
-Includes package management, diagnostics, unit tests, and byte-compilation.
+Includes package management, diagnostics, and byte-compilation.
 
 This tool also makes it trivial to launch Emacs out of a different folder or
 with a different private module.
@@ -179,11 +179,7 @@ EXIT CODES:
   255      Uncaught critical errors
 
 SEE ALSO:
-  https://doomemacs.org               Homepage
-  https://docs.doomemacs.org          Official documentation
-  https://wiki.doomemacs.org          Community wiki
-  https://discuss.doomemacs.org       Github discussions & user support board
-  https://discord.doomemacs.org       Discord chat server"
+  https://github.com/nqminhuit/doom-lite  Homepage"
   :partial t)
 
 (defcli! :before
@@ -327,30 +323,8 @@ SEE ALSO:
   (defcli-alias! up upgrade)
   (defcli-alias! doc doctor)
 
-  (defcli-stub! module)
-  (defcli-stub! nuke)
-  (defcli-stub! package)
-
-  (defcli! run ()
-    "Project-local tasks (for build pipelines, CI/CD, etc).
-
-If this command has no sub-commands, it's because no enabled modules define any
-or the current project doesn't define any from its .doom file or .doom.d directory.
-
-If you expected this command to launch Doom Emacs, that command was moved to
-'doom emacs' in v2.1.0."
-    :partial t)
-
-  ;; DEPRECATED: Backwards compatibility will be removed in v3.
-  (defcli-obsolete! (profiles sync) (profile sync "--all") "2.1.0")
-  (defcli-obsolete! ((build b)) (sync "--rebuild") "2.1.0")
-  (defcli-obsolete! ((purge p)) (gc) "2.1.0")
-
   (with-doom-context 'module
     (dolist (key (doom-module-list))
-      (when (eq (car key) :doom)
-        (when-let* ((bindir (doom-module-locate-path key "bin/")))
-          (add-to-list 'doom-cli-exec-path (doom-module-locate-path key "bin/") 'append)))
       (when-let* ((path (doom-module-locate-path key doom-module-cli-file)))
         (if (eq (car key) :doom)
             (doom-load (file-name-sans-extension path))
