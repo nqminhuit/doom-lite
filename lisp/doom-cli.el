@@ -13,8 +13,7 @@
 (eval-and-compile
   (doom-require 'doom-cli 'print)
   (doom-require 'doom-cli 'sh)
-  ;; TODO: (doom-require 'doom-cli 'loaddefs)
-  (doom-require 'doom-cli 'autoloads)
+  (doom-require 'doom-cli 'loaddefs)
   (doom-require 'doom-lib 'process)
   (doom-require 'doom-lib 'system)
   (doom-require 'doom-lib 'files)
