@@ -714,7 +714,6 @@ Throws `doom-cli-invalid-option-error' for illegal values."
                   nconc `(,@(if (memq ?0 pipes) `((:in  . ,scope)))
                           ,@(if (memq ?1 pipes) `((:out . ,scope)))))
          :skip t)
-  ;; If non-nil, suppress prompts and auto-accept their consequences.
   (prefix "@")  ; The basename of the script creating this context
   meta-p        ; Whether or not this is a help/meta request
   error         ;
@@ -777,27 +776,32 @@ executable context."
                                (read (current-buffer)))))
       (unless (doom-cli-context-p old-context)
         (signal 'doom-cli-error `(invalid-context ,file)))
-      (unless (equal (doom-cli-context-prefix context)
-                     (doom-cli-context-prefix old-context))
-        (signal 'doom-cli-error `(wrong-context-prefix ,(doom-cli-context-prefix old-context))))
-      (pcase-dolist (`(,slot ,_ . ,plist)
-                     (cdr (cl-struct-slot-info 'doom-cli-context)))
-        (unless (plist-get plist :skip)
-          (let* ((idx (cl-struct-slot-offset 'doom-cli-context slot))
-                 (old-value (aref old-context idx)))
-            (aset context idx
-                  (pcase (plist-get plist :type)
-                    (`alist
-                     (dolist (entry old-value (aref context idx))
-                       (setf (alist-get (car entry) (aref context idx)) (cdr entry))))
-                    (`buffer
-                     (with-current-buffer (aref context idx)
-                       (insert old-value)
-                       (current-buffer)))
-                    (_ old-value))))))
-      (run-hook-with-args 'doom-cli-create-context-functions context)
-      (delete-file file)
-      (doom-log "context-restore: %s" (doom-cli-context-pid context))))
+      ;; Slots are restored by position, so a context saved by older code (e.g.
+      ;; `doom up' exiting into the `doom sync' it just pulled) is unreadable once
+      ;; the struct's layout changes; start fresh rather than misread it.
+      (if (/= (length old-context) (length context))
+          (print! (warn "Ignoring saved CLI state from a different Doom version"))
+        (unless (equal (doom-cli-context-prefix context)
+                       (doom-cli-context-prefix old-context))
+          (signal 'doom-cli-error `(wrong-context-prefix ,(doom-cli-context-prefix old-context))))
+        (pcase-dolist (`(,slot ,_ . ,plist)
+                       (cdr (cl-struct-slot-info 'doom-cli-context)))
+          (unless (plist-get plist :skip)
+            (let* ((idx (cl-struct-slot-offset 'doom-cli-context slot))
+                   (old-value (aref old-context idx)))
+              (aset context idx
+                    (pcase (plist-get plist :type)
+                      (`alist
+                       (dolist (entry old-value (aref context idx))
+                         (setf (alist-get (car entry) (aref context idx)) (cdr entry))))
+                      (`buffer
+                       (with-current-buffer (aref context idx)
+                         (insert old-value)
+                         (current-buffer)))
+                      (_ old-value))))))
+        (run-hook-with-args 'doom-cli-create-context-functions context)
+        (doom-log "context-restore: %s" (doom-cli-context-pid context)))
+      (delete-file file)))
   context)
 
 (defun doom-cli-context-parse (args context)
@@ -1453,6 +1457,14 @@ ARGS are options passed to less. If DOOMPAGER is set, ARGS are ignored."
     (doom-cli-load (gethash key doom-cli--table))))
 
 (cl-defgeneric doom-cli-handle-error (_context type data))
+
+;; Fallback for error types without a method, so they print a one-line error
+;; instead of failing with `cl-no-applicable-method'.
+(cl-defmethod doom-cli-handle-error (_context type data)
+  (print! (red "Error: %s%s")
+          (or (get type 'error-message) type)
+          (if data (format " %S" data) ""))
+  2)
 
 (cl-defmethod doom-cli-handle-error (_context (_type (eql 'user-error)) data)
   (print! (red "Error: %s") (car data))
