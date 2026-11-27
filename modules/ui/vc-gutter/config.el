@@ -68,12 +68,8 @@ Respects `diff-hl-disable-on-remote'."
                    (file-remote-p default-directory))
         (diff-hl-dired-mode +1))))
 
-  (unless (featurep :system 'macos)
-    ;; Enable on-the-fly vc-gutter updating, but not on MacOS (particularly
-    ;; newer versions of MacOS), due to doomemacs/core#8554. Seems process
-    ;; management chokes on the diff/git processes this spawns, so we downgrade
-    ;; to update-on-save there, by default.
-    (add-hook 'diff-hl-mode-hook #'diff-hl-flydiff-mode))
+  ;; Enable on-the-fly vc-gutter updating.
+  (add-hook 'diff-hl-mode-hook #'diff-hl-flydiff-mode)
 
   :config
   (set-popup-rule! "^\\*diff-hl" :select nil)

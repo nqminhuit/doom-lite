@@ -87,44 +87,24 @@
 ;; announce, and don't belong in `features', so they are stored here, which can
 ;; include information about the external system environment.
 (defconst doom-system
-  (cond ((eq system-type 'darwin)                         '(macos bsd))
-        ((memq system-type '(cygwin windows-nt ms-dos))   '(windows))
-        ((memq system-type '(gnu gnu/linux))              '(linux))
+  (cond ((memq system-type '(gnu gnu/linux))              '(linux))
         ((memq system-type '(gnu/kfreebsd berkeley-unix)) '(linux bsd))
         ((eq system-type 'android)                        '(android)))
   "A list of symbols indicating the features in the active Doom profile.
 
-The first element should always be one of `macos', `windows', `linux', or
-`android'.")
+The first element should always be one of `linux' or `android'.")
 
-;; Convenience aliases for internal use only (may be removed later).
-(defconst doom--system-windows-p (eq 'windows (car doom-system)))
-(defconst doom--system-macos-p   (eq 'macos   (car doom-system)))
-(defconst doom--system-linux-p   (eq 'linux   (car doom-system)))
+;; Convenience alias for internal use only (may be removed later).
+(defconst doom--system-linux-p (eq 'linux (car doom-system)))
 
-;; Announce WSL if it is detected.
-(when (and doom--system-linux-p
-           (if (boundp 'operating-system-release) ; is deprecated since 28.x
-               (string-match-p "-[Mm]icrosoft" operating-system-release)
-             (getenv-internal "WSLENV")))
+;; Announce WSL if it is detected. (`operating-system-release' is obsolete.)
+(when (and doom--system-linux-p (getenv-internal "WSLENV"))
   (add-to-list 'doom-system 'wsl 'append))
 
 ;; `system-type' is esoteric and imprecise, so I create a pseudo feature as a
 ;; more consistent alternative, for use with `featurep'.
 (push :system features)
 (put :system 'subfeatures doom-system)
-
-;; DEPRECATED: Remove in v3
-(with-no-warnings
-  (defconst IS-MAC      doom--system-macos-p)
-  (defconst IS-LINUX    doom--system-linux-p)
-  (defconst IS-WINDOWS  doom--system-windows-p)
-  (defconst IS-BSD      (memq 'bsd doom-system))
-
-  (make-obsolete-variable 'IS-MAC     "Use (featurep :system 'macos) instead" "2.1.0")
-  (make-obsolete-variable 'IS-LINUX   "Use (featurep :system 'linux) instead" "2.1.0")
-  (make-obsolete-variable 'IS-WINDOWS "Use (featurep :system 'windows) instead" "2.1.0")
-  (make-obsolete-variable 'IS-BSD     "Use (featurep :system 'bsd) instead" "2.1.0"))
 
 
 ;;

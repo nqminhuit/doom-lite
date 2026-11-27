@@ -200,9 +200,7 @@ SEE ALSO:
   (when pager
     (setq doom-cli-pager pager))
   (when force?
-    (put! :suppress-prompts? t)
-    ;; DEPRECATED: Remove in v3
-    (setf (doom-cli-context-suppress-prompts-p context) t))
+    (put! :suppress-prompts? t))
   ;; For these settings to take full effect, the script must be restarted:
   (when (or debug?
             emacsdir

@@ -256,8 +256,7 @@
                        :commit "b5a7cb5f74dc695a9ff5f04919f872ebc7a895e9")
                  (html :url "https://github.com/tree-sitter/tree-sitter-html"
                        :rev ,(if (< (treesit-library-abi-version) 15) "v0.23.0" "v0.23.2"))
-                 (janet-simple :url "https://github.com/sogaiu/tree-sitter-janet-simple"
-                               :cc ,(if (featurep :system 'windows) "gcc.exe"))
+                 (janet-simple :url "https://github.com/sogaiu/tree-sitter-janet-simple")
                  (java :url "https://github.com/tree-sitter/tree-sitter-java"
                        :commit "94703d5a6bed02b98e438d7cad1136c01a60ba2c")
                  (javascript :url "https://github.com/tree-sitter/tree-sitter-javascript"

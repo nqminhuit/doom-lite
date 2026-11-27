@@ -9,7 +9,6 @@
   "The subdirectory of `doom-profile-dir'.")
 
 ;;; Profile storage variables
-(define-obsolete-variable-alias 'doom-profile-generators 'doom-profile-generate-functions "2.3.0")
 (defvar doom-profile-generate-functions
   '(doom-profile--generate-init
     doom-profile--generate-loaddefs-doom

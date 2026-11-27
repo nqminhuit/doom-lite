@@ -13,8 +13,7 @@
 (eval-and-compile
   (doom-require 'doom-cli 'print)
   (doom-require 'doom-cli 'sh)
-  ;; TODO: (doom-require 'doom-cli 'loaddefs)
-  (doom-require 'doom-cli 'autoloads)
+  (doom-require 'doom-cli 'loaddefs)
   (doom-require 'doom-lib 'process)
   (doom-require 'doom-lib 'system)
   (doom-require 'doom-lib 'files)
@@ -331,9 +330,7 @@ COMMAND should either be a command list (e.g. \\='(doom foo bar)) or a
 Besides being executable, it must also have a doomscript shebang line, and if it
 has any ;;;###if cookie, its condition must pass."
   ;; TODO: Integrate `trusted-content' checks
-  (and (if (featurep :system 'windows)
-           (file-readable-p file)
-         (file-executable-p file))
+  (and (file-executable-p file)
        (with-temp-buffer
          (insert-file-contents file nil 0 128)
          (looking-at-p "^#!\\(.+[/ ]\\)?doomscript\n"))
@@ -718,7 +715,6 @@ Throws `doom-cli-invalid-option-error' for illegal values."
                           ,@(if (memq ?1 pipes) `((:out . ,scope)))))
          :skip t)
   ;; If non-nil, suppress prompts and auto-accept their consequences.
-  suppress-prompts-p   ; DEPRECATED: Remove in v3
   (prefix "@")  ; The basename of the script creating this context
   meta-p        ; Whether or not this is a help/meta request
   error         ;
@@ -1245,9 +1241,7 @@ Emacs' batch library lacks an implementation of the exec system call."
       (doom-file-write
        script-file
        (pcase-exhaustive doom-cli-shell
-         (`sh `(,(if (featurep :system 'android)
-                     "#!/bin/sh\n"
-                   "#!/usr/bin/env sh\n")
+         (`sh `("#!/usr/bin/env sh\n"
                 "trap _doomcleanup EXIT\n"
                 "_doomcleanup() {\n  rm -f " ,persistent-files "\n}\n"
                 "_doomrun() {\n  " ,command "\n}\n"
@@ -2000,10 +1994,6 @@ errors to `doom-cli-error-file')."
                ((debug error)
                 (signal (car e) (cdr e)))))
            context))))))
-
-;;; DEPRECATED: Remove in v3
-(defalias 'sh!! #'doom-exec-process)
-(make-obsolete 'sh!! "Use `sh!' instead" "2.3.0")
 
 (defun get! (key &optional null-value)
   "Return KEY's value from current CLI context, otherwise NULL-VALUE.

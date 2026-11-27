@@ -4,9 +4,7 @@
 (defun doom-system-distro ()
   "Return a symbol representing the installed distro."
   (with-memoization (get 'doom-system-distro 'cached-value)
-    (cond (doom--system-windows-p 'windows)
-          (doom--system-macos-p     'macos)
-          ((ignore-errors
+    (cond ((ignore-errors
              (with-file-contents! "/etc/os-release"
                (when (re-search-forward "^ID=\"?\\([^\"\n]+\\)\"?" nil t)
                  (intern (downcase (match-string 1)))))))
@@ -80,35 +78,9 @@
 
 ;;;###autoload
 (defun doom-system-cpus ()
-  "Return the max number of processing units on this system.
-Tries to be portable. Returns 1 if cannot be determined."
-  ;; REVIEW: Replace with `num-processors' once 27.x support is dropped.
+  "Return the max number of processing units on this system."
   (with-memoization (get 'doom-system-cpus 'cached-value)
-    (if (fboundp 'num-processors)
-        (num-processors) ; added in Emacs 28.1
-      (let ((cpus
-             (cond ((fboundp 'w32-get-nproc)
-                    (w32-get-nproc))
-                   ((getenv "NUMBER_OF_PROCESSORS"))
-                   ((executable-find "nproc")
-                    (doom-call-process "nproc"))
-                   ((executable-find "sysctl")
-                    (doom-call-process "sysctl" "-n" "hw.ncpu")))))
-        (max
-         1 (or (cl-typecase cpus
-                 (integer cpus)
-                 (string
-                  (condition-case _
-                      (string-to-number cpus)
-                    (wrong-type-argument
-                     (user-error "NUMBER_OF_PROCESSORS contains an invalid value: %S"
-                                 cpus))))
-                 (cons
-                  (if (zerop (car cpus))
-                      (string-to-number (cdr cpus))
-                    (user-error "Failed to look up number of processors, because:\n\n%s"
-                                (cdr cpus)))))
-               1))))))
+    (num-processors)))
 
 ;;;###autoload
 (defun doom-system-supports-symlinks-p ()

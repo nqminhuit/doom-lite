@@ -111,8 +111,7 @@
           "--color=never"
           ;; https://github.com/sharkdp/fd/issues/839
           "--full-path --absolute-path"
-          "--hidden --exclude .git"
-          (if (featurep :system 'windows) "--path-separator=/")))
+          "--hidden --exclude .git"))
 
   (consult-customize
    consult-ripgrep consult-git-grep consult-grep
@@ -188,7 +187,7 @@
   (defvar-keymap +vertico-embark-doom-package-map
     :doc "Keymap for Embark package actions for packages installed by Doom."
     :parent embark-general-map
-    "h" #'doom/help-packages
+    "h" #'doom/describe-package
     "c" #'doom/help-package-config
     "u" #'doom/help-package-homepage)
   (setf (alist-get 'package embark-keymap-alist) #'+vertico-embark-doom-package-map)

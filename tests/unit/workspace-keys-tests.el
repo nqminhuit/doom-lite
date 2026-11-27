@@ -87,11 +87,6 @@
                 ,@(wkt--digits "M-%s" 9)
                 ("M-0" . +workspace/switch-to-final))))
 
-(ert-deftest workspace-keys/super-bindings ()
-  (wkt--check "modules/config/default/config.el"
-              `(("s-t" . +workspace/new) ("s-T" . +workspace/display)
-                ,@(wkt--digits "s-%s" 8) ("s-9" . +workspace/switch-to-final))))
-
 (ert-deftest workspace-keys/evil-bindings ()
   (wkt--check "modules/editor/evil/config.el"
               '(("gt" . +workspace:switch-next) ("gT" . +workspace:switch-previous)

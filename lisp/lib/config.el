@@ -39,10 +39,7 @@
      (with-current-buffer
          (with-environment-variables
              (("PATH" (string-join exec-path path-separator))
-              ("EMACS"
-               (if (featurep :system 'windows)
-                   (replace-regexp-in-string " " "\\ " emacs-bin t t)
-                 (shell-quote-argument emacs-bin)))
+              ("EMACS" (shell-quote-argument emacs-bin))
               ("EMACSDIR" doom-emacs-dir)
               ("DOOMDIR" doom-user-dir)
               ("DOOMLOCALDIR" doom-local-dir)
@@ -59,11 +56,7 @@
           nil 'local)))))
 
 (defvar doom-reload-command
-  (format "%s sync -B -e"
-          ;; /usr/bin/env doesn't exist on Android
-          (if (featurep :system 'android)
-              "sh %s"
-            "%s"))
+  "%s sync -B -e"
   "Command that `doom/reload' runs.")
 ;;;###autoload
 (defun doom/reload ()

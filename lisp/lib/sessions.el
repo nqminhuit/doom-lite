@@ -114,8 +114,6 @@ then no confirmation is asked."
 
 Unlike `doom/restart-and-restore', does not restart the current session."
   (interactive)
-  (unless (fboundp 'restart-emacs)
-    (user-error "Cannot restart Emacs 28 or older"))
   (restart-emacs))
 
 (provide 'doom-lib '(sessions))

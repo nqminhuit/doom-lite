@@ -253,8 +253,7 @@ in."
             (when (and (pcase system-type
                          (`gnu/linux (concat (or (getenv "XDG_DATA_HOME")
                                                  "~/.local/share")
-                                             "/fonts/"))
-                         (`darwin "~/Library/Fonts/"))
+                                             "/fonts/")))
                        (require 'nerd-icons nil t))
               (with-temp-buffer
                 (cl-destructuring-bind (status . output)
@@ -267,9 +266,7 @@ in."
                       (print! (warn "Failed to locate '%s' font on your system") nerd-icons-font-family)
                       (explain! "This font is required for icons in Doom Emacs. To download and install "
                                 "them, do one of the following:\n\n"
-                                "  - Execute `M-x nerd-icons-install-fonts' from within Doom Emacs (NOTE: "
-                                "    on Windows this command will only download them; the fonts must then "
-                                "    be installed manually afterwards).\n"
+                                "  - Execute `M-x nerd-icons-install-fonts' from within Doom Emacs.\n"
                                 "  - Download and install 'Symbols Nerd Font' from https://nerdfonts.com "
                                 "    or via your OS package manager. (You'll need to change the "
                                 "    `nerd-icons-font-names' and/or `nerd-icons-font-family' variables to "

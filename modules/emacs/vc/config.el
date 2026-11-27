@@ -10,9 +10,6 @@
                                            locate-dominating-stop-dir-regexp
                                            "[/\\\\]node_modules"))
 
-(when (featurep :system 'windows)
-  (setenv "GIT_ASKPASS" "git-gui--askpass"))
-
 ;; In case the user is using `bug-reference-mode'
 (map! :when (fboundp 'bug-reference-mode)
       :map bug-reference-map

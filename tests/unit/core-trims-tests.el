@@ -11,14 +11,17 @@
 (defconst core-trims-test--deleted
   '("lisp/lib/sandbox.el" "lisp/lib/store.el" "lisp/lib/plist.el"
     "modules/doom/cli" "bin/org-capture" "bin/doom.ps1" "bin/doom.sh" "profiles"
-    "bin/doom-make" "lisp/cli/make" "bin/doom-profile"))
+    "bin/doom-make" "lisp/cli/make" "bin/doom-profile" "lisp/cli/autoloads.el"))
 
 (defconst core-trims-test--compat-symbols
   '("MODULES" "NATIVECOMP" "doom-private-dir" "doom-etc-dir" "dynamic-modules"
     "jansson" "harfbuzz" "doom-dir" "doom-plist-get" "doom-unicode-font"
     "featurep!" "doom-enlist" "letenv!" "eval-if!" "eval-when!" "setq!"
     "doom-load-envvars-file" "doom-compile-functions" "appendq!" "delq!"
-    "pushnew!" "prependq!")
+    "pushnew!" "prependq!" "IS-MAC" "IS-WINDOWS" "IS-BSD" "IS-LINUX" "sh!!"
+    "doom/help-packages" "doom/help-modules" "doom/help-autodefs"
+    "doom/help-custom-variable" "doom-profile-generators"
+    "doom--system-windows-p" "doom--system-macos-p")
   "Removed compat names; matched only in code positions, not prose or comments.")
 
 (defconst core-trims-test--code-re
@@ -77,6 +80,24 @@
           (goto-char (point-min))
           (when (search-forward name nil t)
             (push (cons (file-relative-name f core-trims-test--root) name) hits)))))
+    (should-not hits)))
+
+(defconst core-trims-test--platform-re
+  "windows-nt\\|w32-\\|(featurep :system 'windows)\\|(featurep :system 'macos)")
+
+(ert-deftest core-trims/no-windows-or-macos-branches ()
+  (let ((files (cons (expand-file-name "early-init.el" core-trims-test--root)
+                     (cl-loop for d in '("lisp" "bin" "modules")
+                              append (directory-files-recursively
+                                      (expand-file-name d core-trims-test--root)
+                                      "\\`[^.]"))))
+        hits)
+    (dolist (f files)
+      (with-temp-buffer
+        (insert-file-contents f)
+        (goto-char (point-min))
+        (while (re-search-forward core-trims-test--platform-re nil t)
+          (push (cons (file-relative-name f core-trims-test--root) (match-string 0)) hits))))
     (should-not hits)))
 
 ;;; core-trims-tests.el ends here
