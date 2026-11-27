@@ -44,7 +44,12 @@
     "+vertico-embark-which-key-indicator" "doom-module--summary"
     "doom-module--annotate" "with-output-to!" "doom-profile->id" "section!"
     "doom-sh--pipeline-async" "doom-sh--async-sentinel"
-    "doom-set-buffer-real")
+    "doom-set-buffer-real" "doom-module--remap"
+    "+default/search-notes-for-symbol-at-point" "+default/org-notes-search"
+    "+default/org-notes-headlines" "+default/browse-notes"
+    "+default/find-in-notes" "doom-completing-read-org-headings"
+    "+evil-collection-disable-blacklist-a" "yasnippet-capf"
+    "counsel-yank-pop" "helm-show-kill-ring" "counsel-rg")
   "Removed compat names; matched only in code positions, not prose or comments.")
 
 (defconst core-trims-test--code-re
@@ -146,3 +151,8 @@
     (should-not hits)))
 
 ;;; core-trims-tests.el ends here
+
+(ert-deftest core-trims/doommodules-has-no-obsolete-list ()
+  (with-temp-buffer
+    (insert-file-contents (expand-file-name "modules/.doommodules" core-trims-test--root))
+    (should-not (string-search "(obsolete" (buffer-string)))))

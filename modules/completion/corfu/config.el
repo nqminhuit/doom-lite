@@ -47,8 +47,7 @@ If any return non-nil, `corfu-auto' will not invoke as-you-type completion."
         '((not erc-mode
                circe-mode
                help-mode
-               gud-mode
-               vterm-mode)
+               gud-mode)
           t)
         corfu-cycle t
         corfu-preselect 'prompt
@@ -67,18 +66,15 @@ If any return non-nil, `corfu-auto' will not invoke as-you-type completion."
     "Return non-nil if another completion framework is already active.
 
 This checks for several completion systems such as mct, vertico,
-auth-source’s read-passwd-map, helm, ido, and ivy. When one of these
+auth-source’s read-passwd-map, and ido. When one of these
 systems is active, Corfu should not enable its own completion."
     (or (bound-and-true-p mct--active)
         (bound-and-true-p vertico--input)
         (and (featurep 'auth-source)
              (eq (current-local-map) read-passwd-map))
-        (and (featurep 'helm-core)
-             (helm--alive-p))
         (and (featurep 'ido)
              (ido-active))
-        (where-is-internal 'minibuffer-complete (list (current-local-map)))
-        (memq #'ivy--queue-exhibit post-command-hook)))
+        (where-is-internal 'minibuffer-complete (list (current-local-map)))))
 
   (defun +corfu-enable-in-minibuffer-p ()
     "Return non-nil if Corfu should be enabled in the minibuffer.

@@ -267,7 +267,6 @@ directives. By default, this only recognizes C directives."
   :preface
   (defvar +evil-collection-disabled-list
     '(anaconda-mode
-      company
       eglot
       elisp-mode
       ert
@@ -303,12 +302,7 @@ don't offer any/enough real value to users.")
                       doom-localleader-key
                       doom-leader-alt-key)
                 evil-collection-key-blacklist
-                '("gz" "<escape>")))
-
-  (defadvice! +evil-collection-disable-blacklist-a (fn)
-    :around #'evil-collection-vterm-toggle-send-escape  ; allow binding to ESC
-    (dlet (evil-collection-key-blacklist)
-      (funcall-interactively fn))))
+                '("gz" "<escape>"))))
 
 
 (use-package! evil-escape
@@ -316,7 +310,7 @@ don't offer any/enough real value to users.")
   :hook (doom-first-input . evil-escape-mode)
   :init
   (setq evil-escape-excluded-states '(normal visual multiedit emacs motion)
-        evil-escape-excluded-major-modes '(neotree-mode treemacs-mode vterm-mode ghostel-mode)
+        evil-escape-excluded-major-modes '(ghostel-mode)
         evil-escape-key-sequence nil
         evil-escape-delay 0.15)
   (evil-define-key* '(insert replace visual operator) 'global "\C-g" #'evil-escape)
@@ -510,7 +504,6 @@ don't offer any/enough real value to users.")
           :i "C-f"  #'cape-file
           :i "C-]"  #'complete-tag
           :i "s"    #'cape-dict
-          :i "C-s"  #'yasnippet-capf
           :i "C-o"  #'completion-at-point
           :i "C-n"  #'cape-dabbrev
           :i "C-p"  #'+corfu/dabbrev-this-buffer)))

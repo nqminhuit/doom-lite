@@ -837,7 +837,7 @@ packages). PACKAGE may use :or/:any and :and/:all operators. The precise format
 is:
 
 - An unquoted package symbol (the name of a package)
-    (after! helm BODY...)
+    (after! magit BODY...)
 - An unquoted, nested list of compound package lists, using any combination of
   :or/:any and :and/:all
     (after! (:or package-a package-b ...)  BODY...)

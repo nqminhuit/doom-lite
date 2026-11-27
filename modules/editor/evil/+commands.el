@@ -54,6 +54,3 @@
 (evil-ex-define-cmd "tabprev"     #'+workspace:switch-previous)
 (evil-ex-define-cmd "tabr[ename]" #'+workspace:rename)
 (evil-ex-define-cmd "tabs"        #'+workspace/display)
-
-;;; Org-mode
-(evil-ex-define-cmd "cap[ture]"   #'org-capture)  ; TODO: better Ex support

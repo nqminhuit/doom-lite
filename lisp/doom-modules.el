@@ -120,15 +120,6 @@ properties:
       ;;   is looked up *very* often.
       (put group name (doom-module->context module)))))
 
-(defun doom-module--remap (group module)
-  (cl-loop for (old new v) in
-           (with-memoization (get 'doom-module--remap 'cache)
-             (cl-loop for dir in (reverse doom-module-load-path)
-                      if (doom-config `(,dir modules obsolete))
-                      append it))
-           if (equal `(,group ,module) old)
-           return (list old new v)))
-
 (defun doom-module-mplist-map (fn mplist)
   "Apply FN to each module in MPLIST."
   (let ((mplist (copy-sequence mplist))
@@ -153,25 +144,10 @@ properties:
                (test (if (xor (eval (cadr m) t)
                               (eq test :unless))
                          (cl-callf2 append (cddr m) mplist)))))
-            ((catch 'doom-modules
-               (let* ((module (if (listp m) (car m) m))
-                      (flags  (if (listp m) (cdr m))))
-                 (when-let* ((remap (doom-module--remap group module)))
-                   (pcase-let* ((`(,old ,new ,when) remap))
-                     (when when
-                       (setq when (format " in %s" when)))
-                     (if (null new)
-                         (print! (warn "%s module was removed%s, ignoring..." old when))
-                       (if (stringp new)
-                           (print! (warn "%s module was removed%s: %s..." old new when))
-                         (print! (warn "%s module was moved to %s%s, remapping..." old new when)))
-                       (push group mplist)
-                       (dolist (f (reverse new))
-                         (push (if (keywordp f) f (cons f flags))
-                               mplist))
-                       (throw 'doom-modules t))))
-                 (push (funcall fn (cons group module) :flags (if (listp m) (cdr m)))
-                       results))))))
+            (t
+             (push (funcall fn (cons group (if (listp m) (car m) m))
+                            :flags (if (listp m) (cdr m)))
+                   results))))
     (when noninteractive
       (setq doom-inhibit-module-warnings t))
     (nreverse results)))

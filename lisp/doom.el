@@ -420,8 +420,6 @@ safely cleaned up with \\='doom sync' or \\='doom gc'."
         (mapc (apply-partially #'add-to-list 'native-comp-deferred-compilation-deny-list)
               (list "/seq-tests\\.el\\'"
                     "/emacs-jupyter.*\\.el\\'"
-                    "/evil-collection-vterm\\.el\\'"
-                    "/vterm\\.el\\'"
                     "/with-editor\\.el\\'"))))
 
     (when interactive?

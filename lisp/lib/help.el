@@ -49,23 +49,13 @@ will open with point on that line."
 
 (defun doom--help-search-prompt (prompt)
   (let ((query (doom-thing-at-point-or-region)))
-    (if (featurep 'counsel)
-        query
-      (read-string prompt query 'git-grep query))))
+    (read-string prompt query 'git-grep query)))
 
 (defun doom--help-search (dirs query prompt)
   (unless doom-ripgrep-executable
     (user-error "Can't find ripgrep on your system"))
   (cond ((fboundp 'consult--grep)
          (consult--grep prompt #'consult--ripgrep-make-builder (cons data-directory dirs) query))
-        ((fboundp 'counsel-rg)
-         (dlet ((counsel-rg-base-command
-                 (if (stringp counsel-rg-base-command)
-                     (format counsel-rg-base-command
-                             (concat "%s " (mapconcat #'shell-quote-argument dirs " ")))
-                   (append counsel-rg-base-command dirs))))
-           (counsel-rg query nil "-Lz" (concat prompt ": "))))
-        ;; TODO: Helm support?
         ((grep-find
           (string-join
            (append (list doom-ripgrep-executable
