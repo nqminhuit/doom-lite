@@ -519,32 +519,6 @@ The key is a list of the form (SOURCE GROUP MODULE [FLAGS...])."
                      (append (list t (symbol-at-point))
                              (delq nil (list module flag))))))))))))))
 
-;; DEPRECATED: Will be replaced in v3.
-(let ((cache (make-hash-table :test 'equal)))
-  (defun doom-module--summary (key)
-    "Return the #+SUBTITLE for a module with KEY."
-    (with-memoization (gethash key cache)
-      (let ((docs "<no summary>")
-            (readme (doom-module-expand-path (cons (cadr key) (caddr key)) "README.org")))
-        (when (and (stringp readme) (file-exists-p readme))
-          (with-temp-buffer
-            (insert-file-contents readme nil 0 512)
-            (save-match-data
-              (when (re-search-forward "^#\\+subtitle: +\\(.+\\)$" nil t)
-                (setq docs (match-string-no-properties 1))))))
-        docs))))
-
-(defun doom-module--annotate (cand)
-  "Generic annotator for `doom-module' completion candidates."
-  (when-let* ((key (doom-module-key<-str cand))
-              (desc (doom-module--summary key)))
-    (let ((state (doom-module-active-p (cadr key) (caddr key))))
-      (concat (propertize " " 'display '(space :align-to 30))
-              (propertize (format "%3s" (if state "on" "off"))
-                          'face (if state 'success 'shadow))
-              "   "
-              (propertize desc 'face 'completions-annotations)))))
-
 ;;;###autoload
 (defun doom-module-completing-read (prompt)
   "Prompts to select a module from the list all available modules.
@@ -567,7 +541,6 @@ MODULE are symbols and GROUP is a keyword."
                     (if (eq action 'metadata)
                         `(metadata
                           (category . doom-module)
-                          (annotation-function . doom-module--annotate)
                           (display-sort-function . ,sortfn)
                           (cycle-sort-function . ,sortfn))
                       (complete-with-action action cands str pred))))
@@ -653,13 +626,6 @@ Return its PROPERTY, if specified."
 ;;;###autoload
 (pcase-defmacro doom-module-context (&rest fields)
   `(doom-struct doom-module-context ,@fields))
-
-;;;###autoload
-(defun doom-module<-context (context)
-  "Return a `doom-module' plist from CONTEXT."
-  (declare (side-effect-free t))
-  (doom-module-get (doom-module-context-key context)))
-
 
 ;;
 ;;; * Module DSL

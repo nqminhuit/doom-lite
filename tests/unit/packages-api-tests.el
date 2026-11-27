@@ -1,4 +1,4 @@
-;;; packages-api-tests.el --- package! and doom-package-pinned-alist behavior -*- lexical-binding: t; -*-
+;;; packages-api-tests.el --- package! behavior -*- lexical-binding: t; -*-
 
 ;; Guards the declaration API the backend swap keeps. Needs no sync.
 
@@ -78,17 +78,6 @@
     (should (equal (plist-get foo :recipe) '(:host github :repo "me/foo")))
     (should (member pa-test-module (plist-get foo :modules)))
     (should (member '(:user . modules) (plist-get foo :modules)))))
-
-(ert-deftest pa-test-pinned-alist-maps-repos-to-pins ()
-  (let ((pkgs (pa-test--list
-               (format "(package! foo :pin %S :recipe (:host github :repo \"o/foo.el\"))
-(package! bar :pin %S :recipe (:host github :repo \"o/bar\") :disable t)
-(package! eldoc :pin %S :built-in t)
-(package! unpinned :recipe (:host github :repo \"o/unpinned\"))"
-                       pa-test-pin-a pa-test-pin-a pa-test-pin-a))))
-    (let ((doom-packages pkgs))
-      (should (equal (doom-package-pinned-alist)
-                     `(("foo.el" . ,pa-test-pin-a)))))))
 
 (provide 'packages-api-tests)
 ;;; packages-api-tests.el ends here

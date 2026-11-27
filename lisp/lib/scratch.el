@@ -25,9 +25,6 @@ the first, fresh scratch buffer you create. This accepts:
   "The name of the project associated with the current scratch buffer.")
 (put 'doom-scratch-current-project 'permanent-local t)
 
-(defvar doom-scratch-buffer-hook ()
-  "The hooks to run after a scratch buffer is created.")
-
 (defun doom--scratch-buffer-initial-mode ()
   "Return the initial major mode for a new scratch buffer.
 Respects `doom-scratch-initial-major-mode' configuration."

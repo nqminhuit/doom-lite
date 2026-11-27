@@ -120,11 +120,6 @@ Returns '-' if not in a valid project."
         ("-")))
 
 ;;;###autoload
-(defun doom-project-expand (name &optional dir)
-  "Expand NAME to project root."
-  (expand-file-name name (doom-project-root dir)))
-
-;;;###autoload
 (defun doom-project-find-file (dir)
   "Jump to a file in DIR (searched recursively).
 

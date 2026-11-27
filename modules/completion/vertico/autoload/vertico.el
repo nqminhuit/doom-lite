@@ -191,34 +191,6 @@ grep-edit-mode and xref-edit-mode need Emacs 31+)."
       (forward-line (1- (string-to-number line))))))
 
 ;;;###autoload
-(defun +vertico-embark-which-key-indicator ()
-  "An embark indicator that displays keymaps using which-key.
-The which-key help message will show the type and value of the
-current target followed by an ellipsis if there are further
-targets."
-  (lambda (&optional keymap targets prefix)
-    (if (null keymap)
-        (which-key--hide-popup-ignore-command)
-      (which-key--show-keymap
-       (if (eq (plist-get (car targets) :type) 'embark-become)
-           "Become"
-         (if (> (or (plist-get (car targets) :multi) 0) 1)
-             (format "Act on %s '%ss'"
-                 (plist-get (car targets) :multi)
-                 (plist-get (car targets) :type))
-             (format "Act on %s '%s'%s"
-                 (plist-get (car targets) :type)
-                 (embark--truncate-target (plist-get (car targets) :target))
-                 (if (cdr targets) "…" ""))))
-       (if prefix
-           (pcase (lookup-key keymap prefix 'accept-default)
-             ((and (pred keymapp) km) km)
-             (_ (key-binding prefix 'accept-default)))
-         keymap)
-       nil nil t (lambda (binding)
-                   (not (string-suffix-p "-argument" (cdr binding))))))))
-
-;;;###autoload
 (defun +vertico/consult-fd-or-find (&optional dir initial)
   "Runs consult-fd if fd version > 8.6.0 exists, consult-find otherwise.
 See minad/consult#770."

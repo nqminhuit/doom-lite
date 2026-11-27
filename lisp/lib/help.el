@@ -172,16 +172,13 @@ without needing to check if they are available."
 
 ;;;###autoload
 (defun doom/describe-module (key)
-  "Visit the README.org of module KEY, or dired its directory if it has none."
+  "Open the directory of module KEY in dired."
   (interactive (list (doom-module-completing-read "Describe module: ")))
   (cl-destructuring-bind (_source group module . _flags) key
     (let ((dir (doom-module-locate-path (cons group module))))
       (unless (and dir (file-directory-p dir))
         (user-error "Can't find module %s %s" group module))
-      (let ((readme (expand-file-name "README.org" dir)))
-        (if (file-exists-p readme)
-            (find-file readme)
-          (dired dir))))))
+      (dired dir))))
 
 ;;;###autoload
 (defun doom/describe-option (var &optional buffer)
@@ -316,17 +313,12 @@ If prefix arg is present, refresh the cache."
                                   (:doom doom-core-dir)
                                   (:user doom-user-dir)
                                   (category
-                                   (doom-module-locate-path (cons category (cdr m))))))
-                   (readme-path (expand-file-name "README.org" module-path)))
+                                   (doom-module-locate-path (cons category (cdr m)))))))
               (insert indent)
               (doom--help-insert-button
                (format "%s %s" (car m) (or (cdr m) ""))
                module-path)
-              (insert " (")
-              (if (file-exists-p readme-path)
-                  (doom--help-insert-button "readme" readme-path)
-                (insert "no readme"))
-              (insert ")\n"))))
+              (insert "\n"))))
 
         (package--print-help-section "Configs")
         (if-let* ((configs (doom--help-package-configs package)))

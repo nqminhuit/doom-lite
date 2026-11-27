@@ -107,11 +107,6 @@ If CONSIDER-MODE? is non-nil, returns non-nil if BUF's mode is derived from
   (get-buffer-window buf))
 
 ;;;###autoload
-(defun doom-buried-buffer-p (buf)
-  "Return non-nil if BUF is not visible."
-  (not (doom-visible-buffer-p buf)))
-
-;;;###autoload
 (defun doom-non-file-visiting-buffer-p (buf)
   "Returns non-nil if BUF does not have a value for `buffer-file-name'."
   (not (buffer-file-name (or (buffer-base-buffer buf) buf))))
@@ -161,27 +156,6 @@ If BUFFER-OR-NAME is omitted or nil, the current buffer is tested."
 
 See `doom-real-buffer-p' for details on what that means."
   (not (doom-real-buffer-p buffer-or-name)))
-
-;;;###autoload
-(defun doom-buffers-in-mode (modes &optional buffer-list derived-p)
-  "Return a list of buffers whose `major-mode' is `eq' to MODE(S).
-
-If DERIVED-P, test with `derived-mode-p', otherwise use `eq'."
-  (cl-loop with modes = (ensure-list modes)
-           for buf in (or buffer-list (doom-buffer-list))
-           for mode = (buffer-local-value 'major-mode buf)
-           if (if derived-p
-                  (apply #'provided-mode-derived-p mode modes)
-                (memq mode modes))
-           collect buf))
-
-;;;###autoload
-(defun doom-visible-windows (&optional window-list)
-  "Return a list of the visible, non-popup (dedicated) windows."
-  (cl-loop for window in (or window-list (window-list))
-           when (or (window-parameter window 'visible)
-                    (not (window-dedicated-p window)))
-           collect window))
 
 ;;;###autoload
 (defun doom-visible-buffers (&optional buffer-list all-frames)
@@ -268,14 +242,6 @@ regex PATTERN. Returns the number of killed buffers."
 
 ;;
 ;; Hooks
-
-;;;###autoload
-(defun doom-mark-buffer-as-real-h ()
-  "Hook function that marks the current buffer as real.
-
-See `doom-real-buffer-p' for an explanation for real buffers."
-  (doom-set-buffer-real (current-buffer) t))
-
 
 ;;
 ;; Interactive commands
