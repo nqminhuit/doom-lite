@@ -74,12 +74,6 @@ If optional argument PT is present test this instead of point."
       (nth 3 (doom-syntax-ppss pt)))))
 
 ;;;###autoload
-(defun doom-point-in-string-or-comment-p (&optional pos)
-  "Return non-nil if POS is in a string or comment."
-  (or (doom-point-in-string-p pos)
-      (doom-point-in-comment-p pos)))
-
-;;;###autoload
 (defun doom-region-active-p ()
   "Return non-nil if selection is active.
 Detects evil visual mode as well."
@@ -331,16 +325,6 @@ opposite indentation style."
 
 ;;
 ;;; * Hooks
-
-;;;###autoload
-(defun doom-enable-show-trailing-whitespace-h ()
-  "Enable `show-trailing-whitespace' in the current buffer."
-  (setq-local show-trailing-whitespace t))
-
-;;;###autoload
-(defun doom-disable-show-trailing-whitespace-h ()
-  "Disable `show-trailing-whitespace' in the current buffer."
-  (setq-local show-trailing-whitespace nil))
 
 (provide 'doom-lib '(text))
 ;;; text.el ends here

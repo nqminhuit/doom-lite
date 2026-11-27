@@ -112,7 +112,6 @@ Continues comments if executed from a commented line."
   ;; replaces `apropos-documentation' b/c `apropos' covers this
   "d"    `("doom" . ,(make-sparse-keymap))
   "da"   #'doom/describe-autodef
-  "db"   #'doom/report-bug
   "dc"   #'doom/open-private-config
   "dd"   #'doom-debug-mode
   "di"   #'doom/info

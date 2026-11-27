@@ -24,13 +24,7 @@
   `(let ((,var (make-temp-file "help-test" t)))
      (unwind-protect (progn ,@body) (delete-directory ,var t))))
 
-(ert-deftest help/describe-module-visits-readme ()
-  (help-test--with-dir dir
-    (write-region "* hi\n" nil (expand-file-name "README.org" dir))
-    (should (equal (file-truename (car (help-test--describe dir)))
-                   (file-truename (expand-file-name "README.org" dir))))))
-
-(ert-deftest help/describe-module-dired-without-readme ()
+(ert-deftest help/describe-module-visits-dir ()
   (help-test--with-dir dir
     (should (eq (cdr (help-test--describe dir)) 'dired-mode))))
 

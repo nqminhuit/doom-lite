@@ -27,7 +27,23 @@
     "doom-git-toplevel" "doom-system-supports-symlinks-p" "doom-exec-process"
     "+default/browse-templates" "+default/find-in-templates" "doom-cli-shell"
     "+java/open-groovy-repl" "+javascript/open-repl" "doom-system-distro"
-    "doom-system-distro-icon")
+    "doom-system-distro-icon"
+    "doom/homepage" "doom/report-bug" "remove-hook!" "undefadvice!"
+    "unsetq-hook!" "add-load-path!" "doom-partial" "λ!" "λ!!" "with-file!"
+    "sh&" "defcli-obsolete!" "defcli-stub!" "doom-cli-redirect-output"
+    "doom-cli-aliases" "doom-buffers-in-mode" "doom-buried-buffer-p"
+    "doom-visible-windows" "doom-mark-buffer-as-real-h" "doom-resize-window"
+    "doom-recenter-a" "doom-preserve-window-position-a"
+    "doom-enable-line-numbers-h" "doom-disable-show-paren-mode-h"
+    "doom-point-in-string-or-comment-p"
+    "doom-enable-show-trailing-whitespace-h"
+    "doom-disable-show-trailing-whitespace-h" "doom-project-expand"
+    "doom-font-exists-p" "doom-package-in-module-p"
+    "doom-package-pinned-alist" "doom-module<-context"
+    "doom-scratch-buffer-hook" "set-eglot-client!"
+    "+vertico-embark-which-key-indicator" "doom-module--summary"
+    "doom-module--annotate" "doom-sh--pipeline-async" "doom-sh--async-sentinel"
+    "doom-set-buffer-real")
   "Removed compat names; matched only in code positions, not prose or comments.")
 
 (defconst core-trims-test--code-re
@@ -65,6 +81,10 @@
                   (push (cons rel line) hits))))
             (forward-line 1)))))
     (should-not hits)))
+
+(ert-deftest core-trims/no-module-readmes ()
+  (should-not (directory-files-recursively
+               (expand-file-name "modules" core-trims-test--root) "\\`README\\.org\\'")))
 
 (defconst core-trims-test--profile-names
   '("doom--noprofile" "doom-profiles-read" "doom-profiles-write-load-file"

@@ -110,16 +110,13 @@ list is returned as-is."
                collect (cadr hook)
                else collect (intern (format "%s-hook" (symbol-name hook)))))))
 
-(defun doom--setq-hook-fns (hooks rest &optional singles)
-  (unless (or singles (= 0 (% (length rest) 2)))
+(defun doom--setq-hook-fns (hooks rest)
+  (unless (= 0 (% (length rest) 2))
     (signal 'wrong-number-of-arguments (list #'evenp (length rest))))
   (cl-loop with vars = (let ((args rest)
                              vars)
                          (while args
-                           (push (if singles
-                                     (list (pop args))
-                                   (cons (pop args) (pop args)))
-                                 vars))
+                           (push (cons (pop args) (pop args)) vars))
                          (nreverse vars))
            for hook in (doom--resolve-hook-forms hooks)
            for mode = (string-remove-suffix "-hook" (symbol-name hook))
@@ -169,8 +166,6 @@ list is returned as-is."
   (declare (pure t) (side-effect-free t))
   (cl-check-type keyword keyword)
   (substring (symbol-name keyword) 1))
-
-(defalias 'doom-partial #'apply-partially)
 
 (defun doom-rpartial (fn &rest args)
   "Return a partial application of FUN to right-hand ARGS.
@@ -721,10 +716,6 @@ keybind (as if this keybind never existed)."
                                      defs)
                            (t ,fallback))))))))
 
-;; For backwards compatibility
-(defalias 'λ!  #'cmd!)
-(defalias 'λ!! #'cmd!!)
-
 
 ;;; ** `doom-config'
 
@@ -839,14 +830,6 @@ incompatibilities in the alist format.
 
 
 ;;; ** Loading
-
-(defmacro add-load-path! (&rest dirs)
-  "Add DIRS to `load-path', relative to the current file.
-The current file is the file from which `add-to-load-path!' is used."
-  `(let ((default-directory (dir!))
-         file-name-handler-alist)
-     (dolist (dir (list ,@dirs))
-       (cl-pushnew (expand-file-name dir) load-path :test #'string=))))
 
 (defmacro after! (package &rest body)
   "Evaluate BODY after PACKAGE have loaded.
@@ -1040,17 +1023,6 @@ This macro accepts, in order:
                 `(remove-hook hook func ,local-p)
               `(add-hook hook func ,(or depth append-p) ,local-p)))))))
 
-(defmacro remove-hook! (hooks &rest rest)
-  "A convenience macro for removing N functions from M hooks.
-
-Takes the same arguments as `add-hook!'.
-
-If N and M = 1, there's no benefit to using this macro over `remove-hook'.
-
-\(fn HOOKS [:append :local] FUNCTIONS)"
-  (declare (indent defun) (debug t))
-  `(add-hook! ,hooks :remove ,@rest))
-
 (defmacro setq-hook! (hooks &rest var-vals)
   "Sets buffer-local variables on HOOKS.
 
@@ -1060,16 +1032,6 @@ If N and M = 1, there's no benefit to using this macro over `remove-hook'.
    (cl-loop for (var val hook fn) in (doom--setq-hook-fns hooks var-vals)
             collect `(defun ,fn (&rest _) (setq-local ,var ,val))
             collect `(add-hook ',hook #',fn -90))))
-
-(defmacro unsetq-hook! (hooks &rest vars)
-  "Unbind setq hooks on HOOKS for VARS.
-
-\(fn HOOKS &rest [SYM VAL]...)"
-  (declare (indent 1))
-  (macroexp-progn
-   (cl-loop for (_var _val hook fn)
-            in (doom--setq-hook-fns hooks vars 'singles)
-            collect `(remove-hook ',hook #',fn))))
 
 
 ;;; ** Definers
@@ -1095,24 +1057,6 @@ DOCSTRING and BODY are as in `defun'.
        (dolist (targets (list ,@(nreverse where-alist)))
          (dolist (target (cdr targets))
            (advice-add target (car targets) #',symbol))))))
-
-(defmacro undefadvice! (symbol _arglist &optional docstring &rest body)
-  "Undefine an advice called SYMBOL.
-
-This has the same signature as `defadvice!' and exists as an easy undefiner when
-interactively testing (and toggling) advice.
-
-\(fn SYMBOL ARGLIST &optional DOCSTRING &rest [WHERE PLACES...] BODY\)"
-  (declare (doc-string 3) (indent defun))
-  (let (where-alist)
-    (unless (stringp docstring)
-      (push docstring body))
-    (while (keywordp (car body))
-      (push `(cons ,(pop body) (ensure-list ,(pop body)))
-            where-alist))
-    `(dolist (targets (list ,@(nreverse where-alist)))
-       (dolist (target (cdr targets))
-         (advice-remove target #',symbol)))))
 
 
 ;;; ** `doom-context'

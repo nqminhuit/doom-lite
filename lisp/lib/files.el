@@ -364,19 +364,6 @@ optimizations for `binary' IO."
      (goto-char (point-min))
      ,@body))
 
-;;;###autoload
-(defmacro with-file! (file &rest body)
-  "Evaluate BODY in a temp buffer, then write its contents to FILE.
-
-Unlike `with-temp-file', this uses the `utf-8' encoding by default and performs
-some optimizations for `binary' IO."
-  (declare (indent 1))
-  `(doom--with-prepared-file-buffer ,file (or coding-system-for-read 'utf-8) nil
-     (prog1 (progn ,@body)
-       (doom-file-write buffer-file-name (current-buffer)
-                        :coding (or coding-system-for-write 'utf-8)))))
-
-
 ;;
 ;;; * Helpers
 

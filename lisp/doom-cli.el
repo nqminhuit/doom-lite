@@ -439,17 +439,6 @@ an integer.
             (nreverse results)
           results)))))
 
-(defun doom-cli-aliases (cli)
-  "Return all known `doom-cli's that are aliased to CLI.
-
-This cannot see autoloaded CLIs. Use `doom-cli-load' or `doom-cli-load-all'
-to reach them."
-  (cl-loop with cli = (doom-cli-get cli)
-           with key = (doom-cli-key cli)
-           for rcli in (hash-table-values doom-cli--table)
-           if (equal key (doom-cli-key rcli))
-           collect cli))
-
 (defun doom-cli-short-docs (cli)
   "Return the first line of CLI's documentation.
 
@@ -1061,18 +1050,6 @@ considered as well."
               (print! (warn "Wrote extended backtrace to %s")
                       (path backtrace-file))))))))
     (exit! 255)))
-
-(defmacro doom-cli-redirect-output (context &rest body)
-  "Redirect output from BODY to the appropriate log buffers in CONTEXT."
-  (declare (indent 1))
-  (let ((contextsym (make-symbol "doomctxt")))
-    `(let* ((,contextsym ,context)
-            ;; Emit user-friendly backtraces
-            (debugger (doom-rpartial #'doom-cli-debugger ,contextsym))
-            (debug-on-error t))
-       (with-output-to! `((>= notice ,(doom-cli-context-stdout ,contextsym))
-                          (t . ,(doom-cli-context-stderr ,contextsym)))
-         ,@body))))
 
 (defun doom-cli--output-file (type context)
   "Return a log file path for TYPE and CONTEXT.
@@ -1798,46 +1775,6 @@ ignored.
 See `defcli!' for information about COMMANDSPEC.
 TARGET is not a command specification, and should be a command list."
   `(defcli! ,commandspec () :alias ',target ,@plist))
-
-(defmacro defcli-obsolete! (commandspec target when)
-  "Define an obsolete CLI COMMANDSPEC that refers users to NEW-COMMAND.
-
-See `defcli!' for information about COMMANDSPEC.
-TARGET is simply a command list.
-WHEN specifies what version this command was rendered obsolete."
-  `(let* ((target (backquote ,target)))
-     (defcli! ,commandspec (&context _context &cli cli &rest args)
-       :docs (if (stringp target)
-                 (format "An obsolete command: %s" target)
-               (format "An obsolete alias for '%s'."
-                       (doom-cli-command-string
-                        (doom-cli-command-normalize target doom-cli--group-plist))))
-       :obsolete (cons target ,when)
-       :hide t
-       (cl-destructuring-bind (target . when)
-           (plist-get (doom-cli-plist cli) :obsolete)
-         (print! (warn "'%s' was %s in %s")
-                 (doom-cli-command-string cli)
-                 (if (stringp target) "removed" "deprecated")
-                 when)
-         (if (stringp target)
-             (print! (warn "%s." target))
-           (setq target (doom-cli-command-normalize target doom-cli--group-plist))
-           (print! (warn "It will eventually be removed; use '%s' instead.")
-                   (doom-cli-command-string target))
-           (call! ',target args))))))
-
-(defmacro defcli-stub! (commandspec &optional _argspec &rest body)
-  "Define a stub CLI, which will throw an error if invoked.
-
-Use this to define commands that will eventually be implemented, but haven't
-yet. They won't be included in command listings (by help documentation)."
-  (declare (indent 2) (doc-string 3))
-  `(defcli! ,commandspec (&cli cli &rest _)
-     ,(concat "THIS COMMAND IS A STUB AND HAS NOT BEEN IMPLEMENTED YET."
-              (if (stringp (car body)) (concat "\n\n" (pop body))))
-     :hide t
-     (user-error "Command not implemented yet: %s" (doom-cli-command-string cli))))
 
 (defmacro defcli-autoload! (commandspec &optional path &rest plist)
   "Defer loading of PATHS until PREFIX is called."

@@ -109,13 +109,6 @@ Doesn't work in terminal Emacs."
      (ignore-errors (doom-adjust-font-size nil))
      (signal (car e) (cdr e)))))
 
-;;;###autoload
-(defun doom-font-exists-p (font)
-  "Return non-nil if FONT exists on this system."
-  (declare (pure t) (side-effect-free t))
-  (ignore-errors (find-font (doom-normalize-font font))))
-
-
 ;;
 ;;; * Commands
 

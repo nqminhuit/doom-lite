@@ -613,15 +613,6 @@ If RECURSIVE is nil, only return PACKAGE's immediate dependencies."
        (file-directory-p (doom-packages--build-dir package))))
 
 ;;;###autoload
-(defun doom-package-in-module-p (package category &optional module)
-  "Return non-nil if PACKAGE was installed by the user's private config."
-  (when-let* ((modules (doom-package-get package :modules)))
-    (or (and (not module) (assq :user modules))
-        (member (cons category module) modules))))
-
-
-
-;;;###autoload
 (defun doom-package-backend (package)
   "Return \\='installed, \\='builtin or nil, depending on how PACKAGE is provided."
   (cond ((doom-package-installed-p package) 'installed)
@@ -694,17 +685,6 @@ keys."
           (if user? (read-packages (cons :user nil)))
           (nreverse doom-packages))))))
 
-
-;;;###autoload
-(defun doom-package-pinned-alist ()
-  "Return an alist mapping repo names (strings) to pinned commits (strings)."
-  (let (alist)
-    (dolist (package doom-packages (nreverse alist))
-      (cl-destructuring-bind (name &key disable ignore pin &allow-other-keys)
-          package
-        (when (and pin (not ignore) (not disable))
-          (setf (alist-get (doom-package-recipe-repo name) alist nil nil #'equal)
-                pin))))))
 
 ;;;###autoload
 (defun doom-package-homepage (package)
