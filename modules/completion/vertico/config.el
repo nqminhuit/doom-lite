@@ -1,6 +1,14 @@
 ;;; completion/vertico/config.el -*- lexical-binding: t; -*-
 
 ;;
+;;; Faces
+
+(defface +vertico-directory
+  '((t :inherit font-lock-keyword-face))
+  "Face for directories in file completion.")
+
+
+;;
 ;;; Packages
 
 (use-package! vertico
@@ -215,6 +223,12 @@
       (setq cand (funcall fun cand)))
     (cl-call-next-method cand prefix suffix index start))
 
+  (defun +vertico-highlight-directory-fn (file)
+    "If FILE ends with a slash, highlight it as a directory."
+    (when (string-suffix-p "/" file)
+      (add-face-text-property 0 (length file) '+vertico-directory 'append file))
+    file)
+
   (defun +vertico-highlight-enabled-mode-fn (cmd)
     "If MODE is enabled, highlight it as font-lock-constant-face."
     (let ((sym (intern cmd)))
@@ -227,6 +241,9 @@
             (add-face-text-property 0 (length cmd) 'font-lock-constant-face 'append cmd)))
       cmd))
 
+  (add-to-list 'vertico-multiform-categories
+               '(file
+                 (+vertico-transform-functions . +vertico-highlight-directory-fn)))
   (add-to-list 'vertico-multiform-commands
                '(execute-extended-command
                  (+vertico-transform-functions . +vertico-highlight-enabled-mode-fn))))
