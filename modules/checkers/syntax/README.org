@@ -14,7 +14,6 @@ This module provides syntax checking and error highlighting, powered by the buil
 
 ** Packages
 - =flymake=
-- =flymake-popon=
 
 ** Hacks
 - The emacs-lisp flymake byte-compile checker only runs in project buffers (mitigates CVE-2024-53920).
@@ -30,7 +29,7 @@ This module has no direct requirements, but some languages may have their own re
 /This module's usage documentation is incomplete./
 #+end_quote
 
-~flymake-mode~ is enabled in ~prog-mode~ and ~text-mode~ buffers, and shows the diagnostic at point in a popup (~flymake-popon~). Pressing ESC re-runs the checker.
+~flymake-mode~ is enabled in ~prog-mode~ and ~text-mode~ buffers. Pressing ESC re-runs the checker.
 
 | Keybind   | Description                          |
 |-----------+--------------------------------------|

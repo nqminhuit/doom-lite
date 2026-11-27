@@ -22,5 +22,3 @@
   :recipe (:host github :repo "oantolin/embark" :files ("embark-consult.el"))
   :pin "87e53827cf6659dcc4ac4e54be9af34aeca44f6e")
 
-(package! marginalia :pin "d76d7e36185ab552240c14fb08f7abcbf9a2910c")
-

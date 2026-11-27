@@ -11,7 +11,8 @@
 (defconst core-trims-test--deleted
   '("lisp/lib/sandbox.el" "lisp/lib/store.el" "lisp/lib/plist.el"
     "modules/doom/cli" "bin/org-capture" "bin/doom.ps1" "bin/doom.sh" "profiles"
-    "bin/doom-make" "lisp/cli/make" "bin/doom-profile" "lisp/cli/autoloads.el"))
+    "bin/doom-make" "lisp/cli/make" "bin/doom-profile" "lisp/cli/autoloads.el"
+    "lisp/lib/git.el" "modules/editor/evil/autoload/embrace.el"))
 
 (defconst core-trims-test--compat-symbols
   '("MODULES" "NATIVECOMP" "doom-private-dir" "doom-etc-dir" "dynamic-modules"
@@ -21,7 +22,10 @@
     "pushnew!" "prependq!" "IS-MAC" "IS-WINDOWS" "IS-BSD" "IS-LINUX" "sh!!"
     "doom/help-packages" "doom/help-modules" "doom/help-autodefs"
     "doom/help-custom-variable" "doom-profile-generators"
-    "doom--system-windows-p" "doom--system-macos-p")
+    "doom--system-windows-p" "doom--system-macos-p"
+    "doom-git-toplevel" "doom-system-supports-symlinks-p" "doom-exec-process"
+    "+default/browse-templates" "+default/find-in-templates" "doom-cli-shell"
+    "+java/open-groovy-repl" "+javascript/open-repl")
   "Removed compat names; matched only in code positions, not prose or comments.")
 
 (defconst core-trims-test--code-re
@@ -98,6 +102,24 @@
         (goto-char (point-min))
         (while (re-search-forward core-trims-test--platform-re nil t)
           (push (cons (file-relative-name f core-trims-test--root) (match-string 0)) hits))))
+    (should-not hits)))
+
+(defconst core-trims-test--disabled-packages
+  '("groovy-mode" "android-mode" "marginalia" "nodejs-repl" "evil-lion"
+    "evil-embrace" "exato" "evil-snipe" "flymake-popon")
+  "Packages the user config disables; the vendored modules must not declare them.")
+
+(ert-deftest core-trims/no-disabled-packages-declared ()
+  (let (hits)
+    (dolist (f (directory-files-recursively
+                (expand-file-name "modules" core-trims-test--root) "\\`packages\\.el\\'"))
+      (with-temp-buffer
+        (insert-file-contents f)
+        (dolist (name core-trims-test--disabled-packages)
+          (goto-char (point-min))
+          (when (re-search-forward
+                 (format "(package! %s\\_>" (regexp-quote name)) nil t)
+            (push (cons (file-relative-name f core-trims-test--root) name) hits)))))
     (should-not hits)))
 
 ;;; core-trims-tests.el ends here

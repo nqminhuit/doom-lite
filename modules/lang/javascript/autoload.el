@@ -18,26 +18,6 @@ for the package.json file, and defaults to the current buffer's project root."
             (puthash project-root json +javascript-npm-conf))))))
 
 ;;;###autoload
-(defun +javascript-npm-dep-p (packages &optional project-root refresh-p)
-  "Return non-nil if PACKAGES are dependencies of the NPM project at PROJECT-ROOT.
-
-This value is cached unless REFRESH-P is non-nil. If PROJECT-ROOT is omitted,
-the current buffer's project root is used."
-  (when-let* ((data (and (bound-and-true-p +javascript-npm-mode)
-                         (+javascript-npm-conf project-root refresh-p))))
-    (let ((deps (append (cdr (assq 'dependencies data))
-                        (cdr (assq 'devDependencies data)))))
-      (cond ((listp packages)
-             (funcall (if (eq (car packages) 'and)
-                          #'cl-every
-                        #'cl-some)
-                      (lambda (pkg) (assq pkg deps))
-                      (if (listp packages) packages (list packages))))
-            ((symbolp packages)
-             (assq packages deps))
-            (t (error "Expected a package symbol or list, got %s" packages))))))
-
-;;;###autoload
 (defun +javascript-add-npm-path-h ()
   "Add node_modules/.bin to `exec-path'."
   (when-let* ((search-directory (or (doom-project-root) default-directory))
@@ -47,13 +27,3 @@ the current buffer's project root is used."
     (add-to-list 'exec-path node-modules-dir)
     (doom-log ":lang:javascript: add %s to $PATH" (expand-file-name "node_modules/" node-modules-parent))))
 
-
-;;
-;; Commands
-
-;;;###autoload
-(defun +javascript/open-repl ()
-  "Open a Javascript REPL via `nodejs-repl'."
-  (interactive)
-  (nodejs-repl)
-  (current-buffer))

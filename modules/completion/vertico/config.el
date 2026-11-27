@@ -1,6 +1,14 @@
 ;;; completion/vertico/config.el -*- lexical-binding: t; -*-
 
 ;;
+;;; Faces
+
+(defface +vertico-directory
+  '((t :inherit font-lock-keyword-face))
+  "Face for directories in file completion.")
+
+
+;;
 ;;; Packages
 
 (use-package! vertico
@@ -199,16 +207,6 @@
            :desc "Open in new workspace"       [tab] #'+vertico/embark-open-in-new-workspace))))
 
 
-(use-package! marginalia
-  :hook (doom-first-input . marginalia-mode)
-  :init
-  (map! :map minibuffer-local-map
-        :desc "Cycle marginalia views" "M-A" #'marginalia-cycle)
-  :config
-  (add-to-list 'marginalia-command-categories
-               '(flycheck-error-list-set-filter . builtin)))
-
-
 ;; From https://github.com/minad/vertico/wiki#candidate-display-transformations-custom-candidate-highlighting
 ;;
 ;; Uses `add-face-text-property' instead of `propertize' unlike the above
@@ -228,7 +226,7 @@
   (defun +vertico-highlight-directory-fn (file)
     "If FILE ends with a slash, highlight it as a directory."
     (when (string-suffix-p "/" file)
-      (add-face-text-property 0 (length file) 'marginalia-file-priv-dir 'append file))
+      (add-face-text-property 0 (length file) '+vertico-directory 'append file))
     file)
 
   (defun +vertico-highlight-enabled-mode-fn (cmd)
