@@ -3,7 +3,6 @@
 
 (when (require 'consult nil t)
   (if (executable-find "rg")
-      ;; TODO: Move this to core in v3.0
       (unless (consult--grep-lookahead-p "rg" "-P")
         (warn! "The installed ripgrep binary was not built with support for PCRE lookaheads.")
         (explain! "Some advanced consult filtering features will not work as a result."))

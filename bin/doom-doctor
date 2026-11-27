@@ -32,9 +32,6 @@
 (defmacro success! (&rest args)
   `(print! (green ,@args)))
 
-(defmacro section! (&rest args)
-  `(print! (bold (blue ,@args))))
-
 (defmacro explain! (&rest args)
   `(print-group! (print! (p ,@args))))
 

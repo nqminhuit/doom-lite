@@ -57,9 +57,7 @@ uses `doom/describe-package' or a similar command).")
     (doom-module--put '(:user . nil)
                       :path doom-user-dir
                       :depth '(-105 . 105))
-    ;; DEPRECATED: Includes use-package, deprecated APIs/vars --
-    ;;   everything that makes v2 distinct from v3. The module is here to stay,
-    ;;   but it won't be hardcoded after v3.
+    ;; Core compat layer: use-package!, map! and friends.
     (doom-module--put '(:doom . compat)
                       :flags '(+keybinds)
                       :depth -115)
@@ -215,7 +213,7 @@ properties:
            (doom-module-context-key key))
           ((consp key)
            (cond ((nlistp (cdr-safe key)) key)
-                 ;; Handle v3 keys
+                 ;; Handle (SOURCE GROUP MODULE ...) keys
                  ((> (length key) 2) (cons (cadr key) (caddr key)))
                  ((cons (car key) (cadr key)))))
           ((signal 'wrong-type-argument
@@ -381,8 +379,7 @@ If ENABLED-ONLY?, return nil if the containing module isn't enabled."
                       (if (or (string-match "^\\(.+/\\)autoload\\.el$" path)
                               (string-match "^\\(.+/\\)autoload/[^/]+\\.el$" path))
                           (expand-file-name (match-string 1 path))))
-                    ;; FIXME: Ew. Necessary, in case of strange symlinking.
-                    ;;   This will be cleaned up in v3.
+                    ;; Necessary in case of strange symlinking.
                     (catch 'found
                       (dolist (dir (remq
                                     nil (cons (doom-config-locate 'modules path t)
@@ -400,7 +397,7 @@ If ENABLED-ONLY?, return nil if the containing module isn't enabled."
                    (directory-file-name (file-name-directory path)))))
       (save-match-data
         (cond
-         ;; For v3+ modules
+         ;; Modules already in the path cache
          ((if (not nocache?) (gethash (abbreviate-file-name dir) doom-module--path-cache)))
 
          ;; For legacy or $DOOMDIR modules
@@ -427,7 +424,6 @@ If ENABLED-ONLY?, return nil if the containing module isn't enabled."
          ((file-in-directory-p path doom-user-dir)
           (cons :user nil))))))
 
-  ;; DEPRECATED: Remove in v3
   (defun doom-module-load-path (&optional module-load-path initorder?)
     "Return a list of file paths to activated modules.
 
@@ -647,8 +643,7 @@ This macro does nothing in interactive sessions, but in noninteractive session
 iterates through MODULES, enabling and initializing them. The order of modules
 in these blocks dictates their load order (unless given an explicit :depth)."
     `(when noninteractive
-       ;; REVIEW: A temporary fix for flycheck until I complete backporting
-       ;;   module/profile architecture from v3.0.
+       ;; The module API may not be loaded (e.g. in flycheck's byte-compile process).
        (when (fboundp 'doom-module-mplist-map)
          (doom-module-mplist-map
           #'doom-module--put

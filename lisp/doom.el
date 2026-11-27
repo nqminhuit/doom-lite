@@ -154,7 +154,6 @@ The first element should always be one of `linux' or `android'.")
 Defaults to ~/.config/doom, ~/.doom.d or the value of the DOOMDIR envvar;
 whichever is found first. Must end in a slash.")
 
-;; DEPRECATED: Will be replaced in v3
 (defvar doom-module-load-path
   (list (file-name-concat doom-user-dir "modules")
         (file-name-concat doom-emacs-dir "modules"))
@@ -169,7 +168,6 @@ where the module's group and name was deduced from the first and second level of
 directories. For example: if $DOOMDIR/modules/ is an entry, a
 $DOOMDIR/modules/lang/ruby/ directory represents a ':lang ruby' module.")
 
-;; DEPRECATED: .local will be removed entirely in 3.0
 (defvar doom-local-dir
   (if-let* ((localdir (getenv-internal "DOOMLOCALDIR")))
       (expand-file-name (file-name-as-directory localdir))
@@ -226,19 +224,15 @@ For profile-local state files, use `doom-profile-state-dir' instead.")
 
 ;;; ** Profile file/directory variables
 
-;; DEPRECATED: To be replaced with `doom-profile-cache-dir' function in v3
 (defvar doom-profile-cache-dir nil
   "For profile-local cache files under `doom-cache-dir'.")
 
-;; DEPRECATED: To be replaced with `doom-profile-data-dir' function in v3
 (defvar doom-profile-data-dir nil
   "For profile-local data files under `doom-data-dir'.")
 
-;; DEPRECATED: To be replaced with `doom-profile-state-dir' function in v3
 (defvar doom-profile-state-dir nil
   "For profile-local state files under `doom-state-dir'.")
 
-;; DEPRECATED: To be replaced with `doom-profile-dir' function in v3
 (defconst doom-profile-dir nil
   "Where generated files for the active profile (for Doom's core) are kept.")
 
@@ -379,9 +373,8 @@ Each function is passed one argument: the doom-profile being started up."
       (unless doom-profile
         (setq doom-profile
               (make-doom-profile :name (car key)
-                                 :ref "0" ; refs are ornamental until v3
+                                 :ref "0" ; refs are unused
                                  :root doom-emacs-dir)))
-      ;; DEPRECATED: For backwards compatibility. Remove in v3
       (setq doom-profile-cache-dir (doom-cache-dir)
             doom-profile-data-dir  (doom-data-dir)
             doom-profile-state-dir (doom-state-dir)

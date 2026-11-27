@@ -195,8 +195,7 @@ grep-edit-mode and xref-edit-mode need Emacs 31+)."
   "Runs consult-fd if fd version > 8.6.0 exists, consult-find otherwise.
 See minad/consult#770."
   (interactive "P")
-  ;; REVIEW: This condition was adapted from a similar one in
-  ;;   lisp/doom-projects.el, to be replaced with a more robust check post v3
+  ;; Adapted from a similar condition in lisp/doom-projects.el.
   (if (when-let*
           ((bin (if (ignore-errors (file-remote-p default-directory nil t))
                     (cl-find-if (doom-rpartial #'executable-find t)

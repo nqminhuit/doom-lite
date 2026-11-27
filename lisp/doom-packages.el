@@ -33,14 +33,12 @@
 ;;
 ;;; * Variables
 
-;; DEPRECATED: Will be stored in the local profile in v3.0
 ;;;###autoload
 (defvar doom-packages ()
   "A list of enabled packages. Each element is a sublist, whose CAR is the
 package's name as a symbol, and whose CDR is the plist supplied to its
 `package!' declaration. Set by `doom-initialize-packages'.")
 
-;; DEPRECATED: Will be stored in the local profile in v3.0
 ;;;###autoload
 (defvar doom-disabled-packages ()
   "A list of packages that should be ignored by `use-package!' and `after!'.")
