@@ -202,14 +202,6 @@ If set to nil, only display benchmark if a CLI explicitly requested with a
 non-nil :benchmark property.
 If set to `always', show the benchmark no matter what.")
 
-(defvar doom-cli-shell
-  (pcase (getenv "__DOOMSH")
-    ("ps1" 'pwsh)
-    (_ 'sh))
-  "What shell environment Doom has been started with.
-
-Can be `pwsh' if invoked through PowerShell, or `sh' in unix environments.")
-
 
 ;;; ** Internal variables
 
@@ -1204,9 +1196,8 @@ Emacs' batch library lacks an implementation of the exec system call."
     (signal 'doom-cli-error `(envvar-missing "__DOOMSTEP")))
   (let* ((pid  (doom-cli-context-pid context))
          (step (doom-cli-context-step context))
-         (shext (if (eq doom-cli-shell 'pwsh) "ps1" "sh"))
          (context-file (format (doom-path temporary-file-directory "doom.%s.%s.context") pid step))
-         (script-file  (format (doom-path temporary-file-directory "doom.%s.%s.%s") pid step shext))
+         (script-file  (format (doom-path temporary-file-directory "doom.%s.%s.sh") pid step))
          (command (if (listp args) (combine-and-quote-strings (remq nil args)) args))
          (persistent-files
           (combine-and-quote-strings (delq nil (list script-file context-file))))
@@ -1244,30 +1235,18 @@ Emacs' batch library lacks an implementation of the exec system call."
       (doom-log "restart: writing post-script to %s" script-file)
       (doom-file-write
        script-file
-       (pcase-exhaustive doom-cli-shell
-         (`sh `("#!/usr/bin/env sh\n"
-                "trap _doomcleanup EXIT\n"
-                "_doomcleanup() {\n  rm -f " ,persistent-files "\n}\n"
-                "_doomrun() {\n  " ,command "\n}\n"
-                ,(cl-loop for (var . val) in persisted-env
-                          if (<= (length val) 2048)  ; Prevent "Argument list too long" errors
-                          concat (format "%s=%s \\\n" var (shell-quote-argument val))
-                          else do (doom-log 1 "restart: discarding envvar %S for being too long (%d)" var (length val)))
-                ,(format "PATH=\"%s%s$PATH\" \\\n"
-                         (doom-emacs-dir "bin")
-                         path-separator)
-                "_doomrun \"$@\"\n"))
-         (`pwsh `("try {\n"
-                  ,(cl-loop for (var . val) in persisted-env
-                            concat (format "  $__%s = $env:%s; $env:%s = %S\n  "
-                                           var var var val))
-                  ,command
-                  "\n} finally {\n"
-                  ,(cl-loop for file in persistent-files
-                            concat (format "  Remove-Item -Path %S\n  " file))
-                  ,(cl-loop for (var . _) in persisted-env
-                            concat (format "  $env:%s = $__%s\n  " var var))
-                  "\n}")))))
+       `("#!/usr/bin/env sh\n"
+         "trap _doomcleanup EXIT\n"
+         "_doomcleanup() {\n  rm -f " ,persistent-files "\n}\n"
+         "_doomrun() {\n  " ,command "\n}\n"
+         ,(cl-loop for (var . val) in persisted-env
+                   if (<= (length val) 2048)  ; Prevent "Argument list too long" errors
+                   concat (format "%s=%s \\\n" var (shell-quote-argument val))
+                   else do (doom-log 1 "restart: discarding envvar %S for being too long (%d)" var (length val)))
+         ,(format "PATH=\"%s%s$PATH\" \\\n"
+                  (doom-emacs-dir "bin")
+                  path-separator)
+         "_doomrun \"$@\"\n")))
     (doom-log "_doomrun: %s %s"
               (cl-loop for (var . val) in persisted-env
                        concat (format "%s=%s \\\n" var (shell-quote-argument val)))
@@ -1367,11 +1346,7 @@ Arguments don't have to be switches either."
 
 ARGS are options passed to less. If DOOMPAGER is set, ARGS are ignored."
   (let ((pager (or doom-cli-pager (getenv "DOOMPAGER"))))
-    (cond ((eq doom-cli-shell 'pwsh)
-           ;; Pager isn't supported in powershell
-           (doom-cli--exit 0 context))
-
-          ((null (or pager (executable-find "less")))
+    (cond ((null (or pager (executable-find "less")))
            (user-error "No pager set or available")
            (doom-cli--exit 1 context))
 
@@ -1403,18 +1378,16 @@ ARGS are options passed to less. If DOOMPAGER is set, ARGS are ignored."
 
 ARGS are options passed to less. If DOOMPAGER is set, ARGS are ignored."
   (doom-cli--exit
-   (if (eq doom-cli-shell 'pwsh)
-       0
-     (let ((threshold (ceiling (* (doom-cli-context-height context)
-                                  doom-cli-pager-ratio))))
-       (if (>= (let ((stdout (doom-cli-context-stdout context)))
-                 (if (fboundp 'buffer-line-statistics)
-                     (car (buffer-line-statistics stdout))
-                   (with-current-buffer stdout
-                     (count-lines (point-min) (point-max)))))
-               threshold)
-           (cons :pager args)
-         0)))
+   (let ((threshold (ceiling (* (doom-cli-context-height context)
+                                doom-cli-pager-ratio))))
+     (if (>= (let ((stdout (doom-cli-context-stdout context)))
+               (if (fboundp 'buffer-line-statistics)
+                   (car (buffer-line-statistics stdout))
+                 (with-current-buffer stdout
+                   (count-lines (point-min) (point-max)))))
+             threshold)
+         (cons :pager args)
+       0))
    context))
 
 ;; (defun doom-cli--exit-editor (args context))  ; TODO: Launch $EDITOR

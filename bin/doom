@@ -104,7 +104,6 @@
       "user.\n\n"
       "If this really *is* what you want, then change the owner of your Emacs\n"
       "config to root:\n\n"
-      ;; TODO Add cmd.exe/powershell commands
       "  chown root:root -R " (abbreviate-file-name doom-emacs-dir) "\n\n"
       "Aborting..."))
     (kill-emacs 2)))
