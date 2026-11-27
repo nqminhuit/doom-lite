@@ -346,26 +346,6 @@ If prefix arg is present, refresh the cache."
 ;;
 ;;; * Misc help commands
 
-;;;###autoload
-(defun doom/homepage ()
-  "Open the doom emacs homepage in the browser."
-  (interactive)
-  (browse-url "https://doomemacs.org"))
-
-;;;###autoload
-(defun doom/report-bug (repo)
-  "Create a new issue in REPO or our Github Discussions board."
-  (interactive
-   (list (completing-read
-          "In which repo? " '("doomemacs/core"
-                              "doomemacs/modules"
-                              "doomemacs/modules-contrib"
-                              "I don't know"))))
-  (browse-url
-   (if (equal repo "I don't know")
-       "https://github.com/orgs/doomemacs/discussions/new?category=issues"
-     (format "https://github.com/%s/issues/new?template=bug_report.yml" repo))))
-
 (defvar doom--package-cache nil)
 (defun doom--package-list (&optional prompt)
   (require 'package)
