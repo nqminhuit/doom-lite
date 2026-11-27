@@ -110,16 +110,13 @@ list is returned as-is."
                collect (cadr hook)
                else collect (intern (format "%s-hook" (symbol-name hook)))))))
 
-(defun doom--setq-hook-fns (hooks rest &optional singles)
-  (unless (or singles (= 0 (% (length rest) 2)))
+(defun doom--setq-hook-fns (hooks rest)
+  (unless (= 0 (% (length rest) 2))
     (signal 'wrong-number-of-arguments (list #'evenp (length rest))))
   (cl-loop with vars = (let ((args rest)
                              vars)
                          (while args
-                           (push (if singles
-                                     (list (pop args))
-                                   (cons (pop args) (pop args)))
-                                 vars))
+                           (push (cons (pop args) (pop args)) vars))
                          (nreverse vars))
            for hook in (doom--resolve-hook-forms hooks)
            for mode = (string-remove-suffix "-hook" (symbol-name hook))

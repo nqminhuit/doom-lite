@@ -184,58 +184,6 @@ OUTS is a list of (TARGET . APPEND) sinks, DOWN the downstream process."
              (when (process-live-p down)
                (ignore-errors (process-send-string down chunk))))))))
 
-(defun doom-sh--async-sentinel (down errproc)
-  (lambda (process _event)
-    (when (memq (process-status process) '(exit signal))
-      (when (and down (process-live-p down))
-        ;; So the rest of the pipeline can drain and terminate
-        (process-send-eof down))
-      (when errproc
-        ;; Drain/close ERRPROC so it doesn't linger.
-        (while (accept-process-output errproc 0))
-        (when (process-live-p errproc)
-          (delete-process errproc))))))
-
-(defun doom-sh--pipeline-async (stages)
-  "Execute STAGES (from `doom-sh--parse') asynchronously, without blocking.
-
-Stages run concurrently, wired stdout->stdin. Redirects are honored. Output from
-an unredirected final stage is discarded."
-  (let* ((n (length stages))
-         (procs (make-vector n nil)))
-    ;; Build back-to-front so each stage's filter can reference its downstream
-    ;; process, and so no stage can emit output before its target exists.
-    (cl-loop for i from (1- n) downto 0
-             for stage = (nth i stages)
-             for argv = (plist-get stage :argv)
-             for errs = (plist-get stage :err)
-             for down = (and (< (1+ i) n) (aref procs (1+ i)))
-             for errproc = (and errs
-                                (make-pipe-process
-                                 :name (format "doom-sh&-err[%d]" i) :noquery t
-                                 :filter (doom-sh--async-filter errs)))
-             do (unless argv (error "sh: empty command in pipeline"))
-             do (aset procs i
-                      (make-process
-                       :name (format "doom-sh&[%d]" i)
-                       :command argv
-                       :connection-type 'pipe
-                       :noquery t
-                       :stderr errproc
-                       :filter (doom-sh--async-filter (plist-get stage :out) down)
-                       :sentinel (doom-sh--async-sentinel down errproc))))
-    ;; Prime the head of the pipeline's stdin, then close it. Read the sources
-    ;; outside `ignore-errors' so a missing input file still signals.
-    (let* ((head (aref procs 0))
-           (ins (plist-get (nth 0 stages) :in))
-           (input (and ins (doom-sh--read-sources ins))))
-      (ignore-errors
-        (if input (process-send-string head input))
-        (process-send-eof head)))
-    ;; Mirrors the shell's $! for a pipeline
-    (process-id (aref procs (1- n)))))
-
-
 ;;
 ;;; * DSL
 

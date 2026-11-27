@@ -186,14 +186,6 @@ See `doom-real-buffer-p' for details on what that means."
            collect buf))
 
 ;;;###autoload
-(defun doom-set-buffer-real (buffer flag)
-  "Forcibly mark BUFFER as FLAG (non-nil = real).
-
-See `doom-real-buffer-p' for an explanation for real buffers."
-  (with-current-buffer buffer
-    (setq doom-real-buffer-p flag)))
-
-;;;###autoload
 (defun doom-kill-buffer-and-windows (buffer)
   "Kill the buffer and delete all the windows it's displayed in."
   (dolist (window (get-buffer-window-list buffer))
