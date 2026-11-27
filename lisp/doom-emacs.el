@@ -781,8 +781,6 @@ broken up into:
      org-footnote org-macro ob org org-clock org-agenda
      org-capture))
 
-This is already done by the lang/org module, however.
-
 If you want to disable incremental loading altogether, either remove
 `doom-load-packages-incrementally-h' from `doom-after-init-hook' or set
 `doom-incremental-first-idle-timer' to nil. Incremental loading does not occur

@@ -156,7 +156,6 @@
       :desc "Eval expression"       ";"    #'pp-eval-expression
       :desc "M-x"                   ":"    #'execute-extended-command
       :desc "Toggle scratch buffer" "x"    #'doom/toggle-scratch-buffer
-      :desc "Org Capture"           "X"    #'org-capture
       ;; C-u is used by evil
       :desc "Universal argument"    "u"    #'universal-argument
       :desc "window"                "w"    #'evil-window-map
@@ -325,31 +324,8 @@
        :desc "From clipboard"                "y"   #'+default/yank-pop)
 
 
-      ;;; <leader> n --- notes
-      (:prefix-map ("n" . "notes")
-       :desc "Search notes for symbol"      "*" #'+default/search-notes-for-symbol-at-point
-       :desc "Org agenda"                   "a" #'org-agenda
-       :desc "Cancel current org-clock"     "C" #'org-clock-cancel
-       :desc "Find file in notes"           "f" #'+default/find-in-notes
-       :desc "Browse notes"                 "F" #'+default/browse-notes
-       :desc "Org store link"               "l" #'org-store-link
-       :desc "Tags search"                  "m" #'org-tags-view
-       :desc "Org capture"                  "n" #'org-capture
-       :desc "Goto capture"                 "N" #'org-capture-goto-target
-       :desc "Active org-clock"             "o" #'org-clock-goto
-       :desc "Todo list"                    "t" #'org-todo-list
-       :desc "Search notes"                 "s" #'+default/org-notes-search
-       :desc "Search org agenda headlines"  "S" #'+default/org-notes-headlines
-       :desc "View search"                  "v" #'org-search-view)
-
       ;;; <leader> o --- open
       (:prefix-map ("o" . "open")
-       :desc "Org agenda"       "A"  #'org-agenda
-       (:prefix ("a" . "org agenda")
-        :desc "Agenda"         "a"  #'org-agenda
-        :desc "Todo list"      "t"  #'org-todo-list
-        :desc "Tags search"    "m"  #'org-tags-view
-        :desc "View search"    "v"  #'org-search-view)
        :desc "Default browser"    "b"  #'browse-url-of-file
        :desc "New frame"          "f"  #'make-frame
        :desc "Select frame"       "F"  #'select-frame-by-name
