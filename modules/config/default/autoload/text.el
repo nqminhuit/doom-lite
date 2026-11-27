@@ -25,7 +25,7 @@
   (interactive)
   (unless (fboundp 'consult-yank-pop)  ; See doomemacs/core#5013
     (error "No kill-ring search backend available. Enable vertico!"))
-  (call-interactively #'consult-yank-pop))
+  (call-interactively 'consult-yank-pop))
 
 ;;;###autoload
 (defun +default/yank-buffer-contents ()
