@@ -195,8 +195,7 @@ Otherwise, `en/disable-command' (in novice.el.gz) is hardcoded to write them to
         gnutls-algorithm-priority
         (when (boundp 'libgnutls-version)
           (concat "SECURE128:+SECURE192:-VERS-ALL"
-                  (if (and (not doom--system-windows-p)
-                           (>= libgnutls-version 30605))
+                  (if (>= libgnutls-version 30605)
                       ":+VERS-TLS1.3")
                   ":+VERS-TLS1.2"))
         ;; `gnutls-min-prime-bits' is set based on recommendations from
@@ -284,10 +283,7 @@ Otherwise, `en/disable-command' (in novice.el.gz) is hardcoded to write them to
 ;; ...but `set-language-environment' also sets `default-input-method', which is
 ;; a step too opinionated.
 (setq default-input-method nil)
-;; ...And the clipboard on Windows is often a wider encoding (UTF-16), so leave
-;; Emacs to its own devices there.
-(unless (or doom--system-windows-p (featurep :system 'wsl))
-  (setq selection-coding-system 'utf-8))
+(setq selection-coding-system 'utf-8)
 
 
 ;;; ** File handling
@@ -514,22 +510,6 @@ A few places use the backup file name so paths don't get too long."
       tool-bar-mode nil
       scroll-bar-mode nil)
 
-;; HACK: The menu-bar needs special treatment on MacOS. In GUI frames on
-;;   MacOS the menu bar lives outside of the frame, on the MacOS menu bar,
-;;   which is acceptable, but disabling it also makes MacOS treat Emacs GUI
-;;   frames like non-application windows (e.g. it won't capture input focus
-;;   on activation, among other things), so keep it enabled there.
-(when (eq system-type 'darwin)
-  ;; NOTE: Don't try to undo the hack below, as it may change without warning.
-  ;;   Instead, toggle `menu-bar-mode' (or put it on a hook) as normal. This
-  ;;   hack will always try to respect the state of `menu-bar-mode'.
-  (setcdr (assq 'menu-bar-lines default-frame-alist) 'tty)
-  (defun doom--init-menu-bar-on-macos-h (&optional frame)
-    (if (eq (frame-parameter frame 'menu-bar-lines) 'tty)
-        (set-frame-parameter frame 'menu-bar-lines
-                             (if (display-graphic-p frame) 1 0))))
-  (add-hook 'after-make-frame-functions #'doom--init-menu-bar-on-macos-h))
-
 
 ;;; ** Disable mode-line & line numbers in some modes
 
@@ -602,7 +582,7 @@ A few places use the backup file name so paths don't get too long."
 ;; UX: GUIs are inconsistent across systems, desktop environments, and themes,
 ;;   but more annoying than that are the inconsistent shortcut keys tied to
 ;;   them, so use Emacs instead of GUI popups.
-(setq use-dialog-box (featurep :system 'android)) ; Android dialogs are better UX
+(setq use-dialog-box nil)
 (when (bound-and-true-p tooltip-mode)
   (tooltip-mode -1))
 
@@ -638,10 +618,7 @@ A few places use the backup file name so paths don't get too long."
       tooltip-resize-echo-area t)
 
 ;; Typing yes/no is obnoxious when y/n will do
-(if (boundp 'use-short-answers)
-    (setq use-short-answers t)
-  ;; DEPRECATED: Remove when we drop 27.x support
-  (advice-add #'yes-or-no-p :override #'y-or-n-p))
+(setq use-short-answers t)
 ;; HACK: By default, SPC = yes when `y-or-n-p' prompts you (and
 ;;   `y-or-n-p-use-read-key' is off). This seems too easy to hit by accident,
 ;;   especially with SPC as our default leader key.
@@ -670,22 +647,6 @@ A few places use the backup file name so paths don't get too long."
 
 ;;
 ;;; * Keybind config
-
-(with-no-warnings  ; silence warnings about undefined vars
-  (cond
-   (doom--system-macos-p
-    ;; mac-* variables are used by the special emacs-mac build of Emacs by
-    ;; Yamamoto Mitsuharu, while other builds use ns-*.
-    (setq mac-command-modifier      'super
-          ns-command-modifier       'super
-          mac-option-modifier       'meta
-          ns-option-modifier        'meta
-          ;; Free up the right option for character composition
-          mac-right-option-modifier 'none
-          ns-right-option-modifier  'none))
-   (doom--system-windows-p
-    (setq w32-lwindow-modifier 'super
-          w32-rwindow-modifier 'super))))
 
 ;; HACK: Emacs can't distinguish C-i from TAB, or C-m from RET, in either GUI or
 ;;   TTY frames. This is a byproduct of its history with the terminal, which
@@ -1057,27 +1018,7 @@ windows, switch to `doom-fallback-buffer'. Otherwise, delegate to original
 
 (defun doom--dark-mode-p ()
   "Return non-nil if the OS is in dark-mode."
-  (cond ((featurep :system 'macos)
-         (if (boundp 'ns-system-appearance)
-             (eq ns-system-appearance 'dark)
-           (let ((cmd "tell app \"System Events\" to tell appearance preferences to return (dark mode as text)")
-                 (true "true")
-                 (gui? (display-graphic-p)))
-             (string-equal
-              (cond ((and gui? (fboundp 'mac-do-applescript))
-                     (setq true "\"true\"")
-                     (ignore-errors (mac-do-applescript cmd)))
-                    ((and gui? (fboundp 'ns-do-applescript))
-                     (ignore-errors (ns-do-applescript cmd)))
-                    ((string-trim (shell-command-to-string
-                                   (format "osascript -e '%s'" cmd)))))
-              true))))
-        ((fboundp 'w32-read-registry)
-         (eq 0 (w32-read-registry
-                'HKCU
-                "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"
-                "AppsUseLightTheme")))
-        ((and (featurep :system 'linux)
+  (cond ((and (featurep :system 'linux)
               (require 'dbus nil t))
          (eq 1 (car-safe (flatten-list
                           (dbus-call-method
@@ -1641,74 +1582,73 @@ the unwritable tidbits."
 
 
 ;;;###package so-long
-(when (fboundp 'buffer-line-statistics)  ; only 28+
-  (add-hook 'doom-first-file-hook #'global-so-long-mode)
-  (with-eval-after-load 'so-long
-    (unless (featurep 'native-compile)
-      (setq so-long-threshold 5000))
+(add-hook 'doom-first-file-hook #'global-so-long-mode)
+(with-eval-after-load 'so-long
+  (unless (featurep 'native-compile)
+    (setq so-long-threshold 5000))
 
-    ;; HACK: I exploit so-long to implement a "large file" minor mode that
-    ;;   activates if a file is too large or has lines whose width exceed
-    ;;   `so-long-threshold' (particularly minified files), and disables
-    ;;   non-essential functionality to speed Emacs up.
-    (defvar-local doom--so-long-fns nil)
+  ;; HACK: I exploit so-long to implement a "large file" minor mode that
+  ;;   activates if a file is too large or has lines whose width exceed
+  ;;   `so-long-threshold' (particularly minified files), and disables
+  ;;   non-essential functionality to speed Emacs up.
+  (defvar-local doom--so-long-fns nil)
 
-    (add-to-list 'so-long-action-alist
-                 (list #'doom-so-long-activate "Enable so-long-mode or so-long-minor-mode"
-                       (fn! (funcall (or (car doom--so-long-fns) #'ignore)))
-                       (fn! (funcall (or (cdr doom--so-long-fns) #'ignore)))))
+  (add-to-list 'so-long-action-alist
+               (list #'doom-so-long-activate "Enable so-long-mode or so-long-minor-mode"
+                     (fn! (funcall (or (car doom--so-long-fns) #'ignore)))
+                     (fn! (funcall (or (cdr doom--so-long-fns) #'ignore)))))
 
-    (defun doom-so-long-p ()
-      "A `so-long-predicate' to determine if the current buffer is too large.
+  (defun doom-so-long-p ()
+    "A `so-long-predicate' to determine if the current buffer is too large.
 
 This is determined by the longest line (whether it exceeds `so-long-threshold')
 and whether the line count of the buffer exceeds that matching entry in
 `doom-file-lines-threshold-alist' (defaulting to 20k lines)."
-      (unless
-          ;; HACK: Prevent so-long in places where we don't want it, like special
-          ;;   buffers (e.g. magit status) or temp buffers.
-          (or (doom-temp-buffer-p (current-buffer))
-              (doom-special-buffer-p (current-buffer) t))
-        (let ((stats (buffer-line-statistics)))
-          (cond ((> (cadr stats) so-long-threshold)
-                 (setq doom--so-long-fns
-                       '(so-long-mode . so-long-mode-revert)))
-                ((and buffer-file-name
-                      (when-let* ((maxlines
-                                   (assoc-default buffer-file-name doom-file-lines-threshold-alist
-                                                  #'string-match-p)))
-                        (> (car stats) maxlines)))
-                 (setq doom--so-long-fns
-                       '(so-long-minor-mode . turn-off-so-long-minor-mode)))))))
+    (unless
+        ;; HACK: Prevent so-long in places where we don't want it, like special
+        ;;   buffers (e.g. magit status) or temp buffers.
+        (or (doom-temp-buffer-p (current-buffer))
+            (doom-special-buffer-p (current-buffer) t))
+      (let ((stats (buffer-line-statistics)))
+        (cond ((> (cadr stats) so-long-threshold)
+               (setq doom--so-long-fns
+                     '(so-long-mode . so-long-mode-revert)))
+              ((and buffer-file-name
+                    (when-let* ((maxlines
+                                 (assoc-default buffer-file-name doom-file-lines-threshold-alist
+                                                #'string-match-p)))
+                      (> (car stats) maxlines)))
+               (setq doom--so-long-fns
+                     '(so-long-minor-mode . turn-off-so-long-minor-mode)))))))
 
-    (setq so-long-action 'doom-so-long-activate
-          so-long-predicate #'doom-so-long-p)
+  (setq so-long-action 'doom-so-long-activate
+        so-long-predicate #'doom-so-long-p)
 
-    (add-to-list 'so-long-target-modes 'conf-mode)
-    (add-to-list 'so-long-target-modes 'text-mode)
+  (add-to-list 'so-long-target-modes 'conf-mode)
+  (add-to-list 'so-long-target-modes 'text-mode)
 
-    ;; Don't disable syntax highlighting and line numbers, or make the buffer
-    ;; read-only, in `so-long-minor-mode', so we can have a basic editing
-    ;; experience in them, at least. It will remain off in `so-long-mode',
-    ;; however, because long files have a far bigger impact on Emacs performance.
-    (cl-callf2 delq 'font-lock-mode so-long-minor-modes)
-    (cl-callf2 delq 'display-line-numbers-mode so-long-minor-modes)
-    (setf (alist-get 'buffer-read-only so-long-variable-overrides nil t) nil)
-    ;; ...but at least reduce the level of syntax highlighting
-    (add-to-list 'so-long-variable-overrides '(font-lock-maximum-decoration . 1))
-    ;; ...and insist that save-place not operate in large/long files
-    (add-to-list 'so-long-variable-overrides '(save-place-alist . nil))
-    ;; But disable everything else that may be unnecessary/expensive for large or
-    ;; wide buffers.
-    (cl-callf append so-long-minor-modes
-      '(eldoc-mode
-        ws-butler-mode
-        auto-composition-mode
-        undo-tree-mode
-        highlight-indent-guides-mode
-        hl-fill-column-mode
-        ;; These are redundant on Emacs 29+
-        flycheck-mode))))
+  ;; Don't disable syntax highlighting and line numbers, or make the buffer
+  ;; read-only, in `so-long-minor-mode', so we can have a basic editing
+  ;; experience in them, at least. It will remain off in `so-long-mode',
+  ;; however, because long files have a far bigger impact on Emacs performance.
+  (cl-callf2 delq 'font-lock-mode so-long-minor-modes)
+  (cl-callf2 delq 'display-line-numbers-mode so-long-minor-modes)
+  (setf (alist-get 'buffer-read-only so-long-variable-overrides nil t) nil)
+  ;; ...but at least reduce the level of syntax highlighting
+  (add-to-list 'so-long-variable-overrides '(font-lock-maximum-decoration . 1))
+  ;; ...and insist that save-place not operate in large/long files
+  (add-to-list 'so-long-variable-overrides '(save-place-alist . nil))
+  ;; But disable everything else that may be unnecessary/expensive for large or
+  ;; wide buffers.
+  (cl-callf append so-long-minor-modes
+    '(eldoc-mode
+      ws-butler-mode
+      auto-composition-mode
+      undo-tree-mode
+      highlight-indent-guides-mode
+      hl-fill-column-mode
+      ;; These are redundant on Emacs 29+
+      flycheck-mode)))
 
 
 ;;;###package transient

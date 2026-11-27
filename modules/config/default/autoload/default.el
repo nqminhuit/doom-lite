@@ -18,13 +18,10 @@ If ARG (universal argument), runs `compile' from the current directory."
 
 ;;;###autoload
 (defun +default/man-or-woman ()
-  "Invoke `man' if man is installed and the platform is not MacOS, otherwise use `woman'.
-
-`man -k \"^\"` is very slow on MacOS, which is what `Man-completion-table' uses to
-generate `completing-read' candidates."
+  "Invoke `man' if man is installed, otherwise use `woman'."
   (interactive)
   (call-interactively
-   (if (and (not (featurep :system 'macos)) (executable-find "man"))
+   (if (executable-find "man")
        (or (command-remapping #'man)
            #'man)
      #'woman)))

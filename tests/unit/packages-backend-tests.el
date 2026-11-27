@@ -12,7 +12,6 @@
 (defvar doom-core-dir (expand-file-name "lisp/" pb-test-root))
 (defvar doom-user-dir (file-name-as-directory (make-temp-file "pb-user" t)))
 (defvar doom-data-dir (file-name-as-directory (make-temp-file "pb-data" t)))
-(defvar doom--system-windows-p nil)
 (defvar doom-local-dir (file-name-as-directory (make-temp-file "pb-local" t)))
 (defvar doom-module-load-path nil)
 

@@ -115,10 +115,7 @@ See `+corfu-want-minibuffer-completion'."
 (use-package! corfu-auto
   :defer t
   :config
-  (setq corfu-auto-delay
-        (if (featurep :system 'macos)
-            0.4  ; MacOS is slower, so go easy on it
-          0.24)
+  (setq corfu-auto-delay 0.24
         corfu-auto-prefix 2)
   (add-to-list 'corfu-auto-commands #'lispy-colon)
 

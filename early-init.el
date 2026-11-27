@@ -46,13 +46,6 @@
 ;; This is further increased elsewhere, where needed (like our LSP module).
 (setq read-process-output-max (* 64 1024))  ; 64kb
 
-;; Performance on Windows is considerably worse than elsewhere. We'll need
-;; everything we can get.
-(when (boundp 'w32-get-true-file-attributes)
-  (setq w32-get-true-file-attributes nil    ; reduce IO ops
-        w32-pipe-read-delay 0               ; faster IPC
-        w32-pipe-buffer-size (* 64 1024)))  ; read more at a time (was 4K)
-
 
 ;;; Emacs Fixes
 
@@ -85,14 +78,6 @@
 ;; have any direct control over (e.g. package files, data lisp files, and elisp
 ;; shell scripts). This shuts it up.
 (setq warning-inhibit-types '((files missing-lexbind-cookie)))
-
-;; $HOME isn't normally defined on Windows, but many unix tools expect it.
-(let (realhome)
-  (when (and (memq system-type '(cygwin windows-nt ms-dos))
-             (null (getenv-internal "HOME"))
-             (setq realhome (getenv "USERPROFILE")))
-    (setenv "HOME" realhome)
-    (setq abbreviated-home-dir nil)))
 
 
 ;; HACK: Here are Doom's hackiest (and least offensive) startup optimizations.
@@ -246,8 +231,7 @@
 
       ;; PERF: Unset a non-trivial list of command line options that aren't
       ;;   relevant to this session, but `command-line-1' still processes.
-      (unless (eq system-type 'darwin)
-        (setq command-line-ns-option-alist nil))
+      (setq command-line-ns-option-alist nil)
       (unless (memq initial-window-system '(x pgtk))
         (setq command-line-x-option-alist nil)))))
 

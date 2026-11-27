@@ -69,62 +69,6 @@ Continues comments if executed from a commented line."
 (after! tabulated-list
   (define-key tabulated-list-mode-map "q" #'quit-window))
 
-;; OS specific fixes
-(when (featurep :system 'macos)
-  ;; Fix MacOS shift+tab
-  (define-key key-translation-map [S-iso-lefttab] [backtab])
-  ;; Fix conventional OS keys in Emacs
-  (map! "s-`" #'other-frame  ; fix frame-switching
-        ;; fix OS window/frame navigation/manipulation keys
-        "s-w" #'delete-window
-        "s-W" #'delete-frame
-        "s-n" #'+default/new-buffer
-        "s-N" #'make-frame
-        "s-q" (if (daemonp) #'delete-frame #'save-buffers-kill-terminal)
-        "C-s-f" #'toggle-frame-fullscreen
-        ;; Restore somewhat common navigation
-        "s-l" #'goto-line
-        ;; Restore OS undo, save, copy, & paste keys (without cua-mode, because
-        ;; it imposes some other functionality and overhead we don't need)
-        "s-f" #'consult-line
-        "s-z" #'undo
-        "s-Z" #'redo
-        "s-c" (if (featurep 'evil) #'evil-yank #'copy-region-as-kill)
-        "s-v" #'yank
-        "s-s" #'save-buffer
-        "s-x" (cmds! (doom-region-active-p) #'kill-region
-                     #'execute-extended-command)
-        "s-0" #'doom/reset-font-size
-        ;; Global font scaling
-        "s-=" #'doom/increase-font-size
-        "s-+" #'doom/increase-font-size
-        "s--" #'doom/decrease-font-size
-        "s-_" #'doom/decrease-font-size
-        ;; Conventional text-editing keys & motions
-        "s-a" #'mark-whole-buffer
-        "s-/" (cmd! (save-excursion (comment-line 1)))
-        :n "s-/" #'comment-line
-        :v "s-/" #'comment-line
-        :gi  [s-backspace] #'doom/backward-kill-to-bol-and-indent
-        :gi  [s-left]      #'doom/backward-to-bol-or-indent
-        :gi  [s-right]     #'doom/forward-to-last-non-comment-or-eol
-        :gi  [M-backspace] #'backward-kill-word
-        :gi  [M-left]      #'backward-word
-        :gi  [M-right]     #'forward-word
-        (:when (modulep! :ui workspaces)
-         :g "s-t"   #'+workspace/new
-         :g "s-T"   #'+workspace/display
-         :n "s-1"   #'+workspace/switch-to-0
-         :n "s-2"   #'+workspace/switch-to-1
-         :n "s-3"   #'+workspace/switch-to-2
-         :n "s-4"   #'+workspace/switch-to-3
-         :n "s-5"   #'+workspace/switch-to-4
-         :n "s-6"   #'+workspace/switch-to-5
-         :n "s-7"   #'+workspace/switch-to-6
-         :n "s-8"   #'+workspace/switch-to-7
-         :n "s-9"   #'+workspace/switch-to-final)))
-
-
 ;;
 ;;; Keybind schemes
 
@@ -269,13 +213,7 @@ Continues comments if executed from a commented line."
       :gn [C-return]      #'+default/newline-below
       ;; Add new item above current (without splitting current line)
       :gi "C-S-RET"       #'+default/newline-above
-      :gn [C-S-return]    #'+default/newline-above
-
-      (:when (featurep :system 'macos)
-       :gn "s-RET"        #'+default/newline-below
-       :gn [s-return]     #'+default/newline-below
-       :gn "S-s-RET"      #'+default/newline-above
-       :gn [S-s-return]   #'+default/newline-above))
+      :gn [C-S-return]    #'+default/newline-above)
 
 
 ;;

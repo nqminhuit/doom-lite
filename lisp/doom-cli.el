@@ -330,9 +330,7 @@ COMMAND should either be a command list (e.g. \\='(doom foo bar)) or a
 Besides being executable, it must also have a doomscript shebang line, and if it
 has any ;;;###if cookie, its condition must pass."
   ;; TODO: Integrate `trusted-content' checks
-  (and (if (featurep :system 'windows)
-           (file-readable-p file)
-         (file-executable-p file))
+  (and (file-executable-p file)
        (with-temp-buffer
          (insert-file-contents file nil 0 128)
          (looking-at-p "^#!\\(.+[/ ]\\)?doomscript\n"))
@@ -1243,9 +1241,7 @@ Emacs' batch library lacks an implementation of the exec system call."
       (doom-file-write
        script-file
        (pcase-exhaustive doom-cli-shell
-         (`sh `(,(if (featurep :system 'android)
-                     "#!/bin/sh\n"
-                   "#!/usr/bin/env sh\n")
+         (`sh `("#!/usr/bin/env sh\n"
                 "trap _doomcleanup EXIT\n"
                 "_doomcleanup() {\n  rm -f " ,persistent-files "\n}\n"
                 "_doomrun() {\n  " ,command "\n}\n"

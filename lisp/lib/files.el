@@ -202,8 +202,7 @@ single file or nested compound statement of `and' and `or' statements."
       (/ (string-to-number (cdr (doom-call-process "du" "-sb" dir)))
          1024.0)
     ;; REVIEW: This is slow and terribly inaccurate, but it's something
-    (dlet ((w32-get-true-file-attributes t)
-           (file-name-handler-alist dir)
+    (dlet ((file-name-handler-alist dir)
            (max-lisp-eval-depth 5000))
       (let ((sum 0.0))
         (dolist (attrs (directory-files-and-attributes dir nil nil t) sum)
@@ -271,12 +270,7 @@ If BEG and/or END are integers, only that region will be read from FILE."
           (insert-file-contents-literally buffer-file-name nil beg end))
         (pcase by
           ('insert
-           (if (fboundp 'insert-into-buffer)
-               (insert-into-buffer old-buffer)
-             ;; DEPRECATED: Remove fallback when 27.x support is dropped.
-             (let ((input (buffer-substring-no-properties (point-min) (point-max))))
-               (with-current-buffer old-buffer
-                 (insert input))))
+           (insert-into-buffer old-buffer)
            t)
           ('buffer-string
            (buffer-substring-no-properties (point-min) (point-max)))
