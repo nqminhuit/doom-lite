@@ -184,7 +184,7 @@ in."
   (print! (start "Checking Doom Emacs..."))
   (condition-case-unless-debug ex
       (print-group!
-        (doom-initialize t)
+        (doom-initialize)
         (doom-startup)
         (doom-initialize-packages)
 
