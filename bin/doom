@@ -116,7 +116,7 @@
 (defcli! doom (&args _command)
   "A command line interface to Doom Emacs.
 
-Includes package management, diagnostics, unit tests, and byte-compilation.
+Includes package management, diagnostics, and byte-compilation.
 
 This tool also makes it trivial to launch Emacs out of a different folder or
 with a different private module.
@@ -145,26 +145,6 @@ ENVIRONMENT VARIABLES:
     A colon-delimited list of directories where Doom's CLI searches for doom-*
     executables when invoking an unrecognized command.
 
-  `$DOOMPROFILE'
-    Which Doom profile to activate (default: \"_@0\"). The `--profile' option
-    also sets this variable.
-
-  `$DOOMPROFILELOADFILE'
-    Doom generates a profile loader script on 'doom sync' or 'doom profile
-    sync'. By default, this file is written to and loaded from
-    $EMACSDIR/profiles/load.el. Set this envvar to change that. Note that this
-    envvar must be in scope for both interactive and non-interactive sessions
-    for it to be effective. This is especially useful for folks on Nix/Guix, who
-    have deployed Doom to a read-only directory.
-
-    Note: this file *must* end with a .el extension. It will be byte-compiled
-    after it is generated.
-
-  `$DOOMPROFILELOADPATH'
-    A colon-delimited (semi-colon on Windows) list of profile config files or
-    directories under which Doom will search for implicit profiles. See
-    `var:doom-profile-load-path' for its default value.
-
 EXIT CODES:
   0        Successful run
   1        No error occurred, but the command couldn't complete
@@ -179,11 +159,7 @@ EXIT CODES:
   255      Uncaught critical errors
 
 SEE ALSO:
-  https://doomemacs.org               Homepage
-  https://docs.doomemacs.org          Official documentation
-  https://wiki.doomemacs.org          Community wiki
-  https://discuss.doomemacs.org       Github discussions & user support board
-  https://discord.doomemacs.org       Discord chat server"
+  https://github.com/nqminhuit/doom-lite  Homepage"
   :partial t)
 
 (defcli! :before
@@ -193,7 +169,6 @@ SEE ALSO:
      (doomdir  ("--doomdir" dir)  "Use Doom config living in `DIR' (e.g. ~/.doom.d)")
      (emacsdir ("--emacsdir" dir) "Use Doom install living in `DIR' (e.g. ~/.emacs.d)")
      (pager    ("--pager" cmd)    "Pager command to use for large output")
-     (profile  ("--profile" name) "Use profile named NAME")
      (bench?   ("--benchmark")    "Always display the benchmark")
      &flags
      (color?   ("--color") "Whether or not to show ANSI color codes")
@@ -230,7 +205,6 @@ SEE ALSO:
     (setf (doom-cli-context-suppress-prompts-p context) t))
   ;; For these settings to take full effect, the script must be restarted:
   (when (or debug?
-            profile
             emacsdir
             doomdir)
     (let (omit)
@@ -239,9 +213,6 @@ SEE ALSO:
         (setq init-file-debug t)
         (push "--debug" omit)
         (push "-D" omit))
-      (when profile
-        (setenv "DOOMPROFILE" profile)
-        (push "--profile=" omit))
       (when emacsdir
         (setenv "EMACSDIR" emacsdir)
         (push "--emacsdir=" omit))
@@ -323,34 +294,11 @@ SEE ALSO:
     (load! "doom-sync"))
 
   (defcli-alias! s sync)
-  (defcli-alias! pf profile)
   (defcli-alias! up upgrade)
   (defcli-alias! doc doctor)
 
-  (defcli-stub! module)
-  (defcli-stub! nuke)
-  (defcli-stub! package)
-
-  (defcli! run ()
-    "Project-local tasks (for build pipelines, CI/CD, etc).
-
-If this command has no sub-commands, it's because no enabled modules define any
-or the current project doesn't define any from its .doom file or .doom.d directory.
-
-If you expected this command to launch Doom Emacs, that command was moved to
-'doom emacs' in v2.1.0."
-    :partial t)
-
-  ;; DEPRECATED: Backwards compatibility will be removed in v3.
-  (defcli-obsolete! (profiles sync) (profile sync "--all") "2.1.0")
-  (defcli-obsolete! ((build b)) (sync "--rebuild") "2.1.0")
-  (defcli-obsolete! ((purge p)) (gc) "2.1.0")
-
   (with-doom-context 'module
     (dolist (key (doom-module-list))
-      (when (eq (car key) :doom)
-        (when-let* ((bindir (doom-module-locate-path key "bin/")))
-          (add-to-list 'doom-cli-exec-path (doom-module-locate-path key "bin/") 'append)))
       (when-let* ((path (doom-module-locate-path key doom-module-cli-file)))
         (if (eq (car key) :doom)
             (doom-load (file-name-sans-extension path))

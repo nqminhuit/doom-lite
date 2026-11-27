@@ -144,8 +144,6 @@ The first element should always be one of `macos', `windows', `linux', or
 (defvar doom-init-time nil
   "The time it took, in seconds (as a float), for Doom Emacs to start up.")
 
-;; DEPRECATED: Will be removed in v3
-(defconst doom--noprofile (not (getenv-internal "DOOMPROFILE")))
 (defconst doom--profile-default (cons "_default" "0"))
 
 (defvar doom-profile nil
@@ -204,12 +202,7 @@ These files should not be shared across systems. By default, it is used by
 `doom-data-dir' and `doom-cache-dir'. Must end with a slash.")
 
 (defvar doom-data-dir
-  (if doom--noprofile
-      ;; DEPRECATED: .local will be removed entirely in 3.0
-      (file-name-concat doom-local-dir "etc/")
-    (if doom--system-windows-p
-        (expand-file-name "doomemacs/data/" (getenv-internal "LOCALAPPDATA"))
-      (expand-file-name "doom/" (or (getenv-internal "XDG_DATA_HOME") "~/.local/share"))))
+  (file-name-concat doom-local-dir "etc/")
   "Where Doom stores its global data files.
 
 Data files contain shared and long-lived data that Doom, Emacs, and their
@@ -222,12 +215,7 @@ generated files for profiles, profiles themselves, autoloads/loaddefs, etc.
 For profile-local data files, use `doom-profile-data-dir' instead.")
 
 (defvar doom-cache-dir
-  (if doom--noprofile
-      ;; DEPRECATED: .local will be removed entirely in 3.0
-      (file-name-concat doom-local-dir "cache/")
-    (if doom--system-windows-p
-        (expand-file-name "doomemacs/cache/" (getenv-internal "LOCALAPPDATA"))
-      (expand-file-name "doom/" (or (getenv-internal "XDG_CACHE_HOME") "~/.cache"))))
+  (file-name-concat doom-local-dir "cache/")
   "Where Doom stores its global cache files.
 
 Cache files represent unessential data that shouldn't be problematic when
@@ -241,12 +229,7 @@ session files, ELPA archives, authinfo files, org-persist, etc.
 For profile-local cache files, use `doom-profile-cache-dir' instead.")
 
 (defvar doom-state-dir
-  (if doom--noprofile
-      ;; DEPRECATED: .local will be removed entirely in 3.0
-      (file-name-concat doom-local-dir "state/")
-    (if doom--system-windows-p
-        (expand-file-name "doomemacs/state/" (getenv-internal "LOCALAPPDATA"))
-      (expand-file-name "doom/" (or (getenv-internal "XDG_STATE_HOME") "~/.local/state"))))
+  (file-name-concat doom-local-dir "state/")
   "Where Doom stores its global state files.
 
 State files contain unessential, non-portable, but persistent data which, if
@@ -341,7 +324,7 @@ Each function is passed one argument: the doom-profile being started up."
                                    nil 0 96)
              (read (current-buffer))))))
 
-(defun doom-initialize (profile-id &optional interactive?)
+(defun doom-initialize (&optional interactive?)
   "Bootstrap the Doom session ahead."
   (when (and (not doom-profile)
              (doom-context-push 'startup))
@@ -401,17 +384,7 @@ Each function is passed one argument: the doom-profile being started up."
               (load "site-start" t))))))
 
     ;; Set and load `doom-profile'.
-    (let* ((key
-            ;; Can't use `doom-profile-key' this early. Interactive sessions
-            ;; won't have the profiles API available yet.
-            (if profile-id
-                (save-match-data
-                  (let (case-fold-search)
-                    (if (string-match "^\\([^@]+\\)?\\(?:@\\(.+\\)\\)?$" profile-id)
-                        (cons (match-string 1 profile-id)
-                              (or (match-string 2 profile-id) (cdr doom--profile-default)))
-                      (cons profile-id (cdr doom--profile-default)))))
-              doom--profile-default))
+    (let* ((key doom--profile-default)
            (init-file (doom-profile-init-file key)))
       (if (file-exists-p init-file)
           (condition-case-unless-debug e
@@ -422,19 +395,17 @@ Each function is passed one argument: the doom-profile being started up."
                (message "Error loading profile: %s" (error-message-string e))
                (message "Run 'doom sync' to regenerate it!"))))
         (if interactive?
-            (signal 'doom-nosync-error `(doom-initialize ,profile-id))))
+            (signal 'doom-nosync-error '(doom-initialize))))
       (unless doom-profile
         (setq doom-profile
               (make-doom-profile :name (car key)
                                  :ref "0" ; refs are ornamental until v3
                                  :root doom-emacs-dir)))
       ;; DEPRECATED: For backwards compatibility. Remove in v3
-      (let ((name (unless doom--noprofile (doom-profile-name doom-profile)))
-            (ref  (unless doom--noprofile (doom-profile-ref doom-profile))))
-        (setq doom-profile-cache-dir (doom-cache-dir name)
-              doom-profile-data-dir  (doom-data-dir name)
-              doom-profile-state-dir (doom-state-dir name)
-              doom-profile-dir       (doom-profile-data-dir t "@" ref))))
+      (setq doom-profile-cache-dir (doom-cache-dir)
+            doom-profile-data-dir  (doom-data-dir)
+            doom-profile-state-dir (doom-state-dir)
+            doom-profile-dir       (doom-profile-data-dir t "@")))
 
     ;; HACK: Many packages (even built-in ones) abuse `user-emacs-directory' to
     ;;   build paths for storage/cache files instead of correctly using

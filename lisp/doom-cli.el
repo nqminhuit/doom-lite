@@ -1213,8 +1213,7 @@ Emacs' batch library lacks an implementation of the exec system call."
          (persisted-env
           (cl-remove-if-not
            #'cdr (append
-                  `(("DOOMPROFILE" . ,(if (getenv "DOOMPROFILE") (doom-profile->id doom-profile)))
-                    ("EMACSDIR" . ,doom-emacs-dir)
+                  `(("EMACSDIR" . ,doom-emacs-dir)
                     ("DOOMDIR" . ,doom-user-dir)
                     ("DEBUG" . ,(if doom-debug-mode (number-to-string doom-log-level)))
                     ("__DOOMPID" . ,(number-to-string (doom-cli-context-pid context)))
@@ -2535,7 +2534,7 @@ OPTIONS:
 (defcli! (:root :version)
     ((short? ("-s" "--short"))
      &context _)
-  "Show versions of Emacs, Doom core, and installed module sources.
+  "Show versions of Emacs and Doom core.
 
 OPTIONS:
   -s, --short

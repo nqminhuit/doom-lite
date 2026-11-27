@@ -147,7 +147,6 @@ Emacs package. Why not use that over this? Because...
             (print! (success "Wrote %s") (filename output-file))))))
     t))
 
-(defcli-obsolete! (env (clear c)) (sync --no-env --reload) "2.3.0")
 
 
 ;;

@@ -42,7 +42,7 @@ recompile. Run this whenever you:
   3. Add, remove, or modify autoloaded functions in module autoloaded files,
   4. Update Doom manually (e.g. with git),
   5. Move your Doom config (either $EMACSDIR or $DOOMDIR) to a new location.
-  6. Up or downgrade Emacs itself (e.g. 29.1 -> 29.4).
+  6. Up or downgrade Emacs itself (e.g. 31.1 -> 31.2).
 
 Sync'ing ensures that unneeded packages are removed, every package is checked
 out at its pin and built, autoloads files are up-to-date, and no byte-compiled
@@ -69,9 +69,6 @@ files have gone stale."
     (unless (> (doom-cli-context-step context) 0)
       (print! (item "Using Emacs %s @ %s") emacs-version (path invocation-directory invocation-name)))
 
-    (when (and (doom-profiles-bootloadable-p)
-               doom--noprofile)
-      (call! '(profile sync "--all")))
 
     (let ((env-file
            (doom-profile-dir t doom-profile-init-dir-name "05-doom-env.load.el")))
