@@ -32,13 +32,3 @@ If the depth is 2, the first two directories are removed: net.lissner.game.")
   :init
   (set-tree-sitter! 'java-mode 'java-ts-mode '(java doxygen)))
 
-
-(use-package! android-mode
-  :commands android-mode
-  :init
-  (add-hook! '(java-mode-hook groovy-mode-hook nxml-mode-hook)
-             #'+java-android-mode-maybe-h))
-
-
-(use-package! groovy-mode
-  :mode "\\.g\\(?:radle\\|roovy\\)\\'")

@@ -2,37 +2,6 @@
 
 ;; yasnippet defuns
 ;;;###autoload
-(defun +java-android-mode-is-layout-file ()
-  (and android-mode
-       (eq major-mode 'nxml-mode)
-       (string-equal (file-name-base (directory-file-name default-directory)) "layout")))
-
-;;;###autoload
-(defun +java-android-mode-in-tags (&rest tags)
-  (cl-find (android-mode-tag-name) tags))
-
-;;;###autoload
-(defun +java-android-mode-tag-name ()
-  (save-excursion
-    (let (beg end)
-      (nxml-backward-up-element)
-      (evil-forward-word-begin)
-      (setq beg (point))
-      (evil-forward-WORD-end)
-      (setq end (1+ (point)))
-      (buffer-substring-no-properties beg end))))
-
-;;;###autoload
-(defun +java-android-mode-maybe-h ()
-  "Enable `android-mode' if this looks like an android project.
-
-It determines this by the existence of AndroidManifest.xml or
-src/main/AndroidManifest.xml."
-  (when (project-file-exists-p! (or "AndroidManifest.xml"
-                                    "src/main/AndroidManifest.xml"))
-    (android-mode +1)))
-
-;;;###autoload
 (defun +java-current-package ()
   "Converts the current file's path into a namespace.
 
@@ -80,10 +49,3 @@ root)."
         (buffer-file-name
          (file-name-sans-extension (file-name-base (buffer-file-name))))
         ((user-error "Can't deduce the class name"))))
-
-;;;###autoload
-(defun +java/open-groovy-repl ()
-  "Open a Groovy REPL."
-  (interactive)
-  (call-interactively #'run-groovy)
-  (get-buffer groovy-buffer))

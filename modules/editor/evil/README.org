@@ -16,19 +16,15 @@ This holy module brings the Vim editing model to Emacs.
 - =evil=
 - =evil-args=
 - =evil-collection=
-- =evil-embrace=
 - =evil-escape=
 - =evil-exchange=
 - =evil-indent-plus=
-- =evil-lion=
 - =evil-numbers=
 - =evil-quick-diff=
-- =evil-snipe=
 - =evil-surround=
 - =evil-textobj-anyblock=
 - =evil-traces=
 - =evil-visualstar=
-- =exato=
 
 ** Hacks
 - The o/O keys will respect and continue commented lines (can be disabled by
@@ -55,9 +51,7 @@ The following vim plugins have been ported to evil:
 
 | Vim Plugin            | Emacs Plugin                   | Keybind(s)                                  |
 |-----------------------+--------------------------------+---------------------------------------------|
-| vim-lion              | evil-lion                      | omap =gl= / =gL=                            |
-| vim-seek or vim-sneak | evil-snipe                     | mmap =s= / =S=, omap =z= / =Z= & =x= / =X=  |
-| vim-surround          | evil-embrace and evil-surround | vmap =S=, omap =ys=                         |
+| vim-surround          | evil-surround                  | vmap =S=, omap =ys=                         |
 | vim-unimpaired        | (provided by Doom)             | see the =[= and =]= bindings in =config.el= |
 
 This module has also ported vim-unimpaired keybinds to Emacs.
@@ -86,7 +80,6 @@ And these are text objects added by this module:
   below) (provided by ~evil-indent-plus~)
 - =q= For quotes (any kind)
 - =u= For URLs
-- =x= XML attributes (provided by ~exato~)
 
 ** Custom Ex Commands
 | Ex Command               | Description                                                                      |
@@ -147,18 +140,6 @@ To undo this, use:
 (setopt evil-want-C-u-scroll nil
         evil-want-C-u-delete nil)
 #+end_src
-
-** The =s=/=S= keys behave differently from Vim
-Doom replaces the =s= and =S= keys with the =evil-snipe= package (a port of
-vim-seek/vim-sneak for 2-character versions of f/F/t/T).
-
-To disable evil-snipe on s/S, you can either:
-1. Disable ~evil-snipe-mode~ by adding ~(remove-hook 'doom-first-input-hook
-   #'evil-snipe-mode)~ to =$DOOMDIR/config.el=,
-2. Or disable =evil-snipe= completely with ~(package! evil-snipe :disable t)~
-   added to =$DOOMDIR/packages.el=, but this will also disable incremental
-   highlighting for the f/F/t/T motions keys.
-3. Or use =cl= and =cc=, respectively; they do the same thing.
 
 ** The =Y= key behaves differently from Vim (should yank the whole line)
 Doom changes the behavior of the =Y= key in normal mode to yank-to-EOL (equivalent

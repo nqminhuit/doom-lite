@@ -199,16 +199,6 @@
            :desc "Open in new workspace"       [tab] #'+vertico/embark-open-in-new-workspace))))
 
 
-(use-package! marginalia
-  :hook (doom-first-input . marginalia-mode)
-  :init
-  (map! :map minibuffer-local-map
-        :desc "Cycle marginalia views" "M-A" #'marginalia-cycle)
-  :config
-  (add-to-list 'marginalia-command-categories
-               '(flycheck-error-list-set-filter . builtin)))
-
-
 ;; From https://github.com/minad/vertico/wiki#candidate-display-transformations-custom-candidate-highlighting
 ;;
 ;; Uses `add-face-text-property' instead of `propertize' unlike the above
@@ -225,12 +215,6 @@
       (setq cand (funcall fun cand)))
     (cl-call-next-method cand prefix suffix index start))
 
-  (defun +vertico-highlight-directory-fn (file)
-    "If FILE ends with a slash, highlight it as a directory."
-    (when (string-suffix-p "/" file)
-      (add-face-text-property 0 (length file) 'marginalia-file-priv-dir 'append file))
-    file)
-
   (defun +vertico-highlight-enabled-mode-fn (cmd)
     "If MODE is enabled, highlight it as font-lock-constant-face."
     (let ((sym (intern cmd)))
@@ -243,9 +227,6 @@
             (add-face-text-property 0 (length cmd) 'font-lock-constant-face 'append cmd)))
       cmd))
 
-  (add-to-list 'vertico-multiform-categories
-               '(file
-                 (+vertico-transform-functions . +vertico-highlight-directory-fn)))
   (add-to-list 'vertico-multiform-commands
                '(execute-extended-command
                  (+vertico-transform-functions . +vertico-highlight-enabled-mode-fn))))

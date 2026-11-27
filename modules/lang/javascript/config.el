@@ -5,8 +5,7 @@
 ;;; Major modes
 
 (defun +javascript-common-config (mode)
-  (unless (eq mode 'nodejs-repl-mode)
-    (add-hook (intern (format "%s-local-vars-hook" mode)) #'lsp! 'append))
+  (add-hook (intern (format "%s-local-vars-hook" mode)) #'lsp! 'append)
 
   (when (memq mode '(typescript-mode typescript-ts-mode))
     (set-electric! mode :chars '(?\} ?\)) :words '("||" "&&"))))
@@ -45,14 +44,6 @@
   (add-to-list 'compilation-error-regexp-alist-alist
                '(node "^[[:blank:]]*at \\(.*(\\|\\)\\(.+?\\):\\([[:digit:]]+\\):\\([[:digit:]]+\\)"
                  2 3 4)))
-
-
-(use-package! nodejs-repl
-  :defer t
-  :init
-  :config
-  (+javascript-common-config 'nodejs-repl-mode)
-  (set-electric! 'nodejs-repl-mode :chars '(?\} ?\) ?. ?:)))
 
 
 ;;

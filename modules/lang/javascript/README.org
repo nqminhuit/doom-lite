@@ -10,7 +10,6 @@ This module adds [[https://www.javascript.com/][JavaScript]] and [[https://www.t
 - LSP integration through =:tools lsp= (code completion, jump-to-definitions and references)
 - Syntax checking (with =:checkers syntax=)
 - Node stack traces are parsed in compilation buffers
-- A REPL (~+javascript/open-repl~, with =nodejs-repl=)
 
 ** Maintainers
 - [[https://github.com/elken][elken]]
@@ -21,7 +20,7 @@ This module adds [[https://www.javascript.com/][JavaScript]] and [[https://www.t
 /This module has no flags./
 
 ** Packages
-- =nodejs-repl=
+/This module installs no packages./
 
 ** Hacks
 /No hacks documented for this module./

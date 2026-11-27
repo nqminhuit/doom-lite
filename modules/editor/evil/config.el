@@ -311,63 +311,6 @@ don't offer any/enough real value to users.")
       (funcall-interactively fn))))
 
 
-
-(use-package! evil-embrace
-  :commands embrace-add-pair embrace-add-pair-regexp
-  :hook (LaTeX-mode . embrace-LaTeX-mode-hook)
-  :hook (LaTeX-mode . +evil-embrace-latex-mode-hook-h)
-  :hook (org-mode . embrace-org-mode-hook)
-  :hook ((ruby-mode ruby-ts-mode) . embrace-ruby-mode-hook)
-  :hook (emacs-lisp-mode . embrace-emacs-lisp-mode-hook)
-  :hook ((c++-mode c++-ts-mode) . +evil-embrace-angle-bracket-modes-hook-h)
-  :hook ((csharp-mode csharp-ts-mode) . +evil-embrace-angle-bracket-modes-hook-h)
-  :hook ((java-mode java-ts-mode) . +evil-embrace-angle-bracket-modes-hook-h)
-  :hook ((scala-mode scala-ts-mode) . +evil-embrace-scala-mode-hook-h)
-  :hook ((swift-mode swift-ts-mode) . +evil-embrace-angle-bracket-modes-hook-h)
-  :hook ((typescript-mode typescript-ts-mode) . +evil-embrace-angle-bracket-modes-hook-h)
-  :hook ((rustic-mode rust-ts-mode) . +evil-embrace-angle-bracket-modes-hook-h)
-  :init
-  (after! evil-surround
-    (evil-embrace-enable-evil-surround-integration))
-
-  ;; HACK: This must be done ASAP, before embrace has a chance to
-  ;;   buffer-localize `embrace--pairs-list' (which happens right after it calls
-  ;;   `embrace--setup-defaults'), otherwise any new, global default pairs we
-  ;;   define won't be in scope.
-  (defadvice! +evil--embrace-init-escaped-pairs-a (&rest _)
-    "Add escaped-sequence support to embrace."
-    :after #'embrace--setup-defaults
-    (embrace-add-pair-regexp ?\\ "\\[[{(]" "\\[]})]" #'+evil--embrace-escaped
-                             (embrace-build-help "\\?" "\\?")))
-  :config
-  (setq evil-embrace-show-help-p nil)
-
-  (defun +evil-embrace-scala-mode-hook-h ()
-    (embrace-add-pair ?$ "${" "}"))
-
-  (defun +evil-embrace-latex-mode-hook-h ()
-    (dolist (pair '((?\' . ("`" . "\'"))
-                    (?\" . ("``" . "\'\'"))))
-      (delete (car pair) evil-embrace-evil-surround-keys)
-      ;; Avoid `embrace-add-pair' because it would overwrite the default rules,
-      ;; which we want for other modes
-      (push (cons (car pair) (make-embrace-pair-struct
-                              :key (car pair)
-                              :left (cadr pair)
-                              :right (cddr pair)
-                              :left-regexp (regexp-quote (cadr pair))
-                              :right-regexp (regexp-quote (cddr pair))))
-            embrace--pairs-list))
-    (embrace-add-pair-regexp ?l "\\[a-z]+{" "}" #'+evil--embrace-latex))
-
-  (defun +evil-embrace-angle-bracket-modes-hook-h ()
-    (let ((var (make-local-variable 'evil-embrace-evil-surround-keys)))
-      (set var (delq ?< evil-embrace-evil-surround-keys))
-      (set var (delq ?> evil-embrace-evil-surround-keys)))
-    (embrace-add-pair-regexp ?< "\\_<[a-z0-9-_]+<" ">" #'+evil--embrace-angle-brackets)
-    (embrace-add-pair ?> "<" ">")))
-
-
 (use-package! evil-escape
   :commands evil-escape
   :hook (doom-first-input . evil-escape-mode)
@@ -400,18 +343,6 @@ don't offer any/enough real value to users.")
 
 (use-package! evil-quick-diff
   :commands (evil-quick-diff evil-quick-diff-cancel))
-
-
-
-(use-package! evil-snipe
-  :commands evil-snipe-local-mode evil-snipe-override-local-mode
-  :hook (doom-first-input . evil-snipe-override-mode)
-  :hook (doom-first-input . evil-snipe-mode)
-  :init
-  (setq evil-snipe-smart-case t
-        evil-snipe-scope 'line
-        evil-snipe-repeat-scope 'visible
-        evil-snipe-char-fold t))
 
 
 (use-package! evil-surround
@@ -450,13 +381,6 @@ don't offer any/enough real value to users.")
   (evil-define-key* 'visual 'global
     "*" #'evil-visualstar/begin-search-forward
     "#" #'evil-visualstar/begin-search-backward))
-
-
-;;
-;;; Text object plugins
-
-(use-package! exato
-  :commands evil-outer-xml-attr evil-inner-xml-attr)
 
 
 ;;
@@ -572,18 +496,11 @@ don't offer any/enough real value to users.")
       :textobj "k" #'evil-indent-plus-i-indent-up      #'evil-indent-plus-a-indent-up
       :textobj "q" #'+evil:inner-any-quote             #'+evil:outer-any-quote
       :textobj "u" #'+evil:inner-url-txtobj            #'+evil:outer-url-txtobj
-      :textobj "x" #'evil-inner-xml-attr               #'evil-outer-xml-attr
 
       ;; evil-surround
       :v "S" #'evil-surround-region
       :o "s" #'evil-surround-edit
       :o "S" #'evil-Surround-edit
-
-      ;; evil-lion
-      :n "gl" #'evil-lion-left
-      :n "gL" #'evil-lion-right
-      :v "gl" #'evil-lion-left
-      :v "gL" #'evil-lion-right
 
       ;; Emulation of Vim's omni-completion keybinds
       (:unless evil-disable-insert-state-bindings

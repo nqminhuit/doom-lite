@@ -43,9 +43,3 @@
     "Prevent the elisp checker in non-project buffers (for CVE-2024-53920)."
     :before-while #'elisp-flymake-byte-compile
     (doom-project-p)))
-
-
-(use-package! flymake-popon
-  :hook (flymake-mode . flymake-popon-mode)
-  :config
-  (setq flymake-popon-method 'popon))
