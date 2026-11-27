@@ -3,7 +3,7 @@
 
 (package! vertico
   :recipe (:host github :repo "minad/vertico" :files (:defaults "extensions/vertico-*.el"))
-  :pin "c60d80215d19b4b36c0ba49599b6815ed35f2ac1")
+  :pin "6976caba3c83799e54d3e2647f6dee79f18869b2")
 
 (package! orderless
   :recipe (:host github :repo "oantolin/orderless")
