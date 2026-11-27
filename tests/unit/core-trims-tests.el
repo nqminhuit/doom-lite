@@ -25,7 +25,8 @@
     "doom--system-windows-p" "doom--system-macos-p"
     "doom-git-toplevel" "doom-system-supports-symlinks-p" "doom-exec-process"
     "+default/browse-templates" "+default/find-in-templates" "doom-cli-shell"
-    "+java/open-groovy-repl" "+javascript/open-repl")
+    "+java/open-groovy-repl" "+javascript/open-repl" "doom-system-distro"
+    "doom-system-distro-icon")
   "Removed compat names; matched only in code positions, not prose or comments.")
 
 (defconst core-trims-test--code-re
