@@ -86,7 +86,6 @@ Runs `doom-before-reload-hook' first, then `doom-after-reload-hook' afterwards."
         (message "Config successfully reloaded!"))
     (user-error "Failed to reload your config")))
 
-;; DEPRECATED: Replaced in v3
 ;;;###autoload
 (defun doom/reload-env ()
   "Reloads your envvar file.

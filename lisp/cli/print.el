@@ -229,23 +229,6 @@ Each argument in ARGS can be a list, as if they were arguments to `format!':
                       else collect arg)))
 
 (defvar doom-print--output-depth 0)
-;;;###autoload
-(defmacro with-output-to! (streamspec &rest body)
-  "Capture all output within BODY according to STREAMSPEC.
-
-STREAMSPEC is a list of log specifications, indicating where to write output
-based on the print level of the message. For example:
-
-  `((>= notice ,(get-buffer-create \"*stdout*\"))
-    (= error   ,(get-buffer-create \"*errors*\"))
-    (t . ,(get-buffer-create \"*debug*\")))"
-  (declare (indent 1))
-  (let ((sym (make-symbol "streamspec")))
-    `(letf! ((,sym ,streamspec)
-             (standard-output (doom-print--redirect-standard-output ,sym t))
-             (#'message (doom-print--redirect-message ,sym (if noninteractive 'debug 'notice)))
-             (doom-print-stream standard-output))
-       ,@body)))
 
 
 ;;

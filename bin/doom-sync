@@ -63,7 +63,6 @@ files have gone stale."
                    for args = (alist-get 'args attrs "")
                    if (string-match-p " --\\([bf]g-\\)?daemon" args)
                    return t))
-         ;; DEPRECATED: Will be removed once `doom-profile' is a struct
          (sync-file (doom-profile-data-dir t "sync")))
     (add-hook 'kill-emacs-hook #'doom-sync--abort-warning-h)
     (unless (> (doom-cli-context-step context) 0)

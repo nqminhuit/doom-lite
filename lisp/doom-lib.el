@@ -5,7 +5,6 @@
 ;;
 ;;; * Autoload the unautoloaded
 
-;; DEPRECATED: For backwards compatibility
 (autoload 'print! "cli/print")
 (autoload 'print-group! "cli/print")
 (autoload 'insert! "cli/print")
@@ -307,8 +306,7 @@ TRIGGER-HOOK is a list of quoted hooks and/or sharp-quoted functions."
 
 ;;; ** Directory helpers
 
-;; These are intentional facsimiles of their final implementations, meant solely
-;; for forward-compatibility with v3.
+;; Path helpers for the single built-in profile.
 
 (defsubst doom--profile (profile)
   (if-let* ((p (if (eq profile t) doom-profile profile)))

@@ -42,7 +42,8 @@
     "doom-package-pinned-alist" "doom-module<-context"
     "doom-scratch-buffer-hook" "set-eglot-client!"
     "+vertico-embark-which-key-indicator" "doom-module--summary"
-    "doom-module--annotate" "doom-sh--pipeline-async" "doom-sh--async-sentinel"
+    "doom-module--annotate" "with-output-to!" "doom-profile->id" "section!"
+    "doom-sh--pipeline-async" "doom-sh--async-sentinel"
     "doom-set-buffer-real")
   "Removed compat names; matched only in code positions, not prose or comments.")
 

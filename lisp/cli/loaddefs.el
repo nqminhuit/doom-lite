@@ -163,8 +163,7 @@ file.")
         (with-temp-buffer
           (let (subautoloads)
             (funcall thunk file)
-            ;; DEPRECATED: A temporary fix until v3 (which makes all autoloads
-            ;;   relative for portability's sake).
+            ;; Make autoload paths relative so the file survives moving the install.
             (when relative-to
               (save-excursion
                 (while (re-search-forward "(autoload [^ ]+ \\\"\\([^\"]+\\)\\\"" nil 'move)
