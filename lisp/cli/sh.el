@@ -275,14 +275,5 @@ redirects (see `sh!' for details)."
   `(let ((result (doom-sh--pipeline (doom-sh--parse (backquote ,args)))))
      (with-no-warnings (zerop (car result)))))
 
-;;;###autoload
-(defmacro sh& (&rest args)
-  "Execute ARGS as a shell command asynchronously and return its process id.
-
-Does not block. For pipelines, returns the pid of the final stage. The final
-stage's output is discarded unless redirected. Supports pipes and redirects (see
-`sh!' for details)."
-  `(doom-sh--pipeline-async (doom-sh--parse (backquote ,args))))
-
 (provide 'doom-cli '(sh))
 ;;; sh.el ends here
