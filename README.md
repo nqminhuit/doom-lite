@@ -125,4 +125,4 @@ Three commands, run from a terminal with Doom Lite selected (`~/.config/emacs/bi
 
 Both need a linux-config checkout, located through `$DOOM_LITE_CONFIG` (default `/opt/minh/linux-config/configs/dotfiles/emacs/doom-lite`); the config tests fail when it is missing.
 
-See `doom-lite-plan.md` for the plan. Licensed under the terms in `LICENSE`.
+Licensed under the terms in `LICENSE`.
