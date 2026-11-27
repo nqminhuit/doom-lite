@@ -436,21 +436,5 @@ Uses the symbol at point or the current selection, if available."
             collect it)
    query "Search loaded files: "))
 
-
-;;
-;;; * DEPRECATED aliases
-
-;;;###autoload
-(defalias 'doom/help-autodefs #'doom/describe-autodef)
-
-;;;###autoload
-(defalias 'doom/help-packages #'doom/describe-package)
-
-;;;###autoload
-(defalias 'doom/help-modules #'doom/describe-module)
-
-;;;###autoload
-(defalias 'doom/help-custom-variable #'doom/describe-option)
-
 (provide 'doom-lib '(help))
 ;;; help.el ends here

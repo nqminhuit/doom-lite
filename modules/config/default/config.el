@@ -192,7 +192,7 @@ Continues comments if executed from a commented line."
   "t"    #'load-theme
   ;; replaces `finder-by-keyword' b/c not useful
   "p"    #'doom/describe-package
-  ;; replaces `describe-package' b/c `doom/help-packages' supercedes it
+  ;; replaces `describe-package' b/c `doom/describe-package' supersedes it
   "P"    #'find-library)
 
 

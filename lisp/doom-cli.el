@@ -717,7 +717,6 @@ Throws `doom-cli-invalid-option-error' for illegal values."
                           ,@(if (memq ?1 pipes) `((:out . ,scope)))))
          :skip t)
   ;; If non-nil, suppress prompts and auto-accept their consequences.
-  suppress-prompts-p   ; DEPRECATED: Remove in v3
   (prefix "@")  ; The basename of the script creating this context
   meta-p        ; Whether or not this is a help/meta request
   error         ;
@@ -1999,10 +1998,6 @@ errors to `doom-cli-error-file')."
                ((debug error)
                 (signal (car e) (cdr e)))))
            context))))))
-
-;;; DEPRECATED: Remove in v3
-(defalias 'sh!! #'doom-exec-process)
-(make-obsolete 'sh!! "Use `sh!' instead" "2.3.0")
 
 (defun get! (key &optional null-value)
   "Return KEY's value from current CLI context, otherwise NULL-VALUE.

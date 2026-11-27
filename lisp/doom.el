@@ -114,18 +114,6 @@ The first element should always be one of `macos', `windows', `linux', or
 (push :system features)
 (put :system 'subfeatures doom-system)
 
-;; DEPRECATED: Remove in v3
-(with-no-warnings
-  (defconst IS-MAC      doom--system-macos-p)
-  (defconst IS-LINUX    doom--system-linux-p)
-  (defconst IS-WINDOWS  doom--system-windows-p)
-  (defconst IS-BSD      (memq 'bsd doom-system))
-
-  (make-obsolete-variable 'IS-MAC     "Use (featurep :system 'macos) instead" "2.1.0")
-  (make-obsolete-variable 'IS-LINUX   "Use (featurep :system 'linux) instead" "2.1.0")
-  (make-obsolete-variable 'IS-WINDOWS "Use (featurep :system 'windows) instead" "2.1.0")
-  (make-obsolete-variable 'IS-BSD     "Use (featurep :system 'bsd) instead" "2.1.0"))
-
 
 ;;
 ;;; * Load Doom's stdlib

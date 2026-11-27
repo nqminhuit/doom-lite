@@ -11,14 +11,16 @@
 (defconst core-trims-test--deleted
   '("lisp/lib/sandbox.el" "lisp/lib/store.el" "lisp/lib/plist.el"
     "modules/doom/cli" "bin/org-capture" "bin/doom.ps1" "bin/doom.sh" "profiles"
-    "bin/doom-make" "lisp/cli/make" "bin/doom-profile"))
+    "bin/doom-make" "lisp/cli/make" "bin/doom-profile" "lisp/cli/autoloads.el"))
 
 (defconst core-trims-test--compat-symbols
   '("MODULES" "NATIVECOMP" "doom-private-dir" "doom-etc-dir" "dynamic-modules"
     "jansson" "harfbuzz" "doom-dir" "doom-plist-get" "doom-unicode-font"
     "featurep!" "doom-enlist" "letenv!" "eval-if!" "eval-when!" "setq!"
     "doom-load-envvars-file" "doom-compile-functions" "appendq!" "delq!"
-    "pushnew!" "prependq!")
+    "pushnew!" "prependq!" "IS-MAC" "IS-WINDOWS" "IS-BSD" "IS-LINUX" "sh!!"
+    "doom/help-packages" "doom/help-modules" "doom/help-autodefs"
+    "doom/help-custom-variable" "doom-profile-generators")
   "Removed compat names; matched only in code positions, not prose or comments.")
 
 (defconst core-trims-test--code-re

@@ -1435,7 +1435,7 @@ Accepts the following properties:
    Do not install this package.
  :built-in BOOL|'prefer
    Same as :ignore if the package is a built-in Emacs package. This is more to
-   inform help commands like `doom/help-packages' that this is a built-in
+   inform help commands like `doom/describe-package' that this is a built-in
    package. If set to \\='prefer, the package will not be installed if it is
    already provided by Emacs.
 

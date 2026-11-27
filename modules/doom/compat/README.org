@@ -17,7 +17,7 @@ manually instead of relying on this module!
 #+end_quote
 
 * Description :unfold:
-This module keeps the v2 =use-package!= and =map!= macros (and the pre-3.0 =IS-MAC=, =IS-LINUX=, =IS-WINDOWS= and =IS-BSD= variables, which live in core) working until v3.
+This module keeps the v2 =use-package!= and =map!= macros working until v3.
 
 For what to use instead, see the Usage section below.
 
@@ -45,10 +45,6 @@ released, this can't be changed.
 
 | Syntax         | Type  | What to use instead                                                                 |
 |----------------+-------+-------------------------------------------------------------------------------------|
-| IS-MAC         | var   | ~(featurep :system 'macos)~                                                         |
-| IS-LINUX       | var   | ~(featurep :system 'linux)~                                                         |
-| IS-WINDOWS     | var   | ~(featurep :system 'windows)~                                                       |
-| IS-BSD         | var   | ~(featurep :system 'bsd)~                                                           |
 | ~use-package!~ | macro | ~use-package~                                                                       |
 | ~map!~         | macro | ~define-key!~, ~keymap-set~, ~define-key~, ~global-set-key~, ~evil-define-key~, etc |
 
